@@ -1,0 +1,42 @@
+# Core dependencies for SDPO development
+# Pinned versions from requirements-full.txt for reproducibility
+#
+# vLLM version depends on your target hardware:
+# vllm==0.8.4+cu124      # GH200 cluster
+vllm>=0.12.0      # Blackwell (RTX 50 series, B100/B200) - NOT FULLY TESTED
+# vllm
+accelerate
+codetiming
+datasets
+dill
+hydra-core
+liger-kernel  # Optional: kernel optimizations
+numpy
+pandas
+peft
+pyarrow
+pybind11
+pylatexenc
+pre-commit  # Dev tool
+ray[default]
+tensordict
+torchdata
+transformers>=4.51.1
+wandb
+packaging
+uvicorn
+fastapi
+# latex2sympy2_extended
+math-verify[antlr4_9_3]
+tensorboard
+word2number
+latex2sympy2
+pyzmq
+psutil
+
+# numba==0.61.0
+# opentelemetry-api==1.26.0
+# opentelemetry-exporter-otlp==1.26.0
+# opentelemetry-sdk==1.26.0
+# opentelemetry-proto==1.40.0
+# oss2==2.9.1
