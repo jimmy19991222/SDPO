@@ -6,7 +6,7 @@
 **/outputs
 **/*.tar.gz
 **/playground
-**/wandb
+# **/wandb
 **/datasets
 
 # Byte-compiled / optimized / DLL files

@@ -3,6 +3,10 @@
 # 设置 HF 镜像和其他环境变量
 export HF_ENDPOINT=https://hf-mirror.com
 export _NEBULA_USER_ID=435371
+export CUDA_VISIBLE_DEVICES=0,1,2,3
+export N_GPUS_PER_NODE=4
+
+export WANDB_MODE=offline
 
 DRY_RUN=false
 if [[ "$1" == "--dry-run" ]]; then
@@ -55,7 +59,8 @@ submit_job() {
     local setup_cmds="export PYTHONPATH=/home/loujieming.ljm/SDPO:\$PYTHONPATH"
 
     # 构建完整命令
-    local run_cmd="bash /home/loujieming.ljm/SDPO/training/verl_training.sh '$exp_name' '$CONFIG_NAME' '$data_path' $script_args"
+    local log_file="./logs/job_${exp_name}_$(date +%s).log"
+    local run_cmd="CUDA_VISIBLE_DEVICES=0,1,2,3 bash /home/loujieming.ljm/SDPO/training/verl_training.sh '$exp_name' '$CONFIG_NAME' '$data_path' $script_args > $log_file 2>&1"
     local full_command="bash -c '$setup_cmds; $run_cmd'"
 
     if [ "$DRY_RUN" = true ]; then
@@ -100,7 +105,9 @@ for TRAIN_BATCH_SIZE in "${TRAIN_BATCH_SIZES[@]}"; do
                                 actor_rollout_ref.actor.self_distillation.alpha=$ALPHA \
                                 actor_rollout_ref.actor.self_distillation.include_environment_feedback=False \
                                 actor_rollout_ref.actor.optim.lr_warmup_steps=10 \
-                                actor_rollout_ref.rollout.val_kwargs.n=16
+                                actor_rollout_ref.rollout.val_kwargs.n=16 \
+                                actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
+                                trainer.n_gpus_per_node=4
                             "
                             
                             # 执行作业
