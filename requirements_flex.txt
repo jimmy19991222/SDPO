@@ -40,3 +40,6 @@ psutil
 # opentelemetry-sdk==1.26.0
 # opentelemetry-proto==1.40.0
 # oss2==2.9.1
+
+swanlab
+swanlab[dashboard]

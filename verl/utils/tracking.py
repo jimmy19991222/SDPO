@@ -47,6 +47,7 @@ class Tracking:
         "clearml",
         "trackio",
         "file",
+        "ml_tracker"
     ]
 
     def __init__(self, project_name, experiment_name, default_backend: str | list[str] = "console", config=None, group_name=None):

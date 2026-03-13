@@ -29,6 +29,6 @@ def compute_score(solution: str, ground_truth: str) -> dict:
       "score": reward,
       "acc": reward,
       "pred": multiple_choice_answer,
-      "incorrect_format": 1 if incorrect_format else 0,
+      "incorrect_format": 0 if incorrect_format else 1,
       "feedback": "",
     }

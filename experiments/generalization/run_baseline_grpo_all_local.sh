@@ -6,9 +6,14 @@ export _NEBULA_USER_ID=435371
 export WANDB_MODE=offline
 export WANDB_ENTITY=oh-my-team
 export WANDB_API_KEY=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
+export WANDB_DIR=/home/loujieming.ljm/SDPO/logs/wandb_logs
 export VLLM_LOGGING_LEVEL=WARN
 
-export TENSORBOARD_DIR=/home/loujieming.ljm/tensorboard_logs
+export TENSORBOARD_DIR=/home/loujieming.ljm/SDPO/logs/tensorboard_logs
+
+export SWANLAB_MODE=cloud
+export SWANLAB_API_KEY=M5oC00EEt8G1wC0XaHkal
+export SWANLAB_LOG_DIR=/home/loujieming.ljm/SDPO/logs/swanlab_logs
 
 # 在环境变量设置区域添加
 export TORCH_WARN_ACCUMULATE_GRAD_STREAM=0
@@ -29,7 +34,7 @@ fi
 CONFIG_NAME="baseline_grpo"
 
 DATA_PATHS=(
-    "datasets/sciknoweval/biology/"
+    # "datasets/sciknoweval/biology/"
     "datasets/sciknoweval/chemistry/"
     "datasets/sciknoweval/material/"
     "datasets/sciknoweval/physics/"
@@ -74,8 +79,9 @@ submit_job() {
     mkdir -p ./logs
     # log 文件名格式：job_<exp_name>_<dataset>_<timestamp>.log
     local log_file="./logs/job_${exp_name}_${dataset_name}_$(date +%Y-%m-%d_%H-%M-%S).log"
-    local run_cmd="CUDA_VISIBLE_DEVICES=0,1,2,3 bash /home/loujieming.ljm/SDPO/training/verl_training.sh '$exp_name' '$CONFIG_NAME' '$data_path' $args_string > $log_file 2>&1"
-
+    # local run_cmd="CUDA_VISIBLE_DEVICES=0,1,2,3 bash /home/loujieming.ljm/SDPO/training/verl_training.sh '$exp_name' '$CONFIG_NAME' '$data_path' $args_string > $log_file 2>&1"
+    local run_cmd="CUDA_VISIBLE_DEVICES=0,1,2,3 bash /home/loujieming.ljm/SDPO/training/verl_training.sh '$exp_name' '$CONFIG_NAME' '$data_path' $args_string 2>&1 | tee -a $log_file"
+    
     local full_command="bash -c '$setup_cmds; $run_cmd'"
 
     if [ "$DRY_RUN" = true ]; then
@@ -121,26 +127,23 @@ for TRAIN_BATCH_SIZE in "${TRAIN_BATCH_SIZES[@]}"; do
                             | tr '/' '-'          \
                             | sed 's|-*$||')
 
-                        EXP_NAME="FINAL-GRPO-${DATASET_NAME}-mbs-${MINI_BATCH_SIZE}-train${TRAIN_BATCH_SIZE}-rollout${ROLLOUT_BATCH_SIZE}-lr${LR}-model${MODEL_NAME}"
+                        EXP_NAME="FINAL-GRPO-${DATASET_NAME}-mbs-${MINI_BATCH_SIZE}-train${TRAIN_BATCH_SIZE}-rollout${ROLLOUT_BATCH_SIZE}-lr${LR}-model${MODEL_NAME}-$(date +%Y-%m-%d_%H-%M-%S)"
 
                         SCRIPT_ARGS=(
                             "data.train_batch_size=$TRAIN_BATCH_SIZE"
+                            "trainer.total_epochs=10"
                             "trainer.group_name=GRPO-generalization"
-                            "trainer.total_epochs=1"
-                            "trainer.test_freq=20"
                             "actor_rollout_ref.actor.optim.lr_warmup_steps=10"
                             "actor_rollout_ref.rollout.n=$ROLLOUT_BATCH_SIZE"
                             "actor_rollout_ref.actor.optim.lr=$LR"
                             "actor_rollout_ref.actor.ppo_mini_batch_size=$MINI_BATCH_SIZE"
                             "actor_rollout_ref.model.path=$MODEL_PATH"
                             "algorithm.rollout_correction.rollout_is=token"
-                            "actor_rollout_ref.rollout.val_kwargs.n=4"
+                            "actor_rollout_ref.rollout.val_kwargs.n=16"
                             "actor_rollout_ref.rollout.tensor_model_parallel_size=1"
                             "actor_rollout_ref.rollout.gpu_memory_utilization=0.85"
-                            "actor_rollout_ref.rollout.max_num_batched_tokens=65536"
                             "trainer.n_gpus_per_node=4"
                             "actor_rollout_ref.actor.fsdp_config.model_dtype=bfloat16"
-                            "actor_rollout_ref.actor.fsdp_config.use_orig_params=true"
                         )
 
                         submit_job "$EXP_NAME" "$DATA_PATH" "${SCRIPT_ARGS[@]}"

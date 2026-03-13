@@ -11,6 +11,8 @@ export PATH="/home/loujieming.ljm/.conda/envs/sdpo_env/bin:$PATH"
 bash experiments/generalization/run_baseline_grpo_all_local.sh |tee logs/run_baseline_grpo_all_local_$(date +%Y-%m-%d_%H-%M-%S).log
 bash experiments/generalization/run_sdpo_all_local.sh |tee logs/run_sdpo_all_local_$(date +%Y-%m-%d_%H-%M-%S).log
 
+swanlab watch -l /home/loujieming.ljm/swanlab_logs
+
 # pip cache purge
 
 pip install torch==2.5.1 torchvision --index-url https://download.pytorch.org/whl/cu124 --trusted-host mirrors.aliyun.com -i http://mirrors.aliyun.com/pypi/simple/
