@@ -131,7 +131,8 @@ for TRAIN_BATCH_SIZE in "${TRAIN_BATCH_SIZES[@]}"; do
 
                         SCRIPT_ARGS=(
                             "data.train_batch_size=$TRAIN_BATCH_SIZE"
-                            "trainer.total_epochs=10"
+                            "trainer.total_epochs=30"
+                            "trainer.total_training_steps=200"
                             "trainer.group_name=GRPO-generalization"
                             "actor_rollout_ref.actor.optim.lr_warmup_steps=10"
                             "actor_rollout_ref.rollout.n=$ROLLOUT_BATCH_SIZE"

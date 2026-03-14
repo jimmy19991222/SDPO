@@ -33,7 +33,7 @@ fi
 CONFIG_NAME="sdpo"
 
 DATA_PATHS=(
-    "datasets/sciknoweval/biology/"
+    # "datasets/sciknoweval/biology/"
     "datasets/sciknoweval/chemistry/"
     "datasets/sciknoweval/material/"
     "datasets/sciknoweval/physics/"
@@ -131,7 +131,8 @@ for TRAIN_BATCH_SIZE in "${TRAIN_BATCH_SIZES[@]}"; do
                             SCRIPT_ARGS=(
                                 # ── 基础参数 ─────────────────────────────────
                                 "data.train_batch_size=$TRAIN_BATCH_SIZE"
-                                "trainer.total_epochs=10"
+                                "trainer.total_epochs=30"
+                                "trainer.total_training_steps=200"
                                 "trainer.group_name=SDPO-generalization"
                                 "actor_rollout_ref.rollout.n=$ROLLOUT_BATCH_SIZE"
                                 "actor_rollout_ref.model.path=$MODEL_PATH"
