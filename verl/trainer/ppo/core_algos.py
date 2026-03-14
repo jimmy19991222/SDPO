@@ -1082,6 +1082,54 @@ def agg_loss(
     return loss
 
 
+
+
+def apply_teacher_entropy_weighting(
+    per_token_loss: torch.Tensor,
+    teacher_topk_log_probs,
+    teacher_all_log_probs,
+    loss_mask: torch.Tensor,
+    temperature: float = 1.0,
+    use_topk: bool = True,
+):
+    """用教师熵对每个token位置的loss加权。
+    
+    教师在某位置越确定（熵低）→ 该位置权重越高 → 更信任该信号
+    教师在某位置越不确定（熵高）→ 该位置权重越低 → 减少噪声干扰
+    """
+    with torch.no_grad():
+        if use_topk and teacher_topk_log_probs is not None:
+            teacher_logp = teacher_topk_log_probs   # (B, T, K)
+        elif teacher_all_log_probs is not None:
+            teacher_logp = teacher_all_log_probs     # (B, T, V)
+        else:
+            return per_token_loss, {}
+
+        # 计算教师在每个位置的熵: H = -sum(p * log_p)
+        teacher_probs = teacher_logp.exp()
+        safe_logp = torch.clamp(teacher_logp, min=-100.0)  # 避免 0*(-inf)=nan
+        teacher_entropy = -(teacher_probs * safe_logp).sum(dim=-1)  # (B, T)
+
+        # padding位置的熵设为inf，让其权重趋近0
+        masked_entropy = teacher_entropy.masked_fill(loss_mask == 0, float("inf"))
+
+        # 负熵做softmax：熵越低 → 权重越高
+        # 在sequence长度维度归一化
+        confidence_weights = torch.softmax(-masked_entropy / temperature, dim=-1)  # (B, T)
+
+        # 乘以有效长度，还原到token-mean尺度（避免短序列和长序列总权重相同）
+        seq_lengths = loss_mask.sum(dim=-1, keepdim=True).clamp(min=1)
+        confidence_weights = confidence_weights * seq_lengths  # (B, T)
+
+        valid_entropy = teacher_entropy[loss_mask == 1]
+        ew_metrics = {
+            "sdpo/teacher_entropy_mean": valid_entropy.mean().item(),
+            "sdpo/teacher_entropy_std": valid_entropy.std().item(),
+        }
+
+    return per_token_loss * confidence_weights, ew_metrics
+
+
 def compute_self_distillation_loss(
     student_log_probs: torch.Tensor,
     teacher_log_probs: torch.Tensor,
@@ -1178,6 +1226,21 @@ def compute_self_distillation_loss(
     # Apply rollout correction weights if provided
     if rollout_is_weights is not None:
         per_token_loss = per_token_loss * rollout_is_weights
+
+    # Apply teacher entropy weighting (optional)
+    use_entropy_weighting = getattr(self_distillation_config, 'entropy_weighting', False)
+    if use_entropy_weighting:
+        entropy_temperature = getattr(self_distillation_config, 'entropy_temperature', 1.0)
+        use_topk = getattr(self_distillation_config, 'distillation_topk', None) is not None
+        per_token_loss, ew_metrics = apply_teacher_entropy_weighting(
+            per_token_loss=per_token_loss,
+            teacher_topk_log_probs=teacher_topk_log_probs,
+            teacher_all_log_probs=teacher_all_log_probs,
+            loss_mask=loss_mask,
+            temperature=entropy_temperature,
+            use_topk=use_topk,
+        )
+        metrics.update(ew_metrics)
 
     loss = agg_loss(
         loss_mat=per_token_loss,

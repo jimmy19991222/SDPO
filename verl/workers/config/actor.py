@@ -68,6 +68,8 @@ class SelfDistillationConfig(BaseConfig):
     teacher_regularization: str = "ema"
     teacher_update_rate: float = 0.05
     distillation_topk: Optional[int] = None
+    entropy_weighting: bool = False
+    entropy_temperature: float = 1.0
     distillation_add_tail: bool = True
     max_reprompt_len: int = 10240
     reprompt_truncation: str = "right"
