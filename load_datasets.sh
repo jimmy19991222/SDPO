@@ -19,7 +19,7 @@ echo "=== Step 1: 生成原始 json ==="
 #     echo "✅ $DOMAIN 完成"
 # done
 
-python data/load_dataset.py --dataset_name livecodebench/code_generation_lite-v6 --output_path datasets/lcb_v6.json
+# python data/load_dataset.py --dataset_name livecodebench/code_generation_lite-v6 --output_path datasets/lcb_v6.json
 
 # ============================================================
 # Step 3: train/test 切分

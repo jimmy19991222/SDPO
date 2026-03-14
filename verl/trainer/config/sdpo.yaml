@@ -18,6 +18,8 @@ actor_rollout_ref:
     self_distillation:
       max_reprompt_len: 10240
       is_clip: 2.0
+      entropy_weighting: false
+      entropy_temperature: 1.0
     optim:
       lr: 1e-5
   rollout:
