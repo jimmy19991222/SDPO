@@ -1082,25 +1082,15 @@ def agg_loss(
     return loss
 
 def apply_teacher_entropy_weighting(
-    per_token_loss: torch.Tensor,           # (B, T)
-    teacher_topk_log_probs,                 # (B, T, K)
-    teacher_all_log_probs,                  # (B, T, V)
-    teacher_log_prob_on_student: torch.Tensor,  # (B, T) ← 直接传teacher_log_probs
-    loss_mask: torch.Tensor,                # (B, T)
+    per_token_loss: torch.Tensor,
+    teacher_topk_log_probs,
+    teacher_all_log_probs,
+    teacher_log_prob_on_student: torch.Tensor,
+    loss_mask: torch.Tensor,
     temperature: float = 1.0,
     use_topk: bool = True,
 ):
-    """
-    用 teacher熵 + teacher对student token的概率 联合加权。
-
-    weight_t = softmax(student_wrong_t * teacher_certainty_t / τ)
-
-    两个条件同时满足才高权重：
-      P_teacher(ŷ_t)低 → student选错了
-      H_teacher_t低    → teacher是确定的
-    """
     with torch.no_grad():
-        # 选择logprobs来源（用于计算熵）
         if use_topk and teacher_topk_log_probs is not None:
             teacher_logp = teacher_topk_log_probs
         elif teacher_all_log_probs is not None:
@@ -1118,22 +1108,19 @@ def apply_teacher_entropy_weighting(
             return per_token_loss, _make_metrics(teacher_entropy, loss_mask)
 
         # ── 2. teacher对student token的概率 ──────
-        # teacher_log_prob_on_student = log P_teacher(ŷ_t)，已经是(B,T)标量
         teacher_prob_on_student = teacher_log_prob_on_student.exp()  # (B, T)
 
         # ── 3. 归一化entropy到[0,1] ──────────────
-        valid_entropy = teacher_entropy[loss_mask == 1]
-        H_max = valid_entropy.max().clamp(min=1e-6)
+        # 用masked max，padding位置填0不影响max计算
+        H_max = teacher_entropy.masked_fill(
+            loss_mask == 0, 0.0
+        ).max().clamp(min=1e-6)
         H_normalized = teacher_entropy / H_max  # (B, T)
 
         # ── 4. 计算联合score ──────────────────────
-        # teacher确定程度：H低 → certainty高
-        teacher_certainty = 1.0 - H_normalized          # (B, T)，范围[0,1]
+        teacher_certainty = 1.0 - H_normalized
+        student_wrong = 1.0 - teacher_prob_on_student
 
-        # student选错程度：P低 → wrong高
-        student_wrong = 1.0 - teacher_prob_on_student   # (B, T)，范围[0,1]
-
-        # 联合：两个条件都满足才高权重
         joint_score = teacher_certainty * student_wrong  # (B, T)
 
         # padding位置设为极小值
