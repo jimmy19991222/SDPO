@@ -1121,7 +1121,9 @@ def apply_teacher_entropy_weighting(
         teacher_certainty = 1.0 - H_normalized
         student_wrong = 1.0 - teacher_prob_on_student
 
-        joint_score = teacher_certainty * student_wrong  # (B, T)
+        # 原始：joint_score = teacher_certainty * student_wrong
+        # 改进：对乘积开平方根，减弱非线性，避免二次放大效应
+        joint_score = torch.sqrt(teacher_certainty * student_wrong + 1e-8)  # (B, T)
 
         # padding位置设为极小值
         joint_score = joint_score.masked_fill(loss_mask == 0, -1e9)
