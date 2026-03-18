@@ -29,6 +29,8 @@ algorithm:
     # reward_type: log_ratio   # 候选B：log T(y_t) - log S(y_t)
     # reward_type: kl
     reward_type: jsd
+    distill_topk: 100 
+    include_successful_rollouts: True
   rollout_correction:
     rollout_is: token
     rollout_is_threshold: 2.0

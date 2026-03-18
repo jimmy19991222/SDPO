@@ -251,14 +251,24 @@ def compute_advantage(
         data.batch["advantages"] = advantages
         data.batch["returns"] = returns
     elif adv_estimator == AdvantageEstimator.TASD:
+        tasd_cfg = config.get("tasd", {})
+        include_successful_rollouts = tasd_cfg.get("include_successful_rollouts", True)
+
+        # include_successful_rollouts=True：不传mask，所有token参与归一化
+        # include_successful_rollouts=False：只有有teacher反馈的token参与
+        sdist_mask = None
+        if not include_successful_rollouts and "self_distillation_mask" in data.batch:
+            sdist_mask = data.batch["self_distillation_mask"]
+
         advantages, returns = core_algos.compute_tasd_advantage(
             token_level_rewards=data.batch["token_level_rewards"],
             response_mask=data.batch["response_mask"],
-            self_distillation_mask=data.batch.get("self_distillation_mask"),
+            self_distillation_mask=sdist_mask,
             config=config,
         )
         data.batch["advantages"] = advantages
         data.batch["returns"]    = returns
+
     else:
         # handle all other adv estimator type other than GAE and GRPO
         adv_estimator_fn = core_algos.get_adv_estimator_fn(adv_estimator)
@@ -656,26 +666,36 @@ class RayPPOTrainer:
         """Remove <think>...</think> tags and their content from text."""
         return re.sub(r'<think>.*?</think>\s*', '', text, flags=re.DOTALL)
 
+
     def _get_solution(
         self,
-        idx: int,
-        success_by_uid: dict[Any, list[int]],
-        uids: list[Any],
-        response_texts: list[str],
-        dont_reprompt_on_self_success: bool = False,
-        remove_thinking_from_demonstration: bool = False,
-    ) -> Optional[str]:
+        idx,
+        success_by_uid,
+        uids,
+        response_texts,
+        dont_reprompt_on_self_success=False,
+        remove_thinking_from_demonstration=False,
+        fallback_to_self=False,  # ← 新增
+    ):
         uid = uids[idx]
         solution_idxs = success_by_uid[uid]
+
         if dont_reprompt_on_self_success:
             solution_idxs = [j for j in solution_idxs if j != idx]
+
         if len(solution_idxs) == 0:
-            return None
-        solution_idx = solution_idxs[0]  # taking the first successful demonstration effectively selects a random one
-        solution_str = response_texts[solution_idx]
+            if fallback_to_self:
+                # 唯一成功rollout → 用自己的答案
+                solution_idx = idx
+            else:
+                return None  # 原有逻辑不变
+        else:
+            solution_idx = random.choice(solution_idxs)
+
+        solution = response_texts[solution_idx]
         if remove_thinking_from_demonstration:
-            solution_str = self._remove_thinking_trace(solution_str)
-        return solution_str
+            solution = self._remove_thinking_trace(solution)
+        return solution
 
 
     def _maybe_build_self_distillation_batch(
@@ -686,8 +706,18 @@ class RayPPOTrainer:
     ) -> Optional[tuple[DataProto, dict[str, float]]]:
         self_distillation_cfg = self.config.actor_rollout_ref.actor.get("self_distillation", None)
         loss_mode = self.config.actor_rollout_ref.actor.policy_loss.get("loss_mode", "vanilla")
-        if self_distillation_cfg is None or loss_mode != "sdpo":
+        adv_estimator = self.config.algorithm.adv_estimator
+
+        # ── 修改：sdpo或tasd都需要构建teacher context ──────────
+        is_sdpo = loss_mode == "sdpo"
+        is_tasd = adv_estimator == "tasd"
+        if self_distillation_cfg is None or (not is_sdpo and not is_tasd):
             return None
+
+        # ── 新增：tasd的fallback_to_self逻辑 ───────────────────
+        tasd_cfg = self.config.algorithm.get("tasd", {})
+        include_successful_rollouts = tasd_cfg.get("include_successful_rollouts", False)
+        fallback_to_self = is_tasd and include_successful_rollouts
 
         device = batch.batch["input_ids"].device
         response_mask = batch.batch["response_mask"]
@@ -696,14 +726,16 @@ class RayPPOTrainer:
         prompt_texts = [msgs[-1]["content"] for msgs in batch.non_tensor_batch["raw_prompt"]]
         batch_size = batch.batch.batch_size[0]
 
-        # Extract feedback if available and include_environment_feedback is enabled
         feedback_list = self._collect_feedback(
             include_environment_feedback=self_distillation_cfg.include_environment_feedback,
             reward_extra_infos_dict=reward_extra_infos_dict,
             batch_size=batch_size,
         )
 
-        success_by_uid = self._collect_solutions_by_uid(batch, reward_tensor, success_reward_threshold=self_distillation_cfg.success_reward_threshold)
+        success_by_uid = self._collect_solutions_by_uid(
+            batch, reward_tensor,
+            success_reward_threshold=self_distillation_cfg.success_reward_threshold
+        )
         solution_strs = [
             self._get_solution(
                 i,
@@ -712,34 +744,31 @@ class RayPPOTrainer:
                 response_texts,
                 self_distillation_cfg.dont_reprompt_on_self_success,
                 self_distillation_cfg.get("remove_thinking_from_demonstration", False),
+                fallback_to_self=fallback_to_self,  # ← 新增
             )
             for i in range(batch_size)
         ]
 
+        # 以下完全不变
         def _build_teacher_message(i: int) -> list[dict]:
             system_messages = batch.non_tensor_batch["raw_prompt"][i][:-1]
             has_solution = solution_strs[i] is not None
             has_feedback = feedback_list[i] is not None
             feedback_only_without_solution = self_distillation_cfg.get("environment_feedback_only_without_solution", False)
-
-            # If feedback_only_without_solution is True, only use feedback when no solution exists
             use_feedback = has_feedback and (not feedback_only_without_solution or not has_solution)
 
-            # build solution section
             solution_section = ""
             if has_solution:
                 solution_section = self_distillation_cfg.solution_template.format(
                     successful_previous_attempt=solution_strs[i]
                 )
 
-            # build feedback section
             feedback_section = ""
             if use_feedback:
                 feedback_section = self_distillation_cfg.feedback_template.format(
                     feedback_raw=feedback_list[i]
                 )
 
-            # combine solution and feedback sections
             if use_feedback or has_solution:
                 reprompt_text = self_distillation_cfg.reprompt_template.format(
                     prompt=prompt_texts[i],
@@ -752,7 +781,6 @@ class RayPPOTrainer:
             return system_messages + [
                 {"role": "user", "content": reprompt_text},
             ]
-
 
         messages = [_build_teacher_message(i) for i in range(batch_size)]
         enable_thinking = self.config.data.apply_chat_template_kwargs.get("enable_thinking", True) if self.config.data.apply_chat_template_kwargs else True
@@ -772,14 +800,12 @@ class RayPPOTrainer:
         teacher_attention_mask = torch.cat([teacher_prompt["attention_mask"].to(device), response_mask], dim=1)
         teacher_position_ids = compute_position_id_with_mask(teacher_attention_mask)
 
-        # Compute which samples actually use feedback (accounting for environment_feedback_only_without_solution)
         feedback_only_without_solution = self_distillation_cfg.get("environment_feedback_only_without_solution", False)
         feedback_used = [
             feedback_list[i] is not None and (not feedback_only_without_solution or solution_strs[i] is None)
             for i in range(batch_size)
         ]
 
-        # self_distillation_mask is True if sample has a solution OR feedback is used (i.e., will get a reprompted message)
         self_distillation_mask = torch.tensor(
             [solution_strs[i] is not None or feedback_used[i] for i in range(batch_size)],
             dtype=torch.float32,
@@ -803,6 +829,7 @@ class RayPPOTrainer:
             "teacher_position_ids": teacher_position_ids,
             "self_distillation_mask": self_distillation_mask,
         }), metrics
+        
 
     def _get_gen_batch(self, batch: DataProto) -> DataProto:
         reward_model_keys = set({"data_source", "reward_model", "extra_info", "uid", "raw_prompt"}) & batch.non_tensor_batch.keys()

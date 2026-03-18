@@ -32,10 +32,11 @@ fi
 # =============================================================================
 CONFIG_NAME="tasd"
 
+# ── 先跑bio，确认后再放开其他数据集 ──────────────────────────────
 DATA_PATHS=(
     "datasets/sciknoweval/biology/"
-    "datasets/sciknoweval/chemistry/"
-    "datasets/sciknoweval/material/"
+    # "datasets/sciknoweval/chemistry/"
+    # "datasets/sciknoweval/material/"
     # "datasets/sciknoweval/physics/"
     # "datasets/tooluse"
 )
@@ -46,9 +47,10 @@ MINI_BATCH_SIZES=(32)
 LRS=(1e-5)
 
 # ── TASD 超参扫描 ──────────────────────────────────────────────
-REWARD_TYPES=("log_ratio" "jsd")
-DISTILL_TOPKS=(20)
+REWARD_TYPES=("jsd")
+DISTILL_TOPKS=(100)
 DONTS_REPROMPT_ON_SELF_SUCCESSS=(True)
+INCLUDE_SUCCESSFUL_ROLLOUTSS=(True False)  # 新增
 
 MODEL_PATHS=(
     "Qwen/Qwen3-8B"
@@ -56,7 +58,7 @@ MODEL_PATHS=(
 )
 
 # =============================================================================
-# JOB SUBMISSION FUNCTION（与grpo脚本完全相同）
+# JOB SUBMISSION FUNCTION
 # =============================================================================
 submit_job() {
     local exp_name="$1"
@@ -110,65 +112,70 @@ submit_job() {
 
 # =============================================================================
 # MAIN LOOP
+# 外层：DATA_PATH（先把一个数据集的所有setting跑完，再换下一个）
+# 内层：所有超参组合
 # =============================================================================
-for TRAIN_BATCH_SIZE in "${TRAIN_BATCH_SIZES[@]}"; do
-    for ROLLOUT_BATCH_SIZE in "${ROLLOUT_BATCH_SIZES[@]}"; do
-        for LR in "${LRS[@]}"; do
-            for MODEL_PATH in "${MODEL_PATHS[@]}"; do
-                for MINI_BATCH_SIZE in "${MINI_BATCH_SIZES[@]}"; do
-                    for REWARD_TYPE in "${REWARD_TYPES[@]}"; do
-                        for DISTILL_TOPK in "${DISTILL_TOPKS[@]}"; do
-                            for DONTS_REPROMPT_ON_SELF_SUCCESS in "${DONTS_REPROMPT_ON_SELF_SUCCESSS[@]}"; do
-                                for DATA_PATH in "${DATA_PATHS[@]}"; do
+for DATA_PATH in "${DATA_PATHS[@]}"; do                                          # ← 移到最外层
+    for TRAIN_BATCH_SIZE in "${TRAIN_BATCH_SIZES[@]}"; do
+        for ROLLOUT_BATCH_SIZE in "${ROLLOUT_BATCH_SIZES[@]}"; do
+            for LR in "${LRS[@]}"; do
+                for MODEL_PATH in "${MODEL_PATHS[@]}"; do
+                    for MINI_BATCH_SIZE in "${MINI_BATCH_SIZES[@]}"; do
+                        for REWARD_TYPE in "${REWARD_TYPES[@]}"; do
+                            for DISTILL_TOPK in "${DISTILL_TOPKS[@]}"; do
+                                for DONTS_REPROMPT_ON_SELF_SUCCESS in "${DONTS_REPROMPT_ON_SELF_SUCCESSS[@]}"; do
+                                    for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTSS[@]}"; do  # ← 新增
 
-                                    MODEL_NAME=$(echo "$MODEL_PATH" | tr '/' '-')
+                                        MODEL_NAME=$(echo "$MODEL_PATH" | tr '/' '-')
 
-                                    DATASET_NAME=$(echo "$DATA_PATH" \
-                                        | sed 's|datasets/||' \
-                                        | tr '/' '-'          \
-                                        | sed 's|-*$||')
+                                        DATASET_NAME=$(echo "$DATA_PATH" \
+                                            | sed 's|datasets/||' \
+                                            | tr '/' '-'          \
+                                            | sed 's|-*$||')
 
-                                    EXP_NAME="TASD-${DATASET_NAME}-mbs${MINI_BATCH_SIZE}-train${TRAIN_BATCH_SIZE}-rollout${ROLLOUT_BATCH_SIZE}-lr${LR}-rt${REWARD_TYPE}-topk${DISTILL_TOPK}-dross${DONTS_REPROMPT_ON_SELF_SUCCESS}-${MODEL_NAME}-$(date +%Y-%m-%d_%H-%M-%S)"
+                                        EXP_NAME="TASD-${DATASET_NAME}-mbs${MINI_BATCH_SIZE}-train${TRAIN_BATCH_SIZE}-rollout${ROLLOUT_BATCH_SIZE}-lr${LR}-rt${REWARD_TYPE}-topk${DISTILL_TOPK}-dross${DONTS_REPROMPT_ON_SELF_SUCCESS}-isr${INCLUDE_SUCCESSFUL_ROLLOUTS}-${MODEL_NAME}-$(date +%Y-%m-%d_%H-%M-%S)"
 
-                                    SCRIPT_ARGS=(
-                                        # ── 基础参数（与grpo脚本对齐）────────────────
-                                        "data.train_batch_size=$TRAIN_BATCH_SIZE"
-                                        "trainer.total_epochs=30"
-                                        "trainer.total_training_steps=200"
-                                        "trainer.group_name=TASD-generalization"
-                                        "actor_rollout_ref.actor.optim.lr_warmup_steps=10"
-                                        "actor_rollout_ref.rollout.n=$ROLLOUT_BATCH_SIZE"
-                                        "actor_rollout_ref.actor.optim.lr=$LR"
-                                        "actor_rollout_ref.actor.ppo_mini_batch_size=$MINI_BATCH_SIZE"
-                                        "actor_rollout_ref.model.path=$MODEL_PATH"
-                                        "actor_rollout_ref.rollout.val_kwargs.n=16"
+                                        SCRIPT_ARGS=(
+                                            # ── 基础参数 ──────────────────────────────
+                                            "data.train_batch_size=$TRAIN_BATCH_SIZE"
+                                            "trainer.total_epochs=30"
+                                            "trainer.total_training_steps=200"
+                                            "trainer.group_name=TASD-generalization"
+                                            "actor_rollout_ref.actor.optim.lr_warmup_steps=10"
+                                            "actor_rollout_ref.rollout.n=$ROLLOUT_BATCH_SIZE"
+                                            "actor_rollout_ref.actor.optim.lr=$LR"
+                                            "actor_rollout_ref.actor.ppo_mini_batch_size=$MINI_BATCH_SIZE"
+                                            "actor_rollout_ref.model.path=$MODEL_PATH"
+                                            "actor_rollout_ref.rollout.val_kwargs.n=16"
 
-                                        # ── TASD 特有参数 ──────────────────────────
-                                        "algorithm.tasd.reward_type=$REWARD_TYPE"
-                                        "algorithm.tasd.distill_topk=$DISTILL_TOPK"
+                                            # ── TASD 特有参数 ──────────────────────────
+                                            "algorithm.tasd.reward_type=$REWARD_TYPE"
+                                            "algorithm.tasd.distill_topk=$DISTILL_TOPK"
+                                            "algorithm.tasd.include_successful_rollouts=$INCLUDE_SUCCESSFUL_ROLLOUTS"
 
-                                        # ── teacher_input_ids构建 ──────────────────
-                                        "actor_rollout_ref.actor.self_distillation.dont_reprompt_on_self_success=$DONTS_REPROMPT_ON_SELF_SUCCESS"
-                                        "actor_rollout_ref.actor.self_distillation.include_environment_feedback=False"
+                                            # ── teacher_input_ids构建 ──────────────────
+                                            "actor_rollout_ref.actor.self_distillation.dont_reprompt_on_self_success=$DONTS_REPROMPT_ON_SELF_SUCCESS"
+                                            "actor_rollout_ref.actor.self_distillation.include_environment_feedback=False"
 
-                                        # ── IS correction ──────────────────────────
-                                        "algorithm.rollout_correction.rollout_is=token"
+                                            # ── IS correction ──────────────────────────
+                                            "algorithm.rollout_correction.rollout_is=token"
 
-                                        # ── 本地运行参数（与grpo脚本完全相同）────────
-                                        "actor_rollout_ref.rollout.tensor_model_parallel_size=1"
-                                        "actor_rollout_ref.rollout.gpu_memory_utilization=0.85"
-                                        "trainer.n_gpus_per_node=4"
-                                        "actor_rollout_ref.actor.fsdp_config.model_dtype=bfloat16"
-                                    )
+                                            # ── 本地运行参数 ───────────────────────────
+                                            "actor_rollout_ref.rollout.tensor_model_parallel_size=1"
+                                            "actor_rollout_ref.rollout.gpu_memory_utilization=0.85"
+                                            "trainer.n_gpus_per_node=4"
+                                            "actor_rollout_ref.actor.fsdp_config.model_dtype=bfloat16"
+                                        )
 
-                                    submit_job "$EXP_NAME" "$DATA_PATH" "${SCRIPT_ARGS[@]}"
+                                        submit_job "$EXP_NAME" "$DATA_PATH" "${SCRIPT_ARGS[@]}"
 
-                                done
-                            done
-                        done
-                    done
-                done
-            done
-        done
-    done
-done
+                                    done  # INCLUDE_SUCCESSFUL_ROLLOUTS
+                                done      # DONTS_REPROMPT_ON_SELF_SUCCESS
+                            done          # DISTILL_TOPK
+                        done              # REWARD_TYPE
+                    done                  # MINI_BATCH_SIZE
+                done                      # MODEL_PATH
+            done                          # LR
+        done                              # ROLLOUT_BATCH_SIZE
+    done                                  # TRAIN_BATCH_SIZE
+done                                      # DATA_PATH ← 最外层
