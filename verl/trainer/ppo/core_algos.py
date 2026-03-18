@@ -107,6 +107,7 @@ class AdvantageEstimator(str, Enum):
     GRPO_VECTORIZED = "grpo_vectorized"
     OPTIMAL_TOKEN_BASELINE = "optimal_token_baseline"
     TIR_OPTIMAL_TOKEN_BASELINE = "tir_optimal_token_baseline"
+    TASD = "tasd"
 
 
 ADV_ESTIMATOR_REGISTRY: dict[str, Any] = {}
@@ -1089,7 +1090,7 @@ def apply_teacher_entropy_weighting(
     loss_mask: torch.Tensor,
     temperature: float = 1.0,
     use_topk: bool = True,
-    weighting_version: str = "v2sqrt",   # 新增：v2sqrt / v4
+    weighting_version: str = "v2sqrt",   # 新增：v1 / v2 / v2sqrt / v4
     student_topk_log_probs=None,         # 新增：v4需要
 ):
     with torch.no_grad():
@@ -1110,6 +1111,41 @@ def apply_teacher_entropy_weighting(
             return per_token_loss, _make_metrics(teacher_entropy, loss_mask)
 
         # ── 2. 根据版本计算joint_score ────────────
+        if weighting_version == "v1":
+            # 原V1版本
+            teacher_certainty = - teacher_entropy
+            joint_score = teacher_certainty
+
+        if weighting_version == "v1_norm":
+            H_max = teacher_entropy.masked_fill(
+                loss_mask == 0, 0.0
+            ).max().clamp(min=1e-6)
+            H_normalized = teacher_entropy / H_max
+            teacher_certainty = - H_normalized
+            joint_score = teacher_certainty
+
+        if weighting_version == "v2":
+            # 原V2版本
+            teacher_prob_on_student = teacher_log_prob_on_student.exp()
+            H_max = teacher_entropy.masked_fill(
+                loss_mask == 0, 0.0
+            ).max().clamp(min=1e-6)
+            H_normalized = teacher_entropy / H_max
+            teacher_certainty = 1.0 - H_normalized
+            student_wrong = 1.0 - teacher_prob_on_student
+            joint_score = teacher_certainty * student_wrong
+
+        if weighting_version == "v2sqrt":
+            # 原V2-sqrt版本
+            teacher_prob_on_student = teacher_log_prob_on_student.exp()
+            H_max = teacher_entropy.masked_fill(
+                loss_mask == 0, 0.0
+            ).max().clamp(min=1e-6)
+            H_normalized = teacher_entropy / H_max
+            teacher_certainty = 1.0 - H_normalized
+            student_wrong = 1.0 - teacher_prob_on_student
+            joint_score = torch.sqrt(teacher_certainty * student_wrong + 1e-8)
+
         if weighting_version == "v4":
             # V4：信息增益 ΔH = H_student - H_teacher
             if student_topk_log_probs is None:
@@ -1124,17 +1160,6 @@ def apply_teacher_entropy_weighting(
                 info_gain = student_entropy - teacher_entropy  # (B, T)
                 # 只保留正增益，负值clamp到0（feedback带来噪声的位置权重为0）
                 joint_score = info_gain.clamp(min=0)
-
-        if weighting_version == "v2sqrt":
-            # 原V2-sqrt版本
-            teacher_prob_on_student = teacher_log_prob_on_student.exp()
-            H_max = teacher_entropy.masked_fill(
-                loss_mask == 0, 0.0
-            ).max().clamp(min=1e-6)
-            H_normalized = teacher_entropy / H_max
-            teacher_certainty = 1.0 - H_normalized
-            student_wrong = 1.0 - teacher_prob_on_student
-            joint_score = torch.sqrt(teacher_certainty * student_wrong + 1e-8)
 
         # ── 3. 统一的softmax加权流程 ──────────────
         joint_score = joint_score.masked_fill(loss_mask == 0, -1e9)
@@ -2461,3 +2486,94 @@ def compute_policy_loss_bypass_mode(
     pg_metrics.update(rollout_metrics)
 
     return pg_loss, pg_metrics
+
+
+def compute_tasd_token_rewards(
+    student_log_probs: torch.Tensor,
+    teacher_log_probs: torch.Tensor,
+    student_topk_log_probs: Optional[torch.Tensor] = None,
+    teacher_topk_log_probs: Optional[torch.Tensor] = None,
+    reward_type: str = "log_ratio",
+) -> torch.Tensor:
+    """
+    计算TASD的token级reward。
+
+    log_ratio:   r = log π_T(y_t) - log π_S(y_t)
+    forward_kl:  r = -KL(π_T || π_S) = -Σ π_T * log(π_T/π_S)
+    reverse_kl:  r = -KL(π_S || π_T) = -Σ π_S * log(π_S/π_T)
+    jsd:         r = -JSD(π_T || π_S) = -[KL(π_T||M)/2 + KL(π_S||M)/2]
+    """
+    if reward_type == "log_ratio":
+        return teacher_log_probs - student_log_probs
+
+    assert student_topk_log_probs is not None and \
+           teacher_topk_log_probs is not None, \
+        f"{reward_type}模式需要topk log probs"
+
+    teacher_probs = teacher_topk_log_probs.exp()  # (B, T, K)
+    student_probs = student_topk_log_probs.exp()  # (B, T, K)
+
+    if reward_type == "forward_kl":
+        log_ratio = teacher_topk_log_probs - student_topk_log_probs
+        kl = (teacher_probs * log_ratio).sum(dim=-1)
+        return -kl
+
+    elif reward_type == "reverse_kl":
+        log_ratio = student_topk_log_probs - teacher_topk_log_probs
+        kl = (student_probs * log_ratio).sum(dim=-1)
+        return -kl
+
+    elif reward_type == "jsd":
+        log_mixture = torch.stack(
+            [teacher_topk_log_probs, student_topk_log_probs], dim=-1
+        ).logsumexp(dim=-1) - torch.log(
+            torch.tensor(2.0, device=teacher_topk_log_probs.device)
+        )
+        kl_t = (teacher_probs * (teacher_topk_log_probs - log_mixture)).sum(dim=-1)
+        kl_s = (student_probs * (student_topk_log_probs - log_mixture)).sum(dim=-1)
+        return -(0.5 * kl_t + 0.5 * kl_s)
+
+    else:
+        raise ValueError(
+            f"reward_type须为'log_ratio'|'forward_kl'|'reverse_kl'|'jsd'，"
+            f"got: {reward_type}"
+        )
+
+
+@register_adv_est(AdvantageEstimator.TASD)
+def compute_tasd_advantage(
+    token_level_rewards: torch.Tensor,
+    response_mask: torch.Tensor,
+    self_distillation_mask: Optional[torch.Tensor] = None,
+    index: Optional[np.ndarray] = None,
+    epsilon: float = 1e-6,
+    config: Optional[AlgoConfig] = None,
+    **kwargs,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """
+    TASD Advantage Estimator。
+    token级reward在batch内所有有效token上归一化。
+    loss和GRPO完全相同，区别只是advantages是token级的。
+    """
+    with torch.no_grad():
+        if self_distillation_mask is not None:
+            effective_mask = (
+                response_mask
+                * self_distillation_mask.unsqueeze(1).float()
+            )
+        else:
+            effective_mask = response_mask
+
+        valid = token_level_rewards[effective_mask.bool()]
+
+        if valid.numel() == 0:
+            advantages = torch.zeros_like(token_level_rewards)
+        else:
+            mu    = valid.mean()
+            sigma = valid.std() if valid.numel() > 1 \
+                    else torch.tensor(0.0, device=token_level_rewards.device)
+            advantages = (token_level_rewards - mu) / (sigma + epsilon)
+
+        advantages = advantages * effective_mask
+
+    return advantages, advantages
