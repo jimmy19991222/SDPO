@@ -33,8 +33,8 @@ DATA_PATHS=(
 
 TRAIN_BATCH_SIZES=(32)
 ROLLOUT_BATCH_SIZES=(8)
-MINI_BATCH_SIZES=(8)       # off-policy
-LRS=(1e-6)
+MINI_BATCH_SIZES=(8 32)       # off-policy / on-policy
+LRS=(1e-5 1e-6)
 MODEL_PATHS=(
     "Qwen/Qwen3-8B"
 )
