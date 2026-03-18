@@ -1076,6 +1076,34 @@ class ActorRolloutRefWorker(Worker, DistProfilerExtension):
         return output
 
     @register(dispatch_mode=make_nd_compute_dataproto_dispatch_fn(mesh_name="actor"))
+    def compute_teacher_log_probs(self, data: DataProto) -> DataProto:
+        """为TASD计算teacher log probs，转发给dp_actor实现"""
+        assert self._is_actor
+
+        if self._is_offload_param:
+            load_fsdp_model_to_gpu(self.actor_module_fsdp)
+
+        # 复用rollout的micro_batch_size配置
+        data.meta_info["micro_batch_size"] = self.config.rollout.log_prob_micro_batch_size_per_gpu
+        data.meta_info["temperature"]      = self.config.rollout.temperature
+        data.meta_info.setdefault("pad_token_id", self.tokenizer.pad_token_id)
+
+        with self.ulysses_sharding_manager:
+            result = self.actor.compute_teacher_log_probs(data)
+
+        output = DataProto.from_dict(tensors=result)
+        output = output.to("cpu")
+
+        if self.world_size > 1 and fsdp_version(self.actor.actor_module) == 1:
+            self.actor.actor_module._handle.reshard(True)
+
+        if self._is_offload_param:
+            offload_fsdp_model_to_cpu(self.actor_module_fsdp)
+
+        return output
+
+
+    @register(dispatch_mode=make_nd_compute_dataproto_dispatch_fn(mesh_name="actor"))
     @DistProfiler.annotate(color="olive", role="ref_compute_log_prob")
     def compute_ref_log_prob(self, data: DataProto):
         if self._is_lora:

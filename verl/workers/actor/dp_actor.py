@@ -741,7 +741,6 @@ class DataParallelPPOActor(BasePPOActor):
 
         return result
 
-
     @GPUMemoryLogger(role="dp actor", logger=logger)
     def update_policy(self, data: DataProto):
         # make sure we are in training mode
