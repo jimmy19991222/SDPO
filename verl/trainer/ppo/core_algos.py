@@ -2494,50 +2494,98 @@ def compute_tasd_token_rewards(
     student_topk_log_probs: Optional[torch.Tensor] = None,
     teacher_topk_log_probs: Optional[torch.Tensor] = None,
     reward_type: str = "log_ratio",
+    alpha: float = 0.5,
+    tail_correction: bool = False,
 ) -> torch.Tensor:
-    """
-    计算TASD的token级reward。
 
-    log_ratio:   r = log π_T(y_t) - log π_S(y_t)
-    forward_kl:  r = -KL(π_T || π_S) = -Σ π_T * log(π_T/π_S)
-    reverse_kl:  r = -KL(π_S || π_T) = -Σ π_S * log(π_S/π_T)
-    jsd:         r = -JSD(π_T || π_S) = -[KL(π_T||M)/2 + KL(π_S||M)/2]
-    """
     if reward_type == "log_ratio":
         return teacher_log_probs - student_log_probs
 
     assert student_topk_log_probs is not None and \
-           teacher_topk_log_probs is not None, \
-        f"{reward_type}模式需要topk log probs"
+           teacher_topk_log_probs is not None
 
-    teacher_probs = teacher_topk_log_probs.exp()  # (B, T, K)
-    student_probs = student_topk_log_probs.exp()  # (B, T, K)
+    alpha_t = torch.tensor(
+        alpha,
+        dtype=student_topk_log_probs.dtype,
+        device=student_topk_log_probs.device,
+    )
 
-    if reward_type == "forward_kl":
-        log_ratio = teacher_topk_log_probs - student_topk_log_probs
-        kl = (teacher_probs * log_ratio).sum(dim=-1)
-        return -kl
-
-    elif reward_type == "reverse_kl":
-        log_ratio = student_topk_log_probs - teacher_topk_log_probs
-        kl = (student_probs * log_ratio).sum(dim=-1)
-        return -kl
-
-    elif reward_type == "jsd":
-        log_mixture = torch.stack(
-            [teacher_topk_log_probs, student_topk_log_probs], dim=-1
-        ).logsumexp(dim=-1) - torch.log(
-            torch.tensor(2.0, device=teacher_topk_log_probs.device)
+    if alpha == 0.0:
+        kl_loss = F.kl_div(
+            teacher_topk_log_probs,
+            student_topk_log_probs,
+            reduction="none",
+            log_target=True,
         )
-        kl_t = (teacher_probs * (teacher_topk_log_probs - log_mixture)).sum(dim=-1)
-        kl_s = (student_probs * (student_topk_log_probs - log_mixture)).sum(dim=-1)
-        return -(0.5 * kl_t + 0.5 * kl_s)
-
+    elif alpha == 1.0:
+        kl_loss = F.kl_div(
+            student_topk_log_probs,
+            teacher_topk_log_probs,
+            reduction="none",
+            log_target=True,
+        )
     else:
-        raise ValueError(
-            f"reward_type须为'log_ratio'|'forward_kl'|'reverse_kl'|'jsd'，"
-            f"got: {reward_type}"
+        mixture_log_probs = torch.logsumexp(
+            torch.stack([
+                student_topk_log_probs + torch.log(1.0 - alpha_t),
+                teacher_topk_log_probs + torch.log(alpha_t),
+            ]),
+            dim=0,
         )
+        kl_teacher = F.kl_div(
+            mixture_log_probs, teacher_topk_log_probs,
+            reduction="none", log_target=True,
+        )
+        kl_student = F.kl_div(
+            mixture_log_probs, student_topk_log_probs,
+            reduction="none", log_target=True,
+        )
+        kl_loss = torch.lerp(kl_student, kl_teacher, alpha_t)
+
+    reward = -kl_loss.sum(dim=-1)  # (B, T)
+
+    if tail_correction:
+        student_tail_prob = (
+            1.0 - student_topk_log_probs.exp().sum(dim=-1)
+        ).clamp(min=1e-9, max=1.0)
+        teacher_tail_prob = (
+            1.0 - teacher_topk_log_probs.exp().sum(dim=-1)
+        ).clamp(min=1e-9, max=1.0)
+
+        student_tail_log = student_tail_prob.log()
+        teacher_tail_log = teacher_tail_prob.log()
+
+        if alpha == 0.0:
+            tail_kl = F.kl_div(
+                teacher_tail_log, student_tail_log,
+                reduction="none", log_target=True,
+            )
+        elif alpha == 1.0:
+            tail_kl = F.kl_div(
+                student_tail_log, teacher_tail_log,
+                reduction="none", log_target=True,
+            )
+        else:
+            mixture_tail_log = torch.logsumexp(
+                torch.stack([
+                    student_tail_log + torch.log(1.0 - alpha_t),
+                    teacher_tail_log + torch.log(alpha_t),
+                ]),
+                dim=0,
+            )
+            kl_t_tail = F.kl_div(
+                mixture_tail_log, teacher_tail_log,
+                reduction="none", log_target=True,
+            )
+            kl_s_tail = F.kl_div(
+                mixture_tail_log, student_tail_log,
+                reduction="none", log_target=True,
+            )
+            tail_kl = torch.lerp(kl_s_tail, kl_t_tail, alpha_t)
+
+        reward = reward - tail_kl
+
+    return reward
 
 
 @register_adv_est(AdvantageEstimator.TASD)
@@ -2550,50 +2598,51 @@ def compute_tasd_advantage(
     config: Optional[AlgoConfig] = None,
     **kwargs,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """
-    TASD Advantage Estimator。
-    和GRPO完全一致：group内对sequence-level reward归一化，再broadcast回token级。
-    唯一区别：token_level_rewards来自teacher-student divergence而非verifier reward。
-    """
     with torch.no_grad():
+        effective_mask = response_mask
         if self_distillation_mask is not None:
             effective_mask = (
                 response_mask
                 * self_distillation_mask.unsqueeze(1).float()
             )
-        else:
-            effective_mask = response_mask
+
+        advantages = torch.zeros_like(token_level_rewards)
 
         if index is None or len(index) == 0:
-            advantages = torch.zeros_like(token_level_rewards)
             return advantages, advantages
 
-        # Step1: sum成sequence-level score（和GRPO完全一致）
-        scores = token_level_rewards.sum(dim=-1)  # (B,)
+        bsz = token_level_rewards.shape[0]
 
-        # Step2: group内归一化（和GRPO完全一致）
-        id2score = defaultdict(list)
-        id2mean  = {}
-        id2std   = {}
-
-        bsz = scores.shape[0]
+        uid_to_indices = defaultdict(list)
         for i in range(bsz):
-            id2score[index[i]].append(scores[i])
-        for idx in id2score:
-            if len(id2score[idx]) == 1:
-                id2mean[idx] = torch.tensor(0.0, device=token_level_rewards.device)
-                id2std[idx]  = torch.tensor(1.0, device=token_level_rewards.device)
-            elif len(id2score[idx]) > 1:
-                scores_tensor = torch.stack(id2score[idx])
-                id2mean[idx]  = torch.mean(scores_tensor)
-                id2std[idx]   = torch.std(scores_tensor)
-            else:
-                raise ValueError(f"no score in prompt index: {idx}")
+            uid_to_indices[index[i]].append(i)
 
-        for i in range(bsz):
-            scores[i] = (scores[i] - id2mean[index[i]]) / (id2std[index[i]] + epsilon)
+        for uid, indices in uid_to_indices.items():
+            group_token_rewards = []
+            for i in indices:
+                valid_tokens = token_level_rewards[i][effective_mask[i].bool()]
+                group_token_rewards.append(valid_tokens)
 
-        # Step3: broadcast回token级，乘effective_mask
-        advantages = scores.unsqueeze(-1) * effective_mask
+            # ← 修正：加dtype
+            all_rewards = (
+                torch.cat(group_token_rewards)
+                if group_token_rewards
+                else torch.tensor(
+                    [],
+                    dtype=token_level_rewards.dtype,
+                    device=token_level_rewards.device,
+                )
+            )
+
+            if all_rewards.numel() <= 1:
+                continue
+
+            group_mean = all_rewards.mean()
+            # ← 修正：unbiased=False，和GRPO一致，避免小样本高估
+            group_std = all_rewards.std(unbiased=False).clamp(min=epsilon)
+
+            for i in indices:
+                adv_i = (token_level_rewards[i] - group_mean) / group_std
+                advantages[i] = adv_i * effective_mask[i]
 
     return advantages, advantages

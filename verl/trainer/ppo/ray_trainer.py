@@ -253,12 +253,10 @@ def compute_advantage(
         data.batch["returns"] = returns
     elif adv_estimator == AdvantageEstimator.TASD:
         tasd_cfg = config.get("tasd", {})
-        include_successful_rollouts = tasd_cfg.get("include_successful_rollouts", True)
 
-        # include_successful_rollouts=True：不传mask，所有token参与归一化
-        # include_successful_rollouts=False：只有有teacher反馈的token参与
+        # 始终使用self_distillation_mask过滤无效teacher context
         sdist_mask = None
-        if not include_successful_rollouts and "self_distillation_mask" in data.batch:
+        if "self_distillation_mask" in data.batch:
             sdist_mask = data.batch["self_distillation_mask"]
 
         advantages, returns = core_algos.compute_tasd_advantage(
@@ -270,6 +268,7 @@ def compute_advantage(
         )
         data.batch["advantages"] = advantages
         data.batch["returns"]    = returns
+
 
     else:
         # handle all other adv estimator type other than GAE and GRPO
@@ -677,20 +676,21 @@ class RayPPOTrainer:
         response_texts,
         dont_reprompt_on_self_success=False,
         remove_thinking_from_demonstration=False,
-        fallback_to_self=False,  # ← 新增
+        fallback_to_self=False,
     ):
         uid = uids[idx]
         solution_idxs = success_by_uid[uid]
+        is_self_success = idx in solution_idxs  # 当前rollout是否成功
 
         if dont_reprompt_on_self_success:
             solution_idxs = [j for j in solution_idxs if j != idx]
 
         if len(solution_idxs) == 0:
-            if fallback_to_self:
-                # 唯一成功rollout → 用自己的答案
+            if fallback_to_self and is_self_success:
+                # 只有自己成功且是唯一成功rollout时才fallback
                 solution_idx = idx
             else:
-                return None  # 原有逻辑不变
+                return None
         else:
             solution_idx = random.choice(solution_idxs)
 
@@ -698,6 +698,7 @@ class RayPPOTrainer:
         if remove_thinking_from_demonstration:
             solution = self._remove_thinking_trace(solution)
         return solution
+
 
 
     def _maybe_build_self_distillation_batch(
@@ -1821,13 +1822,14 @@ class RayPPOTrainer:
                             batch = batch.union(values)
 
                     with marked_timer("adv", timing_raw, color="brown"):
-                        # we combine with rule-based rm
                         reward_extra_infos_dict: dict[str, list]
                         if self.config.reward_model.launch_reward_fn_async:
                             reward_tensor, reward_extra_infos_dict = ray.get(future_reward)
                         batch.batch["token_level_scores"] = reward_tensor
 
-                        self_distillation_data = self._maybe_build_self_distillation_batch(batch, reward_tensor, reward_extra_infos_dict)
+                        self_distillation_data = self._maybe_build_self_distillation_batch(
+                            batch, reward_tensor, reward_extra_infos_dict
+                        )
                         if self_distillation_data is not None:
                             self_distillation_batch, self_distillation_metrics = self_distillation_data
                             batch = batch.union(self_distillation_batch)
@@ -1836,7 +1838,7 @@ class RayPPOTrainer:
                         if reward_extra_infos_dict:
                             batch.non_tensor_batch.update({k: np.array(v) for k, v in reward_extra_infos_dict.items()})
 
-                        # compute rewards. apply_kl_penalty if available
+                        # Step1: 设置token_level_rewards（必须在TASD之前）
                         if self.config.algorithm.use_kl_in_reward:
                             batch, kl_metrics = apply_kl_penalty(
                                 batch, kl_ctrl=self.kl_ctrl_in_reward, kl_penalty=self.config.algorithm.kl_penalty
@@ -1845,35 +1847,39 @@ class RayPPOTrainer:
                         else:
                             batch.batch["token_level_rewards"] = batch.batch["token_level_scores"]
 
-                        # ── TASD：计算token级reward覆盖token_level_rewards ──
+                        # Step2: TASD覆盖token_level_rewards（必须在Step1之后）
                         if (
                             self.config.algorithm.adv_estimator == AdvantageEstimator.TASD
                             and "teacher_input_ids" in batch.batch
                         ):
-                            with marked_timer("tasd_teacher_fwd", timing_raw, color="cyan"):
-                                tasd_cfg     = self.config.algorithm.get("tasd", {})
-                                reward_type  = tasd_cfg.get("reward_type", "log_ratio")
-                                need_topk    = reward_type in ("forward_kl", "reverse_kl", "jsd")
-                                distill_topk = tasd_cfg.get("distill_topk", 20) if need_topk else None
+                            tasd_cfg        = self.config.algorithm.get("tasd", {})
+                            reward_type     = tasd_cfg.get("reward_type", "log_ratio")
+                            alpha           = tasd_cfg.get("alpha", 0.5)
+                            tail_correction = tasd_cfg.get("tail_correction", False)
+                            grpo_weight     = tasd_cfg.get("grpo_weight", 0.0)
+                            success_threshold = tasd_cfg.get("success_reward_threshold", 1.0)
+                            need_topk       = reward_type in ("forward_kl", "reverse_kl", "jsd")
+                            distill_topk    = tasd_cfg.get("distill_topk", 100) if need_topk else None
 
-                                teacher_fwd_batch = DataProto.from_dict(
-                                    tensors={
-                                        "teacher_input_ids":      batch.batch["teacher_input_ids"],
-                                        "teacher_attention_mask": batch.batch["teacher_attention_mask"],
-                                        "teacher_position_ids":   batch.batch["teacher_position_ids"],
-                                        "responses":              batch.batch["responses"],
-                                        "input_ids":              batch.batch["input_ids"],
-                                        "attention_mask":         batch.batch["attention_mask"],
-                                        "position_ids":           batch.batch["position_ids"],
-                                    }
-                                )
-                                teacher_fwd_batch.meta_info = {
-                                    "temperature":      self.config.actor_rollout_ref.rollout.temperature,
-                                    "micro_batch_size": self.config.actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu,
-                                    "pad_token_id":     self.tokenizer.pad_token_id,
-                                    "distill_topk":     distill_topk,
+                            teacher_fwd_batch = DataProto.from_dict(
+                                tensors={
+                                    "teacher_input_ids":      batch.batch["teacher_input_ids"],
+                                    "teacher_attention_mask": batch.batch["teacher_attention_mask"],
+                                    "teacher_position_ids":   batch.batch["teacher_position_ids"],
+                                    "responses":              batch.batch["responses"],
+                                    "input_ids":              batch.batch["input_ids"],
+                                    "attention_mask":         batch.batch["attention_mask"],
+                                    "position_ids":           batch.batch["position_ids"],
                                 }
+                            )
+                            teacher_fwd_batch.meta_info = {
+                                "temperature":      self.config.actor_rollout_ref.rollout.temperature,
+                                "micro_batch_size": self.config.actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu,
+                                "pad_token_id":     self.tokenizer.pad_token_id,
+                                "distill_topk":     distill_topk,
+                            }
 
+                            with marked_timer("tasd_teacher_fwd", timing_raw, color="cyan"):
                                 teacher_result = self.actor_rollout_wg.compute_teacher_log_probs(
                                     teacher_fwd_batch
                                 )
@@ -1884,35 +1890,79 @@ class RayPPOTrainer:
                                 student_topk_log_probs=teacher_result.batch.get("student_topk_log_probs"),
                                 teacher_topk_log_probs=teacher_result.batch.get("teacher_topk_log_probs"),
                                 reward_type=reward_type,
+                                alpha=alpha,
+                                tail_correction=tail_correction,
                             )
 
-                            batch.batch["token_level_rewards"] = token_rewards
+                            # 此时token_level_rewards已经是verifier reward（Step1设置的）
+                            verifier_rewards = batch.batch["token_level_rewards"].clone()
+                            batch.batch["verifier_token_rewards"] = verifier_rewards
 
-                            valid = token_rewards[batch.batch["response_mask"].bool()]
-                            metrics["tasd/token_reward_mean"]     = valid.mean().item()
-                            metrics["tasd/token_reward_std"]      = valid.std().item()
-                            metrics["tasd/token_reward_pos_rate"] = (valid > 0).float().mean().item()
-                            
-                        # Compute rollout correction: IS weights, rejection sampling, and metrics
-                        # Only runs in decoupled mode (computes once per batch using stable π_old)
-                        # In bypass mode, this is skipped - actor computes metrics from evolving π_θ vs π_rollout
+                            if grpo_weight > 0.0:
+                                batch.batch["token_level_rewards"] = (
+                                    grpo_weight * verifier_rewards
+                                    + (1.0 - grpo_weight) * token_rewards
+                                )
+                            else:
+                                batch.batch["token_level_rewards"] = token_rewards
+
+                            # metrics
+                            response_mask  = batch.batch["response_mask"]
+                            valid_tasd     = token_rewards[response_mask.bool()]
+                            valid_verifier = verifier_rewards[response_mask.bool()]
+
+                            metrics["tasd/token_reward_mean"]     = valid_tasd.mean().item()
+                            metrics["tasd/token_reward_std"]      = valid_tasd.std().item()
+                            metrics["tasd/token_reward_pos_rate"] = (valid_tasd > 0).float().mean().item()
+                            metrics["tasd/verifier_reward_mean"]  = valid_verifier.mean().item()
+
+                            # acc分组统计
+                            acc = None
+                            if "acc" in batch.batch:
+                                acc = batch.batch["acc"]
+                            elif "acc" in batch.non_tensor_batch:
+                                acc = torch.tensor(
+                                    batch.non_tensor_batch["acc"],
+                                    dtype=torch.float32,
+                                    device=token_rewards.device,
+                                )
+
+                            if acc is not None:
+                                success_mask_1d = acc >= success_threshold
+                                fail_mask_1d    = ~success_mask_1d
+
+                                def _masked_valid_tokens(tensor_2d, seq_mask_1d):
+                                    token_mask = response_mask * seq_mask_1d.unsqueeze(-1).float()
+                                    return tensor_2d[token_mask.bool()]
+
+                                success_rewards = _masked_valid_tokens(token_rewards, success_mask_1d)
+                                fail_rewards    = _masked_valid_tokens(token_rewards, fail_mask_1d)
+
+                                if success_rewards.numel() > 0:
+                                    metrics["tasd/token_reward_mean_success"] = success_rewards.mean().item()
+                                    metrics["tasd/token_reward_std_success"]  = (
+                                        success_rewards.std().item() if success_rewards.numel() > 1 else 0.0
+                                    )
+                                if fail_rewards.numel() > 0:
+                                    metrics["tasd/token_reward_mean_fail"] = fail_rewards.mean().item()
+                                    metrics["tasd/token_reward_std_fail"]  = (
+                                        fail_rewards.std().item() if fail_rewards.numel() > 1 else 0.0
+                                    )
+                                metrics["tasd/success_rate"] = success_mask_1d.float().mean().item()
+
+                        # Step3: rollout correction（在TASD之后）
                         if (
                             rollout_corr_config is not None
                             and "rollout_log_probs" in batch.batch
-                            and not bypass_recomputing_logprobs  # Only in decoupled mode
+                            and not bypass_recomputing_logprobs
+                            and self.config.algorithm.adv_estimator != AdvantageEstimator.TASD  # TASD不做IS修正
                         ):
                             from verl.trainer.ppo.rollout_corr_helper import compute_rollout_correction_and_add_to_batch
-
-                            # Compute IS weights, apply rejection sampling, compute metrics
                             batch, is_metrics = compute_rollout_correction_and_add_to_batch(batch, rollout_corr_config)
-                            # IS and off-policy metrics already have rollout_corr/ prefix
                             metrics.update(is_metrics)
 
-                        # compute advantages, executed on the driver process
-                        norm_adv_by_std_in_grpo = self.config.algorithm.get(
-                            "norm_adv_by_std_in_grpo", True
-                        )  # GRPO adv normalization factor
-
+                        # Step4: compute advantage
+                        norm_adv_by_std_in_grpo = self.config.algorithm.get("norm_adv_by_std_in_grpo", True)
                         batch = compute_advantage(
                             batch,
                             adv_estimator=self.config.algorithm.adv_estimator,
@@ -1922,6 +1972,13 @@ class RayPPOTrainer:
                             norm_adv_by_std_in_grpo=norm_adv_by_std_in_grpo,
                             config=self.config.algorithm,
                         )
+
+                        # advantage分布监控
+                        if self.config.algorithm.adv_estimator == AdvantageEstimator.TASD:
+                            valid_adv = batch.batch["advantages"][batch.batch["response_mask"].bool()]
+                            metrics["tasd/advantage_mean"]     = valid_adv.mean().item()
+                            metrics["tasd/advantage_std"]      = valid_adv.std().item()
+                            metrics["tasd/advantage_pos_rate"] = (valid_adv > 0).float().mean().item()
 
                     # update critic
                     if self.use_critic:
