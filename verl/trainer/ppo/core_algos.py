@@ -2611,14 +2611,14 @@ def compute_tasd_token_rewards(
 
 @register_adv_est(AdvantageEstimator.TASD)
 def compute_tasd_advantage(
-    token_level_rewards: torch.Tensor,
-    response_mask: torch.Tensor,
-    self_distillation_mask: Optional[torch.Tensor] = None,
-    index: Optional[np.ndarray] = None,
-    epsilon: float = 1e-6,
-    config: Optional[AlgoConfig] = None,
+    token_level_rewards,
+    response_mask,
+    self_distillation_mask,    # 现有：是否有teacher context
+    index,
+    success_mask=None,          # 新增：(B,) bool，是否是成功rollout
+    epsilon=1e-6,
     **kwargs,
-) -> tuple[torch.Tensor, torch.Tensor]:
+):
     with torch.no_grad():
         effective_mask = response_mask
         if self_distillation_mask is not None:
@@ -2629,40 +2629,36 @@ def compute_tasd_advantage(
 
         advantages = torch.zeros_like(token_level_rewards)
 
-        if index is None or len(index) == 0:
-            return advantages, advantages
-
-        bsz = token_level_rewards.shape[0]
-
         uid_to_indices = defaultdict(list)
-        for i in range(bsz):
+        for i in range(token_level_rewards.shape[0]):
             uid_to_indices[index[i]].append(i)
 
         for uid, indices in uid_to_indices.items():
+            
+            # 新增：检查group内是否有成功rollout
+            if success_mask is not None:
+                has_success = any(success_mask[i] for i in indices)
+                if not has_success:
+                    continue  # 跳过整个group
+            
+            # 以下逻辑不变
+            valid_indices = []
             group_token_rewards = []
             for i in indices:
+                if effective_mask[i].sum() == 0:
+                    continue
                 valid_tokens = token_level_rewards[i][effective_mask[i].bool()]
                 group_token_rewards.append(valid_tokens)
+                valid_indices.append(i)
 
-            # ← 修正：加dtype
-            all_rewards = (
-                torch.cat(group_token_rewards)
-                if group_token_rewards
-                else torch.tensor(
-                    [],
-                    dtype=token_level_rewards.dtype,
-                    device=token_level_rewards.device,
-                )
-            )
-
-            if all_rewards.numel() <= 1:
+            if len(valid_indices) <= 1:
                 continue
 
+            all_rewards = torch.cat(group_token_rewards)
             group_mean = all_rewards.mean()
-            # ← 修正：unbiased=False，和GRPO一致，避免小样本高估
             group_std = all_rewards.std(unbiased=False).clamp(min=epsilon)
 
-            for i in indices:
+            for i in valid_indices:
                 adv_i = (token_level_rewards[i] - group_mean) / group_std
                 advantages[i] = adv_i * effective_mask[i]
 

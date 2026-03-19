@@ -45,7 +45,7 @@ REWARD_TYPES=("log_ratio")
 REWARD_TRANSFORMS=("tanh")
 REWARD_SCALES=(1.0)
 DISTILL_TOPKS=(100)
-DONT_REPROMPT_ON_SELF_SUCCESS_LIST=(True)
+USE_SELF_AS_TEACHER_LIST=(True)        # True=成功rollout用自己；False=成功rollout用别人
 INCLUDE_SUCCESSFUL_ROLLOUTS_LIST=(True False)
 
 MODEL_PATHS=(
@@ -121,7 +121,7 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                             for REWARD_TRANSFORM in "${REWARD_TRANSFORMS[@]}"; do
                                 for REWARD_SCALE in "${REWARD_SCALES[@]}"; do
                                     for DISTILL_TOPK in "${DISTILL_TOPKS[@]}"; do
-                                        for DONT_REPROMPT in "${DONT_REPROMPT_ON_SELF_SUCCESS_LIST[@]}"; do
+                                        for USE_SELF_AS_TEACHER in "${USE_SELF_AS_TEACHER_LIST[@]}"; do
                                             for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
 
                                                 MODEL_NAME=$(echo "$MODEL_PATH" | tr '/' '-')
@@ -130,7 +130,7 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                                                     | tr '/' '-'          \
                                                     | sed 's|-*$||')
 
-                                                EXP_NAME="TASD-${DATASET_NAME}-mbs${MINI_BATCH_SIZE}-train${TRAIN_BATCH_SIZE}-rollout${ROLLOUT_BATCH_SIZE}-lr${LR}-rt${REWARD_TYPE}-tf${REWARD_TRANSFORM}-topk${DISTILL_TOPK}-dross${DONT_REPROMPT}-isr${INCLUDE_SUCCESSFUL_ROLLOUTS}-${MODEL_NAME}-$(date +%Y-%m-%d_%H-%M-%S)"
+                                                EXP_NAME="TASD-${DATASET_NAME}-mbs${MINI_BATCH_SIZE}-train${TRAIN_BATCH_SIZE}-rollout${ROLLOUT_BATCH_SIZE}-lr${LR}-rt${REWARD_TYPE}-tf${REWARD_TRANSFORM}-topk${DISTILL_TOPK}-usat${USE_SELF_AS_TEACHER}-isr${INCLUDE_SUCCESSFUL_ROLLOUTS}-${MODEL_NAME}-$(date +%Y-%m-%d_%H-%M-%S)"
 
                                                 SCRIPT_ARGS=(
                                                     # ── 基础参数 ──────────────────────────
@@ -150,11 +150,11 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                                                     "algorithm.tasd.reward_transform=$REWARD_TRANSFORM"
                                                     "algorithm.tasd.reward_scale=$REWARD_SCALE"
                                                     "algorithm.tasd.distill_topk=$DISTILL_TOPK"
+                                                    "algorithm.tasd.use_self_as_teacher_on_success=$USE_SELF_AS_TEACHER"
                                                     "algorithm.tasd.include_successful_rollouts=$INCLUDE_SUCCESSFUL_ROLLOUTS"
                                                     "algorithm.tasd.success_reward_threshold=1.0"
 
                                                     # ── teacher_input_ids构建 ──────────────
-                                                    "actor_rollout_ref.actor.self_distillation.dont_reprompt_on_self_success=$DONT_REPROMPT"
                                                     "actor_rollout_ref.actor.self_distillation.include_environment_feedback=False"
 
                                                     # ── 本地运行参数 ───────────────────────
@@ -167,7 +167,7 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                                                 submit_job "$EXP_NAME" "$DATA_PATH" "${SCRIPT_ARGS[@]}"
 
                                             done  # INCLUDE_SUCCESSFUL_ROLLOUTS
-                                        done      # DONT_REPROMPT
+                                        done      # USE_SELF_AS_TEACHER
                                     done          # DISTILL_TOPK
                                 done              # REWARD_SCALE
                             done                  # REWARD_TRANSFORM

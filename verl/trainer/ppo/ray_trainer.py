@@ -252,23 +252,27 @@ def compute_advantage(
         data.batch["advantages"] = advantages
         data.batch["returns"] = returns
     elif adv_estimator == AdvantageEstimator.TASD:
-        tasd_cfg = config.get("tasd", {})
-
-        # 始终使用self_distillation_mask过滤无效teacher context
         sdist_mask = None
-        if "self_distillation_mask" in data.batch:
-            sdist_mask = data.batch["self_distillation_mask"]
+        if "self_distillation_mask" in batch.batch:
+            sdist_mask = batch.batch["self_distillation_mask"]
+
+        # 新增：构建success_mask
+        success_mask = None
+        if "token_level_scores" in batch.batch:
+            seq_scores = batch.batch["token_level_scores"].sum(dim=-1)
+            threshold = self.config.algorithm.get("tasd", {}).get(
+                "success_reward_threshold", 1.0
+            )
+            success_mask = (seq_scores >= threshold)  # (B,) bool tensor
 
         advantages, returns = core_algos.compute_tasd_advantage(
             token_level_rewards=data.batch["token_level_rewards"],
             response_mask=data.batch["response_mask"],
             self_distillation_mask=sdist_mask,
             index=data.non_tensor_batch["uid"],
+            success_mask=success_mask,   # 新增
             config=config,
         )
-        data.batch["advantages"] = advantages
-        data.batch["returns"]    = returns
-
 
     else:
         # handle all other adv estimator type other than GAE and GRPO
@@ -677,17 +681,24 @@ class RayPPOTrainer:
         dont_reprompt_on_self_success=False,
         remove_thinking_from_demonstration=False,
         fallback_to_self=False,
+        use_self_as_teacher_on_success=False,  # ← 新增
     ):
         uid = uids[idx]
         solution_idxs = success_by_uid[uid]
-        is_self_success = idx in solution_idxs  # 当前rollout是否成功
+        is_self_success = idx in solution_idxs
+
+        # 成功rollout强制用自己的response作为teacher context
+        if use_self_as_teacher_on_success and is_self_success:
+            solution = response_texts[idx]
+            if remove_thinking_from_demonstration:
+                solution = self._remove_thinking_trace(solution)
+            return solution
 
         if dont_reprompt_on_self_success:
             solution_idxs = [j for j in solution_idxs if j != idx]
 
         if len(solution_idxs) == 0:
             if fallback_to_self and is_self_success:
-                # 只有自己成功且是唯一成功rollout时才fallback
                 solution_idx = idx
             else:
                 return None
@@ -700,7 +711,6 @@ class RayPPOTrainer:
         return solution
 
 
-
     def _maybe_build_self_distillation_batch(
         self,
         batch: DataProto,
@@ -711,16 +721,18 @@ class RayPPOTrainer:
         loss_mode = self.config.actor_rollout_ref.actor.policy_loss.get("loss_mode", "vanilla")
         adv_estimator = self.config.algorithm.adv_estimator
 
-        # ── 修改：sdpo或tasd都需要构建teacher context ──────────
         is_sdpo = loss_mode == "sdpo"
         is_tasd = adv_estimator == "tasd"
         if self_distillation_cfg is None or (not is_sdpo and not is_tasd):
             return None
 
-        # ── 新增：tasd的fallback_to_self逻辑 ───────────────────
         tasd_cfg = self.config.algorithm.get("tasd", {})
-        include_successful_rollouts = tasd_cfg.get("include_successful_rollouts", False)
-        fallback_to_self = is_tasd and include_successful_rollouts
+
+        # use_self_as_teacher_on_success：只对TASD生效
+        use_self_as_teacher_on_success = (
+            is_tasd
+            and tasd_cfg.get("use_self_as_teacher_on_success", False)
+        )
 
         device = batch.batch["input_ids"].device
         response_mask = batch.batch["response_mask"]
@@ -739,6 +751,7 @@ class RayPPOTrainer:
             batch, reward_tensor,
             success_reward_threshold=self_distillation_cfg.success_reward_threshold
         )
+
         solution_strs = [
             self._get_solution(
                 i,
@@ -747,12 +760,14 @@ class RayPPOTrainer:
                 response_texts,
                 self_distillation_cfg.dont_reprompt_on_self_success,
                 self_distillation_cfg.get("remove_thinking_from_demonstration", False),
-                fallback_to_self=fallback_to_self,  # ← 新增
+                fallback_to_self=False,                                    # ← 不再需要
+                use_self_as_teacher_on_success=use_self_as_teacher_on_success,  # ← 新增
             )
             for i in range(batch_size)
         ]
 
         # 以下完全不变
+
         def _build_teacher_message(i: int) -> list[dict]:
             system_messages = batch.non_tensor_batch["raw_prompt"][i][:-1]
             has_solution = solution_strs[i] is not None
