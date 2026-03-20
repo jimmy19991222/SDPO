@@ -1926,6 +1926,7 @@ class RayPPOTrainer:
                                 teacher_log_probs=teacher_result.batch["teacher_log_probs_on_response"],
                                 student_topk_log_probs=teacher_result.batch.get("student_topk_log_probs"),
                                 teacher_topk_log_probs=teacher_result.batch.get("teacher_topk_log_probs"),
+                                student_topk_indices=teacher_result.batch.get("student_topk_indices"),
                                 reward_type=tasd_reward_type,
                                 alpha=tasd_alpha,
                                 tail_correction=tasd_tail_correction,

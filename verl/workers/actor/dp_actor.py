@@ -687,11 +687,12 @@ class DataParallelPPOActor(BasePPOActor):
         pad_token_id     = data.meta_info.get("pad_token_id", 0)
         distill_topk     = data.meta_info.get("distill_topk", None)
 
-        teacher_model         = self.teacher_module or self.actor_module
-        micro_batches         = data.split(micro_batch_size)
-        teacher_log_probs_lst = []
-        teacher_topk_lst      = []
-        student_topk_lst      = []
+        teacher_model              = self.teacher_module or self.actor_module
+        micro_batches              = data.split(micro_batch_size)
+        teacher_log_probs_lst      = []
+        teacher_topk_lst           = []
+        student_topk_lst           = []
+        student_topk_indices_lst   = []
 
         for micro_batch in micro_batches:
             micro_batch = micro_batch.to(get_device_id())
@@ -714,6 +715,7 @@ class DataParallelPPOActor(BasePPOActor):
                     )
                 student_topk_lst.append(student_outputs["topk_logps"])
                 student_topk_indices = student_outputs["topk_indices"]
+                student_topk_indices_lst.append(student_topk_indices)
 
                 # ── Step2: teacher在student topk位置gather ───────────────
                 teacher_inputs = {
@@ -755,8 +757,9 @@ class DataParallelPPOActor(BasePPOActor):
             "teacher_log_probs_on_response": torch.cat(teacher_log_probs_lst, dim=0)
         }
         if teacher_topk_lst:
-            result["teacher_topk_log_probs"] = torch.cat(teacher_topk_lst, dim=0)
-            result["student_topk_log_probs"] = torch.cat(student_topk_lst, dim=0)
+            result["teacher_topk_log_probs"]   = torch.cat(teacher_topk_lst, dim=0)
+            result["student_topk_log_probs"]   = torch.cat(student_topk_lst, dim=0)
+            result["student_topk_indices"]      = torch.cat(student_topk_indices_lst, dim=0)
 
         return result
 

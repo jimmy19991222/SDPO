@@ -2502,11 +2502,12 @@ def compute_tasd_token_rewards(
     teacher_log_probs: torch.Tensor,
     student_topk_log_probs: Optional[torch.Tensor] = None,
     teacher_topk_log_probs: Optional[torch.Tensor] = None,
+    student_topk_indices: Optional[torch.Tensor] = None,   # (B, T, K) int64，top1_match/topk_match 需要
     reward_type: str = "log_ratio",
     alpha: float = 0.5,
     tail_correction: bool = False,
-    reward_transform: str = "tanh",   # ← 新增
-    reward_scale: float = 1.0,        # ← 新增
+    reward_transform: str = "tanh",
+    reward_scale: float = 1.0,
 ) -> torch.Tensor:
 
     if reward_type == "log_ratio":
@@ -2526,6 +2527,53 @@ def compute_tasd_token_rewards(
 
     elif reward_type == "teacher_prob":
         reward = teacher_log_probs.exp()  # (B, T) ∈ (0,1)
+
+    elif reward_type == "teacher_prob_certainty":
+        # teacher认可度 × teacher在该位置的确定性
+        # certainty = 1 - H_teacher / H_max，H_max = log(K)
+        assert teacher_topk_log_probs is not None, \
+            "teacher_prob_certainty requires teacher_topk_log_probs (set distill_topk)"
+        teacher_topk_probs = teacher_topk_log_probs.exp()                          # (B, T, K)
+        teacher_entropy_t  = -(teacher_topk_probs * teacher_topk_log_probs).sum(dim=-1)  # (B, T)
+        K = teacher_topk_log_probs.shape[-1]
+        H_max = torch.log(torch.tensor(
+            K, dtype=teacher_topk_log_probs.dtype, device=teacher_topk_log_probs.device
+        ))
+        teacher_certainty_t = (1.0 - teacher_entropy_t / H_max).clamp(min=0.0, max=1.0)  # (B, T)
+        reward = teacher_log_probs.exp() * teacher_certainty_t                    # (B, T) ∈ (0,1)
+
+    elif reward_type == "top1_match":
+        # student选择的token是否是teacher的第一选（二进制信号）
+        # student_topk_indices[:,:,0] 即 student 实际生成的token（topk第一位 = 生成token）
+        # teacher_topk_log_probs是在student topk位置上gather的，所以第0位就是teacher对student-top1的认可
+        # top1_match：判断teacher的argmax是否 == student的选择
+        assert student_topk_indices is not None, \
+            "top1_match requires student_topk_indices (set distill_topk)"
+        assert teacher_topk_log_probs is not None, \
+            "top1_match requires teacher_topk_log_probs (set distill_topk)"
+        # teacher_topk_log_probs: (B, T, K)，已按student-topk顺序gather
+        # 取teacher在这K个候选中的argmax索引，再看student-top1是否在该位置
+        teacher_best_in_topk = teacher_topk_log_probs.argmax(dim=-1)              # (B, T) ∈ [0, K-1]
+        # student的选择就是 index=0（student topk第一个）
+        student_choice_rank  = torch.zeros_like(teacher_best_in_topk)             # (B, T), 全0
+        reward = (teacher_best_in_topk == student_choice_rank).float()            # (B, T) ∈ {0,1}
+
+    elif reward_type == "topk_match":
+        # student选择在teacher topk中的排名：排名越靠前reward越高
+        assert student_topk_indices is not None, \
+            "topk_match requires student_topk_indices (set distill_topk)"
+        assert teacher_topk_log_probs is not None, \
+            "topk_match requires teacher_topk_log_probs (set distill_topk)"
+        # teacher_topk_log_probs: (B, T, K)，已按student-topk顺序gather
+        # teacher在这K个候选中的argmax对应的 student-topk 排名
+        # student 实际选了 student_topk[0]，即 rank=0
+        # teacher的首选 = student_topk[ teacher_best_rank ]
+        K = teacher_topk_log_probs.shape[-1]
+        teacher_best_rank = teacher_topk_log_probs.argmax(dim=-1)                 # (B, T) ∈ [0, K-1]
+        # student选了rank=0，teacher希望的排名是 teacher_best_rank
+        # 距离越小（delta=0）reward越高
+        delta = teacher_best_rank.float()                                         # (B, T) ∈ [0, K-1]
+        reward = (1.0 - delta / K).clamp(min=0.0)                                 # (B, T) ∈ (0,1]
 
     else:
         assert student_topk_log_probs is not None and \
