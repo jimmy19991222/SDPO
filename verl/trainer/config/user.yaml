@@ -55,7 +55,7 @@ reward_model:
   use_reward_loop: False # disables experimental reward manager (which gives lower scores)
 
 trainer:
-  project_name: SDPO
+  project_name: TASD
   group_name: ${oc.env:EXPERIMENT}
   experiment_name: ${oc.env:EXPERIMENT}
   n_gpus_per_node: 4
