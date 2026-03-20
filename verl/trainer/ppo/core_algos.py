@@ -1111,21 +1111,25 @@ def apply_teacher_entropy_weighting(
             return per_token_loss, _make_metrics(teacher_entropy, loss_mask)
 
         # ── 2. 根据版本计算joint_score ────────────
+        student_entropy = None  # V4专属，提前初始化避免作用域问题
+        info_gain = None        # V4专属，提前初始化避免作用域问题
+        teacher_prob_on_student = None  # V2/V2sqrt专属
+
         if weighting_version == "v1":
-            # 原V1版本
-            teacher_certainty = - teacher_entropy
+            # 原V1版本：只用teacher熵
+            teacher_certainty = -teacher_entropy
             joint_score = teacher_certainty
 
-        if weighting_version == "v1_norm":
+        elif weighting_version == "v1_norm":
             H_max = teacher_entropy.masked_fill(
                 loss_mask == 0, 0.0
             ).max().clamp(min=1e-6)
             H_normalized = teacher_entropy / H_max
-            teacher_certainty = - H_normalized
+            teacher_certainty = -H_normalized
             joint_score = teacher_certainty
 
-        if weighting_version == "v2":
-            # 原V2版本
+        elif weighting_version == "v2":
+            # V2：teacher确定程度 × student选错程度
             teacher_prob_on_student = teacher_log_prob_on_student.exp()
             H_max = teacher_entropy.masked_fill(
                 loss_mask == 0, 0.0
@@ -1135,8 +1139,8 @@ def apply_teacher_entropy_weighting(
             student_wrong = 1.0 - teacher_prob_on_student
             joint_score = teacher_certainty * student_wrong
 
-        if weighting_version == "v2sqrt":
-            # 原V2-sqrt版本
+        elif weighting_version == "v2sqrt":
+            # V2-sqrt版本：几何平均，缓和两个因子的极端值
             teacher_prob_on_student = teacher_log_prob_on_student.exp()
             H_max = teacher_entropy.masked_fill(
                 loss_mask == 0, 0.0
@@ -1146,11 +1150,20 @@ def apply_teacher_entropy_weighting(
             student_wrong = 1.0 - teacher_prob_on_student
             joint_score = torch.sqrt(teacher_certainty * student_wrong + 1e-8)
 
-        if weighting_version == "v4":
+        elif weighting_version == "v4":
             # V4：信息增益 ΔH = H_student - H_teacher
+            # 衡量feedback在该位置减少了多少不确定性
             if student_topk_log_probs is None:
                 print("[EW] v4 requires student_topk_log_probs, falling back to v2sqrt")
                 weighting_version = "v2sqrt"
+                teacher_prob_on_student = teacher_log_prob_on_student.exp()
+                H_max = teacher_entropy.masked_fill(
+                    loss_mask == 0, 0.0
+                ).max().clamp(min=1e-6)
+                H_normalized = teacher_entropy / H_max
+                teacher_certainty = 1.0 - H_normalized
+                student_wrong = 1.0 - teacher_prob_on_student
+                joint_score = torch.sqrt(teacher_certainty * student_wrong + 1e-8)
             else:
                 student_probs = student_topk_log_probs.exp()
                 safe_student_logp = torch.clamp(student_topk_log_probs, min=-100.0)
@@ -1160,6 +1173,9 @@ def apply_teacher_entropy_weighting(
                 info_gain = student_entropy - teacher_entropy  # (B, T)
                 # 只保留正增益，负值clamp到0（feedback带来噪声的位置权重为0）
                 joint_score = info_gain.clamp(min=0)
+
+        else:
+            raise ValueError(f"[EW] Unknown weighting_version: {weighting_version}")
 
         # ── 3. 统一的softmax加权流程 ──────────────
         joint_score = joint_score.masked_fill(loss_mask == 0, -1e9)
@@ -1177,16 +1193,9 @@ def apply_teacher_entropy_weighting(
         ew_metrics = _make_metrics(
             teacher_entropy=teacher_entropy,
             loss_mask=loss_mask,
-            teacher_prob_on_student=(
-                teacher_log_prob_on_student.exp()
-                if weighting_version == "v2sqrt" else None
-            ),
-            student_entropy=(
-                student_entropy if weighting_version == "v4" else None
-            ),
-            info_gain=(
-                info_gain if weighting_version == "v4" else None
-            ),
+            teacher_prob_on_student=teacher_prob_on_student,  # v2/v2sqrt时非None，其余为None
+            student_entropy=student_entropy,                  # v4时非None，其余为None
+            info_gain=info_gain,                              # v4时非None，其余为None
         )
 
     return per_token_loss * confidence_weights, ew_metrics
@@ -2618,10 +2627,11 @@ def compute_tasd_token_rewards(
 def compute_tasd_advantage(
     token_level_rewards,
     response_mask,
-    self_distillation_mask,    # 现有：是否有teacher context
+    self_distillation_mask,    # 是否有teacher context，(B,) bool tensor
     index,
-    success_mask=None,          # 新增：(B,) bool，是否是成功rollout
+    success_mask=None,          # (B,) bool，是否是成功rollout
     epsilon=1e-6,
+    config=None,                # AlgoConfig，当前仅用于兼容 compute_advantage 调用接口
     **kwargs,
 ):
     with torch.no_grad():
@@ -2639,14 +2649,14 @@ def compute_tasd_advantage(
             uid_to_indices[index[i]].append(i)
 
         for uid, indices in uid_to_indices.items():
-            
-            # 新增：检查group内是否有成功rollout
+
+            # 检查group内是否有成功rollout，没有则跳过整个group
             if success_mask is not None:
                 has_success = any(success_mask[i] for i in indices)
                 if not has_success:
-                    continue  # 跳过整个group
-            
-            # 以下逻辑不变
+                    continue
+
+            # 只收集有teacher context的response（effective_mask非零）
             valid_indices = []
             group_token_rewards = []
             for i in indices:
@@ -2656,16 +2666,16 @@ def compute_tasd_advantage(
                 group_token_rewards.append(valid_tokens)
                 valid_indices.append(i)
 
-            if len(valid_indices) <= 1:
-                continue
+            if len(valid_indices) == 0:
+                continue  # group内无任何有teacher context的response，跳过
 
             all_rewards = torch.cat(group_token_rewards)
             group_mean = all_rewards.mean()
+            # 注意：此处故意不做std归一化，因为reward已经过tanh压缩到(-1,1)量级
             # group_std = all_rewards.std(unbiased=False).clamp(min=epsilon)
 
             for i in valid_indices:
-                # adv_i = (token_level_rewards[i] - group_mean) / group_std
-                adv_i = (token_level_rewards[i] - group_mean)
+                adv_i = token_level_rewards[i] - group_mean
                 advantages[i] = adv_i * effective_mask[i]
 
     return advantages, advantages
