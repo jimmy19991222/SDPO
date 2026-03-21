@@ -1688,7 +1688,9 @@ class RayPPOTrainer:
             tasd_reward_transform  = _tasd_cfg.get("reward_transform", "tanh")
             tasd_reward_scale      = _tasd_cfg.get("reward_scale", 1.0)
             tasd_need_topk         = tasd_reward_type in (
-                "forward_kl", "reverse_kl", "jsd", "vocab_log_ratio"
+                "forward_kl", "reverse_kl", "jsd", "vocab_log_ratio",
+                "teacher_prob_relative", "teacher_prob_certainty",
+                "top1_match", "topk_match",
             )
             tasd_distill_topk      = _tasd_cfg.get("distill_topk", 100) if tasd_need_topk else None
             tasd_temperature       = self.config.actor_rollout_ref.rollout.temperature
