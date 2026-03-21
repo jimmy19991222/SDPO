@@ -2530,6 +2530,17 @@ def compute_tasd_token_rewards(
     elif reward_type == "teacher_prob":
         reward = teacher_log_probs.exp()  # (B, T) ∈ (0,1)
 
+    elif reward_type == "teacher_prob_relative":
+        assert teacher_topk_log_probs is not None
+
+        # teacher认可度相对于teacher自身baseline
+        teacher_topk_probs = teacher_topk_log_probs.exp()
+        teacher_mean_prob  = teacher_topk_probs.mean(dim=-1)  # (B, T)
+
+        # log版本（更稳定）
+        teacher_mean_log_prob = torch.log(teacher_mean_prob + 1e-9)
+        reward = teacher_log_probs - teacher_mean_log_prob  # (B, T) 有正有负
+
     elif reward_type == "teacher_prob_certainty":
         # teacher认可度 × teacher在该位置的确定性
         # certainty = 1 - H_teacher / H_max，H_max = log(K)

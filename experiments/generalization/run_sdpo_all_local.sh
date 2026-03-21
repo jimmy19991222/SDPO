@@ -34,7 +34,7 @@ CONFIG_NAME="sdpo"
 
 DATA_PATHS=(
     # "datasets/sciknoweval/biology/"
-    "datasets/sciknoweval/chemistry/"
+    # "datasets/sciknoweval/chemistry/"
     "datasets/sciknoweval/material/"
     "datasets/sciknoweval/physics/"
     "datasets/tooluse"

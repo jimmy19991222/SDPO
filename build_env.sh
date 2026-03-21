@@ -20,7 +20,7 @@ CUDA_VISIBLE_DEVICES=4,5,6,7 bash experiments/generalization/run_sdpo_all_entrop
 CUDA_VISIBLE_DEVICES=0,1,2,3 bash experiments/generalization/run_tasd_all_local_1.sh |tee logs/run_tasd_all_local_1_$(date +%Y-%m-%d_%H-%M-%S).log
 CUDA_VISIBLE_DEVICES=4,5,6,7 bash experiments/generalization/run_tasd_all_local_2.sh |tee logs/run_tasd_all_local_2_$(date +%Y-%m-%d_%H-%M-%S).log
 
-
+CUDA_VISIBLE_DEVICES=0,1,2,3 bash experiments/generalization/run_tasd_relative_rewards_local.sh |tee logs/run_tasd_relative_rewards_local_$(date +%Y-%m-%d_%H-%M-%S).log
 
 
 swanlab watch -l /home/loujieming.ljm/swanlab_logs
