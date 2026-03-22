@@ -37,7 +37,7 @@ DATA_PATHS=(
 TRAIN_BATCH_SIZES=(32)
 ROLLOUT_BATCH_SIZES=(8)
 MINI_BATCH_SIZES=(32)
-LRS=(1e-5)
+LRS=(1e-5 5e-6)
 
 # ── reward 类型 ─────────────────────────────────────────────
 REWARD_TYPES=(
