@@ -8,6 +8,7 @@ max_model_len: 18944
 actor_rollout_ref:
   actor:
     ppo_mini_batch_size: 32
+    entropy_coeff: 0.0                  # entropy bonus 系数，>0 时添加 -β*H(π) 鼓励探索，建议 0.001~0.05
     policy_loss:
       loss_mode: vanilla
     self_distillation:

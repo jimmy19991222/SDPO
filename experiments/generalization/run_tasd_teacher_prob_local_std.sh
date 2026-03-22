@@ -55,7 +55,7 @@ INCLUDE_SUCCESSFUL_ROLLOUTS_LIST=(True)
 
 # ── advantage 配置扫描 ──────────────────────────────────────
 # norm_adv_by_std: False=不除std(teacher_prob∈[0,1]天然有界), True=除std
-NORM_ADV_BY_STD_LIST=(False)
+NORM_ADV_BY_STD_LIST=(True)
 # clip_adv: True=开启clipping
 CLIP_ADV_LIST=(True)
 CLIP_ADV_VALUES=(5.0)

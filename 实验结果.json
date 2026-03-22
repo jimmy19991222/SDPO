@@ -15142,5 +15142,3045 @@
             "value": "0.38",
             "children": []
         }
+    ],
+    "TASD-sciknoweval-biology-mbs32-train32-rollout8-lr1e-5-rtteacher_prob-tfnone-topk100-usatTrue-isrTrue-nostd-clip5.0-Qwen-Qwen3-8B-2026-03-22_12-33-58": [
+        {
+            "key": "actor/entropy",
+            "step": 108,
+            "min": {
+                "data": "0.01381",
+                "step": 52
+            },
+            "max": {
+                "data": "0.4855",
+                "step": 1
+            },
+            "value": "0.02495",
+            "children": []
+        },
+        {
+            "key": "actor/grad_norm",
+            "step": 108,
+            "min": {
+                "data": "0.2167",
+                "step": 108
+            },
+            "max": {
+                "data": "1.625",
+                "step": 1
+            },
+            "value": "0.2167",
+            "children": []
+        },
+        {
+            "key": "actor/kl_loss",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "actor/lr",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 1
+            },
+            "max": {
+                "data": "1e-5",
+                "step": 102
+            },
+            "value": "1e-5",
+            "children": []
+        },
+        {
+            "key": "actor/pg_clipfrac",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "actor/pg_clipfrac_lower",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "actor/pg_loss",
+            "step": 108,
+            "min": {
+                "data": "-0.0003765",
+                "step": 40
+            },
+            "max": {
+                "data": "0.008975",
+                "step": 4
+            },
+            "value": "-0.0001434",
+            "children": []
+        },
+        {
+            "key": "actor/ppo_kl",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "critic/advantages/max",
+            "step": 108,
+            "min": {
+                "data": "0.04273",
+                "step": 79
+            },
+            "max": {
+                "data": "0.2894",
+                "step": 3
+            },
+            "value": "0.04891",
+            "children": []
+        },
+        {
+            "key": "critic/advantages/mean",
+            "step": 108,
+            "min": {
+                "data": "-3.892e-8",
+                "step": 59
+            },
+            "max": {
+                "data": "3.4597e-8",
+                "step": 3
+            },
+            "value": "-1.1977e-9",
+            "children": []
+        },
+        {
+            "key": "critic/advantages/min",
+            "step": 108,
+            "min": {
+                "data": "-0.9996",
+                "step": 53
+            },
+            "max": {
+                "data": "-0.9792",
+                "step": 4
+            },
+            "value": "-0.9981",
+            "children": []
+        },
+        {
+            "key": "critic/returns/max",
+            "step": 108,
+            "min": {
+                "data": "0.04273",
+                "step": 79
+            },
+            "max": {
+                "data": "0.2894",
+                "step": 3
+            },
+            "value": "0.04891",
+            "children": []
+        },
+        {
+            "key": "critic/returns/mean",
+            "step": 108,
+            "min": {
+                "data": "-3.892e-8",
+                "step": 59
+            },
+            "max": {
+                "data": "3.4597e-8",
+                "step": 3
+            },
+            "value": "-1.1977e-9",
+            "children": []
+        },
+        {
+            "key": "critic/returns/min",
+            "step": 108,
+            "min": {
+                "data": "-0.9996",
+                "step": 53
+            },
+            "max": {
+                "data": "-0.9792",
+                "step": 4
+            },
+            "value": "-0.9981",
+            "children": []
+        },
+        {
+            "key": "critic/rewards/max",
+            "step": 108,
+            "min": {
+                "data": "332.7772",
+                "step": 95
+            },
+            "max": {
+                "data": "8187.6909",
+                "step": 70
+            },
+            "value": "8176.5766",
+            "children": []
+        },
+        {
+            "key": "critic/rewards/mean",
+            "step": 108,
+            "min": {
+                "data": "245.08125",
+                "step": 94
+            },
+            "max": {
+                "data": "1477.9846",
+                "step": 52
+            },
+            "value": "276.7702",
+            "children": []
+        },
+        {
+            "key": "critic/rewards/min",
+            "step": 108,
+            "min": {
+                "data": "58.534",
+                "step": 1
+            },
+            "max": {
+                "data": "219.3139",
+                "step": 46
+            },
+            "value": "157.1638",
+            "children": []
+        },
+        {
+            "key": "critic/score/max",
+            "step": 108,
+            "min": {
+                "data": "1",
+                "step": 102
+            },
+            "max": {
+                "data": "1",
+                "step": 102
+            },
+            "value": "1",
+            "children": []
+        },
+        {
+            "key": "critic/score/mean",
+            "step": 108,
+            "min": {
+                "data": "0.2226",
+                "step": 1
+            },
+            "max": {
+                "data": "0.7343",
+                "step": 102
+            },
+            "value": "0.4218",
+            "children": []
+        },
+        {
+            "key": "critic/score/min",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "global_seqlen/balanced_max",
+            "step": 108,
+            "min": {
+                "data": "34182",
+                "step": 94
+            },
+            "max": {
+                "data": "1.1666e+5",
+                "step": 52
+            },
+            "value": "41884",
+            "children": []
+        },
+        {
+            "key": "global_seqlen/balanced_min",
+            "step": 108,
+            "min": {
+                "data": "34181",
+                "step": 94
+            },
+            "max": {
+                "data": "1.0947e+5",
+                "step": 52
+            },
+            "value": "34544",
+            "children": []
+        },
+        {
+            "key": "global_seqlen/max",
+            "step": 108,
+            "min": {
+                "data": "36215",
+                "step": 99
+            },
+            "max": {
+                "data": "1.7066e+5",
+                "step": 52
+            },
+            "value": "44226",
+            "children": []
+        },
+        {
+            "key": "global_seqlen/mean",
+            "step": 108,
+            "min": {
+                "data": "34181.75",
+                "step": 94
+            },
+            "max": {
+                "data": "1.1308e+5",
+                "step": 52
+            },
+            "value": "36379.25",
+            "children": []
+        },
+        {
+            "key": "global_seqlen/min",
+            "step": 108,
+            "min": {
+                "data": "29398",
+                "step": 80
+            },
+            "max": {
+                "data": "68230",
+                "step": 52
+            },
+            "value": "30764",
+            "children": []
+        },
+        {
+            "key": "global_seqlen/minmax_diff",
+            "step": 108,
+            "min": {
+                "data": "1751",
+                "step": 20
+            },
+            "max": {
+                "data": "1.0328e+5",
+                "step": 48
+            },
+            "value": "13462",
+            "children": []
+        },
+        {
+            "key": "num_turns/max",
+            "step": 108,
+            "min": {
+                "data": "2",
+                "step": 102
+            },
+            "max": {
+                "data": "2",
+                "step": 102
+            },
+            "value": "2",
+            "children": []
+        },
+        {
+            "key": "num_turns/mean",
+            "step": 108,
+            "min": {
+                "data": "2",
+                "step": 102
+            },
+            "max": {
+                "data": "2",
+                "step": 102
+            },
+            "value": "2",
+            "children": []
+        },
+        {
+            "key": "num_turns/min",
+            "step": 108,
+            "min": {
+                "data": "2",
+                "step": 102
+            },
+            "max": {
+                "data": "2",
+                "step": 102
+            },
+            "value": "2",
+            "children": []
+        },
+        {
+            "key": "perf/cpu_memory_used_gb",
+            "step": 108,
+            "min": {
+                "data": "35.9269",
+                "step": 57
+            },
+            "max": {
+                "data": "46.09372",
+                "step": 18
+            },
+            "value": "36.8196",
+            "children": []
+        },
+        {
+            "key": "perf/max_memory_allocated_gb",
+            "step": 108,
+            "min": {
+                "data": "135.5584",
+                "step": 1
+            },
+            "max": {
+                "data": "153.7499",
+                "step": 102
+            },
+            "value": "153.7499",
+            "children": []
+        },
+        {
+            "key": "perf/max_memory_reserved_gb",
+            "step": 108,
+            "min": {
+                "data": "149.1367",
+                "step": 1
+            },
+            "max": {
+                "data": "169.33",
+                "step": 102
+            },
+            "value": "169.33",
+            "children": []
+        },
+        {
+            "key": "perf/mfu/actor",
+            "step": 108,
+            "min": {
+                "data": "0.3054",
+                "step": 76
+            },
+            "max": {
+                "data": "0.5054",
+                "step": 54
+            },
+            "value": "0.3183",
+            "children": []
+        },
+        {
+            "key": "perf/mfu/actor_infer",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "perf/throughput",
+            "step": 108,
+            "min": {
+                "data": "217.9676",
+                "step": 1
+            },
+            "max": {
+                "data": "618.1246",
+                "step": 64
+            },
+            "value": "268.7133",
+            "children": []
+        },
+        {
+            "key": "perf/time_per_step",
+            "step": 108,
+            "min": {
+                "data": "62.1973",
+                "step": 94
+            },
+            "max": {
+                "data": "287.4106",
+                "step": 52
+            },
+            "value": "135.383",
+            "children": []
+        },
+        {
+            "key": "perf/total_num_tokens",
+            "step": 108,
+            "min": {
+                "data": "1.3673e+5",
+                "step": 94
+            },
+            "max": {
+                "data": "4.5232e+5",
+                "step": 52
+            },
+            "value": "1.4552e+5",
+            "children": []
+        },
+        {
+            "key": "prompt_length/clip_ratio",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "prompt_length/max",
+            "step": 108,
+            "min": {
+                "data": "498",
+                "step": 106
+            },
+            "max": {
+                "data": "500",
+                "step": 103
+            },
+            "value": "499",
+            "children": []
+        },
+        {
+            "key": "prompt_length/mean",
+            "step": 108,
+            "min": {
+                "data": "251.09375",
+                "step": 42
+            },
+            "max": {
+                "data": "379.9375",
+                "step": 64
+            },
+            "value": "288.5",
+            "children": []
+        },
+        {
+            "key": "prompt_length/min",
+            "step": 108,
+            "min": {
+                "data": "179",
+                "step": 102
+            },
+            "max": {
+                "data": "183",
+                "step": 64
+            },
+            "value": "179",
+            "children": []
+        },
+        {
+            "key": "response/aborted_ratio",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "response_length/clip_ratio",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0.1484",
+                "step": 52
+            },
+            "value": "0.003906",
+            "children": []
+        },
+        {
+            "key": "response_length/max",
+            "step": 108,
+            "min": {
+                "data": "333",
+                "step": 95
+            },
+            "max": {
+                "data": "8192",
+                "step": 108
+            },
+            "value": "8192",
+            "children": []
+        },
+        {
+            "key": "response_length/mean",
+            "step": 108,
+            "min": {
+                "data": "249.6835",
+                "step": 94
+            },
+            "max": {
+                "data": "1487.7968",
+                "step": 52
+            },
+            "value": "279.9257",
+            "children": []
+        },
+        {
+            "key": "response_length/min",
+            "step": 108,
+            "min": {
+                "data": "76",
+                "step": 1
+            },
+            "max": {
+                "data": "238",
+                "step": 49
+            },
+            "value": "163",
+            "children": []
+        },
+        {
+            "key": "response_length_non_aborted/clip_ratio",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0.1484",
+                "step": 52
+            },
+            "value": "0.003906",
+            "children": []
+        },
+        {
+            "key": "response_length_non_aborted/max",
+            "step": 108,
+            "min": {
+                "data": "333",
+                "step": 95
+            },
+            "max": {
+                "data": "8192",
+                "step": 108
+            },
+            "value": "8192",
+            "children": []
+        },
+        {
+            "key": "response_length_non_aborted/mean",
+            "step": 108,
+            "min": {
+                "data": "249.6835",
+                "step": 94
+            },
+            "max": {
+                "data": "1487.7968",
+                "step": 52
+            },
+            "value": "279.9257",
+            "children": []
+        },
+        {
+            "key": "response_length_non_aborted/min",
+            "step": 108,
+            "min": {
+                "data": "76",
+                "step": 1
+            },
+            "max": {
+                "data": "238",
+                "step": 49
+            },
+            "value": "163",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/chi2_seq",
+            "step": 108,
+            "min": {
+                "data": "0.1151",
+                "step": 87
+            },
+            "max": {
+                "data": "20.9162",
+                "step": 19
+            },
+            "value": "0.677",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/chi2_token",
+            "step": 108,
+            "min": {
+                "data": "0.0007921",
+                "step": 102
+            },
+            "max": {
+                "data": "0.005065",
+                "step": 12
+            },
+            "value": "0.002551",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/k3_kl",
+            "step": 108,
+            "min": {
+                "data": "0.000639",
+                "step": 97
+            },
+            "max": {
+                "data": "0.001885",
+                "step": 11
+            },
+            "value": "0.001139",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/kl",
+            "step": 108,
+            "min": {
+                "data": "0.0004531",
+                "step": 82
+            },
+            "max": {
+                "data": "0.001862",
+                "step": 24
+            },
+            "value": "0.001045",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/log_ppl_abs_diff",
+            "step": 108,
+            "min": {
+                "data": "0.001694",
+                "step": 88
+            },
+            "max": {
+                "data": "0.003236",
+                "step": 26
+            },
+            "value": "0.002417",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/log_ppl_diff",
+            "step": 108,
+            "min": {
+                "data": "0.0004531",
+                "step": 82
+            },
+            "max": {
+                "data": "0.001862",
+                "step": 24
+            },
+            "value": "0.001045",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/log_ppl_diff_max",
+            "step": 108,
+            "min": {
+                "data": "0.007632",
+                "step": 81
+            },
+            "max": {
+                "data": "0.02242",
+                "step": 75
+            },
+            "value": "0.01967",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/log_ppl_diff_min",
+            "step": 108,
+            "min": {
+                "data": "-0.01442",
+                "step": 2
+            },
+            "max": {
+                "data": "-0.004452",
+                "step": 49
+            },
+            "value": "-0.009354",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/ppl_ratio",
+            "step": 108,
+            "min": {
+                "data": "1.0004574",
+                "step": 82
+            },
+            "max": {
+                "data": "1.001871",
+                "step": 24
+            },
+            "value": "1.001051",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/rollout_log_ppl",
+            "step": 108,
+            "min": {
+                "data": "0.02273",
+                "step": 102
+            },
+            "max": {
+                "data": "0.5083",
+                "step": 1
+            },
+            "value": "0.0303",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/rollout_ppl",
+            "step": 108,
+            "min": {
+                "data": "1.0231",
+                "step": 102
+            },
+            "max": {
+                "data": "1.6816",
+                "step": 1
+            },
+            "value": "1.03098",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/training_log_ppl",
+            "step": 108,
+            "min": {
+                "data": "0.02363",
+                "step": 102
+            },
+            "max": {
+                "data": "0.5091",
+                "step": 1
+            },
+            "value": "0.03134",
+            "children": []
+        },
+        {
+            "key": "rollout_corr/training_ppl",
+            "step": 108,
+            "min": {
+                "data": "1.02404",
+                "step": 102
+            },
+            "max": {
+                "data": "1.683",
+                "step": 1
+            },
+            "value": "1.03207",
+            "children": []
+        },
+        {
+            "key": "self_distillation/feedback_available_fraction",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "self_distillation/feedback_used_fraction",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "self_distillation/reprompt_sample_fraction",
+            "step": 108,
+            "min": {
+                "data": "0.4687",
+                "step": 108
+            },
+            "max": {
+                "data": "0.9375",
+                "step": 39
+            },
+            "value": "0.4687",
+            "children": []
+        },
+        {
+            "key": "self_distillation/success_group_fraction",
+            "step": 108,
+            "min": {
+                "data": "0.4687",
+                "step": 108
+            },
+            "max": {
+                "data": "0.9375",
+                "step": 39
+            },
+            "value": "0.4687",
+            "children": []
+        },
+        {
+            "key": "self_distillation/success_sample_fraction",
+            "step": 108,
+            "min": {
+                "data": "0.4687",
+                "step": 108
+            },
+            "max": {
+                "data": "0.9375",
+                "step": 39
+            },
+            "value": "0.4687",
+            "children": []
+        },
+        {
+            "key": "tasd/advantage_mean",
+            "step": 108,
+            "min": {
+                "data": "-3.892e-8",
+                "step": 59
+            },
+            "max": {
+                "data": "3.4597e-8",
+                "step": 3
+            },
+            "value": "-1.1977e-9",
+            "children": []
+        },
+        {
+            "key": "tasd/advantage_pos_rate",
+            "step": 108,
+            "min": {
+                "data": "0.2422",
+                "step": 51
+            },
+            "max": {
+                "data": "0.9021",
+                "step": 39
+            },
+            "value": "0.4068",
+            "children": []
+        },
+        {
+            "key": "tasd/advantage_std",
+            "step": 108,
+            "min": {
+                "data": "0.05411",
+                "step": 108
+            },
+            "max": {
+                "data": "0.2464",
+                "step": 1
+            },
+            "value": "0.05411",
+            "children": []
+        },
+        {
+            "key": "tasd/success_rate",
+            "step": 108,
+            "min": {
+                "data": "0.2226",
+                "step": 1
+            },
+            "max": {
+                "data": "0.7343",
+                "step": 102
+            },
+            "value": "0.4218",
+            "children": []
+        },
+        {
+            "key": "tasd/token_reward_mean",
+            "step": 108,
+            "min": {
+                "data": "0.8343",
+                "step": 1
+            },
+            "max": {
+                "data": "0.9934",
+                "step": 52
+            },
+            "value": "0.9887",
+            "children": []
+        },
+        {
+            "key": "tasd/token_reward_mean_fail",
+            "step": 108,
+            "min": {
+                "data": "0.771",
+                "step": 3
+            },
+            "max": {
+                "data": "0.9926",
+                "step": 52
+            },
+            "value": "0.9825",
+            "children": []
+        },
+        {
+            "key": "tasd/token_reward_mean_success",
+            "step": 108,
+            "min": {
+                "data": "0.9981",
+                "step": 1
+            },
+            "max": {
+                "data": "0.9999",
+                "step": 78
+            },
+            "value": "0.9993",
+            "children": []
+        },
+        {
+            "key": "tasd/token_reward_pos_rate",
+            "step": 108,
+            "min": {
+                "data": "1",
+                "step": 102
+            },
+            "max": {
+                "data": "1",
+                "step": 102
+            },
+            "value": "1",
+            "children": []
+        },
+        {
+            "key": "tasd/token_reward_std",
+            "step": 108,
+            "min": {
+                "data": "0.07005",
+                "step": 52
+            },
+            "max": {
+                "data": "0.3008",
+                "step": 1
+            },
+            "value": "0.08558",
+            "children": []
+        },
+        {
+            "key": "tasd/token_reward_std_fail",
+            "step": 108,
+            "min": {
+                "data": "0.07406",
+                "step": 52
+            },
+            "max": {
+                "data": "0.336",
+                "step": 3
+            },
+            "value": "0.1054",
+            "children": []
+        },
+        {
+            "key": "tasd/token_reward_std_success",
+            "step": 108,
+            "min": {
+                "data": "0.001731",
+                "step": 78
+            },
+            "max": {
+                "data": "0.02827",
+                "step": 1
+            },
+            "value": "0.02419",
+            "children": []
+        },
+        {
+            "key": "tasd/verifier_reward_mean",
+            "step": 108,
+            "min": {
+                "data": "0.0002066",
+                "step": 54
+            },
+            "max": {
+                "data": "0.002706",
+                "step": 102
+            },
+            "value": "0.001507",
+            "children": []
+        },
+        {
+            "key": "timing_per_token_ms/adv",
+            "step": 108,
+            "min": {
+                "data": "0.05259",
+                "step": 52
+            },
+            "max": {
+                "data": "0.08388",
+                "step": 23
+            },
+            "value": "0.07817",
+            "children": []
+        },
+        {
+            "key": "timing_per_token_ms/gen",
+            "step": 108,
+            "min": {
+                "data": "0.1278",
+                "step": 106
+            },
+            "max": {
+                "data": "1.2387",
+                "step": 1
+            },
+            "value": "1.05637",
+            "children": []
+        },
+        {
+            "key": "timing_per_token_ms/update_actor",
+            "step": 108,
+            "min": {
+                "data": "0.1823",
+                "step": 54
+            },
+            "max": {
+                "data": "0.2791",
+                "step": 76
+            },
+            "value": "0.2679",
+            "children": []
+        },
+        {
+            "key": "timing_s/adv",
+            "step": 108,
+            "min": {
+                "data": "10.4007",
+                "step": 94
+            },
+            "max": {
+                "data": "23.7898",
+                "step": 52
+            },
+            "value": "11.3761",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/generate_sequences/max",
+            "step": 108,
+            "min": {
+                "data": "4.8143",
+                "step": 95
+            },
+            "max": {
+                "data": "153.8472",
+                "step": 54
+            },
+            "value": "71.03362",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/generate_sequences/mean",
+            "step": 108,
+            "min": {
+                "data": "4.002838",
+                "step": 94
+            },
+            "max": {
+                "data": "22.6533",
+                "step": 52
+            },
+            "value": "4.2478",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/generate_sequences/min",
+            "step": 108,
+            "min": {
+                "data": "1.7533",
+                "step": 24
+            },
+            "max": {
+                "data": "7.3911",
+                "step": 1
+            },
+            "value": "2.9251",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/slowest/generate_sequences",
+            "step": 108,
+            "min": {
+                "data": "4.8143",
+                "step": 95
+            },
+            "max": {
+                "data": "153.8472",
+                "step": 54
+            },
+            "value": "71.03362",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/slowest/prompt_length",
+            "step": 108,
+            "min": {
+                "data": "180",
+                "step": 107
+            },
+            "max": {
+                "data": "499",
+                "step": 29
+            },
+            "value": "183",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/slowest/response_length",
+            "step": 108,
+            "min": {
+                "data": "333",
+                "step": 95
+            },
+            "max": {
+                "data": "8192",
+                "step": 108
+            },
+            "value": "8192",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/slowest/tool_calls",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/tool_calls/max",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/tool_calls/mean",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "timing_s/agent_loop/tool_calls/min",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 102
+            },
+            "max": {
+                "data": "0",
+                "step": 102
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "timing_s/gen",
+            "step": 108,
+            "min": {
+                "data": "8.3933",
+                "step": 106
+            },
+            "max": {
+                "data": "158.9977",
+                "step": 52
+            },
+            "value": "75.7011",
+            "children": []
+        },
+        {
+            "key": "timing_s/old_log_prob",
+            "step": 108,
+            "min": {
+                "data": "8.09524",
+                "step": 80
+            },
+            "max": {
+                "data": "24.04497",
+                "step": 1
+            },
+            "value": "9.2322",
+            "children": []
+        },
+        {
+            "key": "timing_s/reward",
+            "step": 108,
+            "min": {
+                "data": "0.05088",
+                "step": 94
+            },
+            "max": {
+                "data": "0.1187",
+                "step": 52
+            },
+            "value": "0.05313",
+            "children": []
+        },
+        {
+            "key": "timing_s/start_profile",
+            "step": 108,
+            "min": {
+                "data": "3.2613e-5",
+                "step": 5
+            },
+            "max": {
+                "data": "0.000313",
+                "step": 43
+            },
+            "value": "3.6079e-5",
+            "children": []
+        },
+        {
+            "key": "timing_s/step",
+            "step": 108,
+            "min": {
+                "data": "62.1973",
+                "step": 94
+            },
+            "max": {
+                "data": "287.4106",
+                "step": 52
+            },
+            "value": "135.383",
+            "children": []
+        },
+        {
+            "key": "timing_s/stop_profile",
+            "step": 108,
+            "min": {
+                "data": "4.2636e-5",
+                "step": 76
+            },
+            "max": {
+                "data": "0.0001198",
+                "step": 79
+            },
+            "value": "4.8373e-5",
+            "children": []
+        },
+        {
+            "key": "timing_s/tasd_teacher_fwd",
+            "step": 108,
+            "min": {
+                "data": "9.972",
+                "step": 94
+            },
+            "max": {
+                "data": "23.2851",
+                "step": 52
+            },
+            "value": "10.9519",
+            "children": []
+        },
+        {
+            "key": "timing_s/testing",
+            "step": 105,
+            "min": {
+                "data": "24.8847",
+                "step": 100
+            },
+            "max": {
+                "data": "226.09878",
+                "step": 50
+            },
+            "value": "95.4137",
+            "children": []
+        },
+        {
+            "key": "timing_s/update_actor",
+            "step": 108,
+            "min": {
+                "data": "34.4432",
+                "step": 99
+            },
+            "max": {
+                "data": "83.5508",
+                "step": 52
+            },
+            "value": "38.9908",
+            "children": []
+        },
+        {
+            "key": "training/epoch",
+            "step": 108,
+            "min": {
+                "data": "0",
+                "step": 1
+            },
+            "max": {
+                "data": "7",
+                "step": 102
+            },
+            "value": "7",
+            "children": []
+        },
+        {
+            "key": "training/global_step",
+            "step": 108,
+            "min": {
+                "data": "1",
+                "step": 1
+            },
+            "max": {
+                "data": "108",
+                "step": 108
+            },
+            "value": "108",
+            "children": []
+        },
+        {
+            "key": "training/rollout_actor_probs_pearson_corr",
+            "step": 108,
+            "min": {
+                "data": "0.9797",
+                "step": 105
+            },
+            "max": {
+                "data": "0.9992",
+                "step": 2
+            },
+            "value": "0.9825",
+            "children": []
+        },
+        {
+            "key": "training/rollout_probs_diff_max",
+            "step": 108,
+            "min": {
+                "data": "0.2415",
+                "step": 2
+            },
+            "max": {
+                "data": "0.9602",
+                "step": 12
+            },
+            "value": "0.6355",
+            "children": []
+        },
+        {
+            "key": "training/rollout_probs_diff_mean",
+            "step": 108,
+            "min": {
+                "data": "0.000841",
+                "step": 52
+            },
+            "max": {
+                "data": "0.005382",
+                "step": 5
+            },
+            "value": "0.002177",
+            "children": []
+        },
+        {
+            "key": "training/rollout_probs_diff_std",
+            "step": 108,
+            "min": {
+                "data": "0.008271",
+                "step": 52
+            },
+            "max": {
+                "data": "0.02135",
+                "step": 23
+            },
+            "value": "0.0163",
+            "children": []
+        },
+        {
+            "key": "training/rollout_probs_diff_valid",
+            "step": 108,
+            "min": {
+                "data": "1",
+                "step": 102
+            },
+            "max": {
+                "data": "1",
+                "step": 102
+            },
+            "value": "1",
+            "children": []
+        },
+        {
+            "key": "val-aux/num_turns/max",
+            "step": 105,
+            "min": {
+                "data": "2",
+                "step": 105
+            },
+            "max": {
+                "data": "2",
+                "step": 105
+            },
+            "value": "2",
+            "children": []
+        },
+        {
+            "key": "val-aux/num_turns/mean",
+            "step": 105,
+            "min": {
+                "data": "2",
+                "step": 105
+            },
+            "max": {
+                "data": "2",
+                "step": 105
+            },
+            "value": "2",
+            "children": []
+        },
+        {
+            "key": "val-aux/num_turns/min",
+            "step": 105,
+            "min": {
+                "data": "2",
+                "step": 105
+            },
+            "max": {
+                "data": "2",
+                "step": 105
+            },
+            "value": "2",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/best@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.383",
+                "step": 50
+            },
+            "max": {
+                "data": "0.6351",
+                "step": 75
+            },
+            "value": "0.533",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/best@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.0646",
+                "step": 105
+            },
+            "max": {
+                "data": "0.3115",
+                "step": 15
+            },
+            "value": "0.0646",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/best@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.4382",
+                "step": 50
+            },
+            "max": {
+                "data": "0.6909",
+                "step": 75
+            },
+            "value": "0.5563",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/best@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.04466",
+                "step": 105
+            },
+            "max": {
+                "data": "0.266",
+                "step": 15
+            },
+            "value": "0.04466",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/best@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.4865",
+                "step": 50
+            },
+            "max": {
+                "data": "0.7224",
+                "step": 75
+            },
+            "value": "0.5731",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/best@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.03306",
+                "step": 105
+            },
+            "max": {
+                "data": "0.1945",
+                "step": 15
+            },
+            "value": "0.03306",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/maj@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2909",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5489",
+                "step": 75
+            },
+            "value": "0.4998",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/maj@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.08603",
+                "step": 105
+            },
+            "max": {
+                "data": "0.336",
+                "step": 10
+            },
+            "value": "0.08603",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/maj@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2855",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5614",
+                "step": 75
+            },
+            "value": "0.5051",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/maj@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.06508",
+                "step": 105
+            },
+            "max": {
+                "data": "0.2864",
+                "step": 10
+            },
+            "value": "0.06508",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/maj@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2834",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5727",
+                "step": 75
+            },
+            "value": "0.5093",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/maj@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.03529",
+                "step": 80
+            },
+            "max": {
+                "data": "0.229",
+                "step": 5
+            },
+            "value": "0.04559",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/std@16",
+            "step": 105,
+            "min": {
+                "data": "0.08588",
+                "step": 105
+            },
+            "max": {
+                "data": "0.3345",
+                "step": 10
+            },
+            "value": "0.08588",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/worst@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.01362",
+                "step": 10
+            },
+            "max": {
+                "data": "0.3847",
+                "step": 105
+            },
+            "value": "0.3847",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/worst@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.005655",
+                "step": 65
+            },
+            "max": {
+                "data": "0.09346",
+                "step": 80
+            },
+            "value": "0.03961",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/worst@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.1703",
+                "step": 5
+            },
+            "max": {
+                "data": "0.4662",
+                "step": 105
+            },
+            "value": "0.4662",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/worst@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.07417",
+                "step": 65
+            },
+            "max": {
+                "data": "0.2633",
+                "step": 10
+            },
+            "value": "0.08",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/worst@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.08306",
+                "step": 5
+            },
+            "max": {
+                "data": "0.4356",
+                "step": 105
+            },
+            "value": "0.4356",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/worst@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.04749",
+                "step": 65
+            },
+            "max": {
+                "data": "0.1626",
+                "step": 10
+            },
+            "value": "0.06803",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/worst@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.04212",
+                "step": 10
+            },
+            "max": {
+                "data": "0.4082",
+                "step": 105
+            },
+            "value": "0.4082",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/acc/worst@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.02407",
+                "step": 65
+            },
+            "max": {
+                "data": "0.125",
+                "step": 80
+            },
+            "value": "0.05538",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/best@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.2332",
+                "step": 45
+            },
+            "value": "0.01768",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/best@16/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.08102",
+                "step": 35
+            },
+            "value": "0.006404",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/best@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.1667",
+                "step": 50
+            },
+            "value": "0.00452",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/best@2/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.1058",
+                "step": 45
+            },
+            "value": "0.008364",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/best@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.2011",
+                "step": 50
+            },
+            "value": "0.00818",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/best@4/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.09667",
+                "step": 40
+            },
+            "value": "0.009832",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/best@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.2199",
+                "step": 50
+            },
+            "value": "0.01308",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/best@8/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.08681",
+                "step": 35
+            },
+            "value": "0.009513",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/maj@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 25
+            },
+            "max": {
+                "data": "0.044",
+                "step": 50
+            },
+            "value": "2e-5",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/maj@16/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 25
+            },
+            "max": {
+                "data": "0.05673",
+                "step": 50
+            },
+            "value": "0.0006321",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/maj@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.1202",
+                "step": 50
+            },
+            "value": "0.002379",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/maj@2/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.1051",
+                "step": 55
+            },
+            "value": "0.006475",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/maj@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.09278",
+                "step": 50
+            },
+            "value": "0.00092",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/maj@4/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.09498",
+                "step": 50
+            },
+            "value": "0.004189",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/maj@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 90
+            },
+            "max": {
+                "data": "0.06676",
+                "step": 50
+            },
+            "value": "0.00028",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/maj@8/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 90
+            },
+            "max": {
+                "data": "0.07956",
+                "step": 50
+            },
+            "value": "0.002349",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/mean@16",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.1187",
+                "step": 50
+            },
+            "value": "0.0025",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/std@16",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.1053",
+                "step": 55
+            },
+            "value": "0.006614",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/worst@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 105
+            },
+            "max": {
+                "data": "0.001",
+                "step": 50
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/worst@16/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 105
+            },
+            "max": {
+                "data": "0.007112",
+                "step": 50
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/worst@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.0727",
+                "step": 50
+            },
+            "value": "0.00028",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/worst@2/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 95
+            },
+            "max": {
+                "data": "0.0915",
+                "step": 50
+            },
+            "value": "0.002349",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/worst@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 20
+            },
+            "max": {
+                "data": "0.03346",
+                "step": 50
+            },
+            "value": "2e-5",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/worst@4/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 20
+            },
+            "max": {
+                "data": "0.06305",
+                "step": 50
+            },
+            "value": "0.0006321",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/worst@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 105
+            },
+            "max": {
+                "data": "0.00958",
+                "step": 50
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/incorrect_format/worst@8/std",
+            "step": 105,
+            "min": {
+                "data": "0",
+                "step": 105
+            },
+            "max": {
+                "data": "0.02989",
+                "step": 50
+            },
+            "value": "0",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/best@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.5241",
+                "step": 50
+            },
+            "max": {
+                "data": "0.7809",
+                "step": 15
+            },
+            "value": "0.5877",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/best@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.01643",
+                "step": 100
+            },
+            "max": {
+                "data": "0.1229",
+                "step": 20
+            },
+            "value": "0.02412",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/best@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.383",
+                "step": 50
+            },
+            "max": {
+                "data": "0.6351",
+                "step": 75
+            },
+            "value": "0.533",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/best@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.0646",
+                "step": 105
+            },
+            "max": {
+                "data": "0.3115",
+                "step": 15
+            },
+            "value": "0.0646",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/best@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.4382",
+                "step": 50
+            },
+            "max": {
+                "data": "0.6909",
+                "step": 75
+            },
+            "value": "0.5563",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/best@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.04466",
+                "step": 105
+            },
+            "max": {
+                "data": "0.266",
+                "step": 15
+            },
+            "value": "0.04466",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/best@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.4865",
+                "step": 50
+            },
+            "max": {
+                "data": "0.7224",
+                "step": 75
+            },
+            "value": "0.5731",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/best@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.03306",
+                "step": 105
+            },
+            "max": {
+                "data": "0.1945",
+                "step": 15
+            },
+            "value": "0.03306",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/maj@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2853",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5773",
+                "step": 75
+            },
+            "value": "0.5105",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/maj@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.01031",
+                "step": 80
+            },
+            "max": {
+                "data": "0.1814",
+                "step": 5
+            },
+            "value": "0.03316",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/maj@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2909",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5489",
+                "step": 75
+            },
+            "value": "0.4998",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/maj@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.08603",
+                "step": 105
+            },
+            "max": {
+                "data": "0.336",
+                "step": 10
+            },
+            "value": "0.08603",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/maj@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2855",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5614",
+                "step": 75
+            },
+            "value": "0.5051",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/maj@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.06508",
+                "step": 105
+            },
+            "max": {
+                "data": "0.2864",
+                "step": 10
+            },
+            "value": "0.06508",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/maj@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2834",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5727",
+                "step": 75
+            },
+            "value": "0.5093",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/maj@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.03529",
+                "step": 80
+            },
+            "max": {
+                "data": "0.229",
+                "step": 5
+            },
+            "value": "0.04559",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/mean@16",
+            "step": 105,
+            "min": {
+                "data": "0.29",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5487",
+                "step": 75
+            },
+            "value": "0.5012",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/std@16",
+            "step": 105,
+            "min": {
+                "data": "0.08588",
+                "step": 105
+            },
+            "max": {
+                "data": "0.3345",
+                "step": 10
+            },
+            "value": "0.08588",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/worst@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.01362",
+                "step": 10
+            },
+            "max": {
+                "data": "0.3847",
+                "step": 105
+            },
+            "value": "0.3847",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/worst@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.005655",
+                "step": 65
+            },
+            "max": {
+                "data": "0.09346",
+                "step": 80
+            },
+            "value": "0.03961",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/worst@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.1703",
+                "step": 5
+            },
+            "max": {
+                "data": "0.4662",
+                "step": 105
+            },
+            "value": "0.4662",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/worst@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.07417",
+                "step": 65
+            },
+            "max": {
+                "data": "0.2633",
+                "step": 10
+            },
+            "value": "0.08",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/worst@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.08306",
+                "step": 5
+            },
+            "max": {
+                "data": "0.4356",
+                "step": 105
+            },
+            "value": "0.4356",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/worst@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.04749",
+                "step": 65
+            },
+            "max": {
+                "data": "0.1626",
+                "step": 10
+            },
+            "value": "0.06803",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/worst@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.04212",
+                "step": 10
+            },
+            "max": {
+                "data": "0.4082",
+                "step": 105
+            },
+            "value": "0.4082",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/reward/worst@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.02407",
+                "step": 65
+            },
+            "max": {
+                "data": "0.125",
+                "step": 80
+            },
+            "value": "0.05538",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/best@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.5241",
+                "step": 50
+            },
+            "max": {
+                "data": "0.7809",
+                "step": 15
+            },
+            "value": "0.5877",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/best@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.01643",
+                "step": 100
+            },
+            "max": {
+                "data": "0.1229",
+                "step": 20
+            },
+            "value": "0.02412",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/best@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.383",
+                "step": 50
+            },
+            "max": {
+                "data": "0.6351",
+                "step": 75
+            },
+            "value": "0.533",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/best@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.0646",
+                "step": 105
+            },
+            "max": {
+                "data": "0.3115",
+                "step": 15
+            },
+            "value": "0.0646",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/best@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.4382",
+                "step": 50
+            },
+            "max": {
+                "data": "0.6909",
+                "step": 75
+            },
+            "value": "0.5563",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/best@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.04466",
+                "step": 105
+            },
+            "max": {
+                "data": "0.266",
+                "step": 15
+            },
+            "value": "0.04466",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/best@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.4865",
+                "step": 50
+            },
+            "max": {
+                "data": "0.7224",
+                "step": 75
+            },
+            "value": "0.5731",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/best@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.03306",
+                "step": 105
+            },
+            "max": {
+                "data": "0.1945",
+                "step": 15
+            },
+            "value": "0.03306",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/maj@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2853",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5773",
+                "step": 75
+            },
+            "value": "0.5105",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/maj@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.01031",
+                "step": 80
+            },
+            "max": {
+                "data": "0.1814",
+                "step": 5
+            },
+            "value": "0.03316",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/maj@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2909",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5489",
+                "step": 75
+            },
+            "value": "0.4998",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/maj@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.08603",
+                "step": 105
+            },
+            "max": {
+                "data": "0.336",
+                "step": 10
+            },
+            "value": "0.08603",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/maj@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2855",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5614",
+                "step": 75
+            },
+            "value": "0.5051",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/maj@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.06508",
+                "step": 105
+            },
+            "max": {
+                "data": "0.2864",
+                "step": 10
+            },
+            "value": "0.06508",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/maj@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2834",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5727",
+                "step": 75
+            },
+            "value": "0.5093",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/maj@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.03529",
+                "step": 80
+            },
+            "max": {
+                "data": "0.229",
+                "step": 5
+            },
+            "value": "0.04559",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/mean@16",
+            "step": 105,
+            "min": {
+                "data": "0.29",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5487",
+                "step": 75
+            },
+            "value": "0.5012",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/std@16",
+            "step": 105,
+            "min": {
+                "data": "0.08588",
+                "step": 105
+            },
+            "max": {
+                "data": "0.3345",
+                "step": 10
+            },
+            "value": "0.08588",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/worst@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.01362",
+                "step": 10
+            },
+            "max": {
+                "data": "0.3847",
+                "step": 105
+            },
+            "value": "0.3847",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/worst@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.005655",
+                "step": 65
+            },
+            "max": {
+                "data": "0.09346",
+                "step": 80
+            },
+            "value": "0.03961",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/worst@2/mean",
+            "step": 105,
+            "min": {
+                "data": "0.1703",
+                "step": 5
+            },
+            "max": {
+                "data": "0.4662",
+                "step": 105
+            },
+            "value": "0.4662",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/worst@2/std",
+            "step": 105,
+            "min": {
+                "data": "0.07417",
+                "step": 65
+            },
+            "max": {
+                "data": "0.2633",
+                "step": 10
+            },
+            "value": "0.08",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/worst@4/mean",
+            "step": 105,
+            "min": {
+                "data": "0.08306",
+                "step": 5
+            },
+            "max": {
+                "data": "0.4356",
+                "step": 105
+            },
+            "value": "0.4356",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/worst@4/std",
+            "step": 105,
+            "min": {
+                "data": "0.04749",
+                "step": 65
+            },
+            "max": {
+                "data": "0.1626",
+                "step": 10
+            },
+            "value": "0.06803",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/worst@8/mean",
+            "step": 105,
+            "min": {
+                "data": "0.04212",
+                "step": 10
+            },
+            "max": {
+                "data": "0.4082",
+                "step": 105
+            },
+            "value": "0.4082",
+            "children": []
+        },
+        {
+            "key": "val-aux/sciknoweval/score/worst@8/std",
+            "step": 105,
+            "min": {
+                "data": "0.02407",
+                "step": 65
+            },
+            "max": {
+                "data": "0.125",
+                "step": 80
+            },
+            "value": "0.05538",
+            "children": []
+        },
+        {
+            "key": "val-core/sciknoweval/acc/best@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.5241",
+                "step": 50
+            },
+            "max": {
+                "data": "0.7809",
+                "step": 15
+            },
+            "value": "0.5877",
+            "children": []
+        },
+        {
+            "key": "val-core/sciknoweval/acc/best@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.01643",
+                "step": 100
+            },
+            "max": {
+                "data": "0.1229",
+                "step": 20
+            },
+            "value": "0.02412",
+            "children": []
+        },
+        {
+            "key": "val-core/sciknoweval/acc/maj@16/mean",
+            "step": 105,
+            "min": {
+                "data": "0.2853",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5773",
+                "step": 75
+            },
+            "value": "0.5105",
+            "children": []
+        },
+        {
+            "key": "val-core/sciknoweval/acc/maj@16/std",
+            "step": 105,
+            "min": {
+                "data": "0.01031",
+                "step": 80
+            },
+            "max": {
+                "data": "0.1814",
+                "step": 5
+            },
+            "value": "0.03316",
+            "children": []
+        },
+        {
+            "key": "val-core/sciknoweval/acc/mean@16",
+            "step": 105,
+            "min": {
+                "data": "0.29",
+                "step": 25
+            },
+            "max": {
+                "data": "0.5487",
+                "step": 75
+            },
+            "value": "0.5012",
+            "children": []
+        }
     ]
 }

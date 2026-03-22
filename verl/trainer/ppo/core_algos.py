@@ -2530,6 +2530,10 @@ def compute_tasd_token_rewards(
     elif reward_type == "teacher_prob":
         reward = teacher_log_probs.exp()  # (B, T) ∈ (0,1)
 
+    elif reward_type == "log_teacher_prob":
+        # log空间的teacher认可度，∈ (-∞, 0]，在接近1.0时放大微小差异，抗饱和
+        reward = teacher_log_probs  # (B, T)
+
     elif reward_type == "teacher_prob_relative":
         assert teacher_topk_log_probs is not None
 
