@@ -97,7 +97,7 @@ class SelfDistillationConfig(BaseConfig):
     def __post_init__(self):
         if not 0.0 <= self.alpha <= 1.0:
             raise ValueError(f"self_distillation.alpha must be in [0,1], got {self.alpha}")
-        valid_teacher_regularization = ["ema", "trust-region"]
+        valid_teacher_regularization = ["none", "ema", "trust-region"]
         if self.teacher_regularization not in valid_teacher_regularization:
             raise ValueError(
                 "self_distillation.teacher_regularization must be one of "
