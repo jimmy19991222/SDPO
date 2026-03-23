@@ -130,9 +130,11 @@ class DataParallelPPOActor(BasePPOActor):
             )
 
     def _update_teacher(self) -> None:
+        """EMA 更新 teacher 模型。仅当 teacher_module 已初始化且 teacher_regularization=="ema" 时生效。"""
+        if self.teacher_module is None:
+            return  # 没有 teacher_module（GRPO 或 teacher_regularization="none"），跳过
         self_distillation_cfg = getattr(self.config, "self_distillation", None)
-        loss_mode = self.config.policy_loss.get("loss_mode", "vanilla")
-        if not self_distillation_cfg or loss_mode != "sdpo":
+        if not self_distillation_cfg:
             return
         teacher_regularization = getattr(self_distillation_cfg, "teacher_regularization", "ema")
         if teacher_regularization != "ema":

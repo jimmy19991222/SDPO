@@ -32,14 +32,21 @@ DATA_PATHS=(
 
 TRAIN_BATCH_SIZES=(32)
 ROLLOUT_BATCH_SIZES=(8)
-MINI_BATCH_SIZES=(8 32)        # off-policy / on-policy
-LRS=(1e-6 1e-5)
-DONTS_REPROMPT_ON_SELF_SUCCESSS=(True)
+MINI_BATCH_SIZES=(32)
+LRS=(1e-5 5e-6)
 
 # ── TASD 超参扫描 ──────────────────────────────────────────────
-REWARD_TYPES=("log_ratio" "jsd")
+REWARD_TYPES=("teacher_prob" "log_teacher_prob")
 DISTILL_TOPKS=(100)
-INCLUDE_SUCCESSFUL_ROLLOUTSS=(True False)
+INCLUDE_SUCCESSFUL_ROLLOUTSS=(True)
+
+# ── advantage 配置 ─────────────────────────────────────────────
+NORM_ADV_BY_STD_LIST=(False)
+CLIP_ADV_LIST=(True)
+CLIP_ADV_VALUES=(5.0)
+
+# ── entropy bonus ──────────────────────────────────────────────
+ENTROPY_COEFF_LIST=(0.0 0.01)
 
 MODEL_PATHS=(
     "Qwen/Qwen3-8B"
@@ -124,8 +131,11 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                     for MINI_BATCH_SIZE in "${MINI_BATCH_SIZES[@]}"; do
                         for REWARD_TYPE in "${REWARD_TYPES[@]}"; do
                             for DISTILL_TOPK in "${DISTILL_TOPKS[@]}"; do
-                                for DONTS_REPROMPT_ON_SELF_SUCCESS in "${DONTS_REPROMPT_ON_SELF_SUCCESSS[@]}"; do
-                                    for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTSS[@]}"; do
+                                for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTSS[@]}"; do
+                                    for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
+                                        for CLIP_ADV in "${CLIP_ADV_LIST[@]}"; do
+                                            for CLIP_ADV_VALUE in "${CLIP_ADV_VALUES[@]}"; do
+                                                for ENTROPY_COEFF in "${ENTROPY_COEFF_LIST[@]}"; do
 
                                         MODEL_NAME=$(echo "$MODEL_PATH" | tr '/' '-')
                                         DATASET_NAME=$(echo "$DATA_PATH" \
@@ -133,7 +143,12 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                                             | tr '/' '-'          \
                                             | sed 's|-*$||')
 
-                                        EXP_NAME="TASD-${GPU_TYPE}-${DATASET_NAME}-mbs${MINI_BATCH_SIZE}-train${TRAIN_BATCH_SIZE}-rollout${ROLLOUT_BATCH_SIZE}-lr${LR}-rt${REWARD_TYPE}-topk${DISTILL_TOPK}-dross${DONTS_REPROMPT_ON_SELF_SUCCESS}-isr${INCLUDE_SUCCESSFUL_ROLLOUTS}-${MODEL_NAME}-$(date +%Y-%m-%d_%H-%M-%S)"
+                                        ENT_TAG=""
+                                        if [ "$(echo "$ENTROPY_COEFF > 0" | bc -l)" = "1" ]; then
+                                            ENT_TAG="-ent${ENTROPY_COEFF}"
+                                        fi
+
+                                        EXP_NAME="TASD-${GPU_TYPE}-${DATASET_NAME}-mbs${MINI_BATCH_SIZE}-lr${LR}-rt${REWARD_TYPE}-nostd-clip${CLIP_ADV_VALUE}${ENT_TAG}-${MODEL_NAME}-$(date +%Y-%m-%d_%H-%M-%S)"
 
                                         SCRIPT_ARGS=(
                                             # ── 基础参数（与grpo对齐）────────────────────
@@ -149,13 +164,22 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                                             "trainer.n_gpus_per_node=4"
                                             "actor_rollout_ref.actor.fsdp_config.model_dtype=bfloat16"
 
-                                            # ── TASD 特有参数 ──────────────────────────
+                                            # ── TASD reward 参数 ───────────────────────
                                             "algorithm.tasd.reward_type=$REWARD_TYPE"
                                             "algorithm.tasd.distill_topk=$DISTILL_TOPK"
                                             "algorithm.tasd.include_successful_rollouts=$INCLUDE_SUCCESSFUL_ROLLOUTS"
+                                            "algorithm.tasd.use_self_as_teacher_on_success=True"
+                                            "algorithm.tasd.success_reward_threshold=1.0"
+
+                                            # ── TASD advantage 参数 ──────────────────────
+                                            "algorithm.tasd.norm_adv_by_std=$NORM_ADV_BY_STD"
+                                            "algorithm.tasd.clip_adv=$CLIP_ADV"
+                                            "algorithm.tasd.clip_adv_value=$CLIP_ADV_VALUE"
+
+                                            # ── entropy bonus ────────────────────────────
+                                            "actor_rollout_ref.actor.entropy_coeff=$ENTROPY_COEFF"
 
                                             # ── teacher_input_ids构建 ──────────────────
-                                            "actor_rollout_ref.actor.self_distillation.dont_reprompt_on_self_success=$DONTS_REPROMPT_ON_SELF_SUCCESS"
                                             "actor_rollout_ref.actor.self_distillation.include_environment_feedback=False"
 
                                             # ── H20 专项参数（与grpo完全相同）────────────
@@ -167,13 +191,16 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
 
                                         submit_job "$EXP_NAME" "$DATA_PATH" "${SCRIPT_ARGS[@]}"
 
-                                    done  # INCLUDE_SUCCESSFUL_ROLLOUTS
-                                done      # DONTS_REPROMPT_ON_SELF_SUCCESS
-                            done          # DISTILL_TOPK
-                        done              # REWARD_TYPE
-                    done                  # MINI_BATCH_SIZE
-                done                      # MODEL_PATH
-            done                          # LR
-        done                              # ROLLOUT_BATCH_SIZE
-    done                                  # TRAIN_BATCH_SIZE
-done                                      # DATA_PATH
+                                                done  # ENTROPY_COEFF
+                                            done      # CLIP_ADV_VALUE
+                                        done          # CLIP_ADV
+                                    done              # NORM_ADV_BY_STD
+                                done                  # INCLUDE_SUCCESSFUL_ROLLOUTS
+                            done                      # DISTILL_TOPK
+                        done                          # REWARD_TYPE
+                    done                              # MINI_BATCH_SIZE
+                done                                  # MODEL_PATH
+            done                                      # LR
+        done                                          # ROLLOUT_BATCH_SIZE
+    done                                              # TRAIN_BATCH_SIZE
+done                                                  # DATA_PATH

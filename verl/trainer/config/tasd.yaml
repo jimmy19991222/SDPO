@@ -10,7 +10,7 @@ actor_rollout_ref:
     ppo_mini_batch_size: 32
     entropy_coeff: 0.0                  # entropy bonus 系数，>0 时添加 -β*H(π) 鼓励探索，建议 0.001~0.05
     policy_loss:
-      loss_mode: vanilla
+      loss_mode: tasd
     self_distillation:
       max_reprompt_len: 10240
       is_clip: 2.0
@@ -18,9 +18,9 @@ actor_rollout_ref:
       entropy_temperature: 1.0
       entropy_weighting_version: "v4"
 
-      # EMA teacher 配置（用于 TASD）
-      teacher_regularization: "none"   # "none"=用当前 step 模型，"ema"=用历史平滑版本
-      teacher_update_rate: 0.05        # EMA 更新率 α: θ_teacher ← (1-α)*θ_teacher + α*θ_student
+      # EMA teacher 配置（loss_mode="tasd" 时生效）
+      teacher_regularization: "none"   # "none"=用当前step模型，"ema"=用EMA历史平滑版本
+      teacher_update_rate: 0.05        # EMA 更新率 α: θ_teacher ← (1-α)*θ_teacher + α*θ_student，0=固定不更新
 
       include_environment_feedback: false
       success_reward_threshold: 1.0

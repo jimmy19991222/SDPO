@@ -67,7 +67,7 @@ ROLLOUT_IS_LIST=("token")
 # ── EMA teacher ─────────────────────────────────────────
 # teacher_regularization: "none"=用当前 step 模型，"ema"=用历史平滑版本（对抗 entropy 崩塌）
 TEACHER_REGULARIZATION_LIST=("ema" "none")
-TEACHER_UPDATE_RATE_LIST=(0.05 0.1)
+TEACHER_UPDATE_RATE_LIST=(0.0 0.05 0.1)
 
 MODEL_PATHS=(
     "Qwen/Qwen3-8B"
@@ -148,6 +148,11 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                                                                 for ROLLOUT_IS in "${ROLLOUT_IS_LIST[@]}"; do
                                                                     for TEACHER_REG in "${TEACHER_REGULARIZATION_LIST[@]}"; do
                                                                         for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
+
+                                                # teacher_regularization=none 时 update_rate 无意义，只跑一次
+                                                if [ "$TEACHER_REG" = "none" ] && [ "$TEACHER_UPDATE_RATE" != "${TEACHER_UPDATE_RATE_LIST[0]}" ]; then
+                                                    continue
+                                                fi
 
                                                 MODEL_NAME=$(echo "$MODEL_PATH" | tr '/' '-')
                                                 DATASET_NAME=$(echo "$DATA_PATH" \
