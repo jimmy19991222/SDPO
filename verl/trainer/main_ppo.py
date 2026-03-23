@@ -349,14 +349,15 @@ class TaskRunner:
             is_train=True,
             max_samples=config.data.get("train_max_samples", -1),
         )
+        val_files = config.data.val_files
         val_dataset = create_rl_dataset(
-            config.data.val_files,
+            val_files,
             config.data,
             tokenizer,
             processor,
             is_train=False,
             max_samples=config.data.get("val_max_samples", -1),
-        )
+        ) if val_files is not None else None
         train_sampler = create_rl_sampler(config.data, train_dataset)
 
         # Initialize the PPO trainer.

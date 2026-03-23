@@ -57,6 +57,15 @@ export TORCH_WARN_ACCUMULATE_GRAD_STREAM=0
 
 echo "PYTHONPATH = $PYTHONPATH"
 
+# ========== 清理超长环境变量，防止 Ray ray start 因 std::length_error 崩溃 ==========
+# LD_LIBRARY_PATH / PATH 可能被 Nebula 初始化脚本反复追加导致极长（含大量重复路径）
+# Ray 内部 C++ basic_string 在环境变量超长时会抛出 std::length_error
+clean_path() {
+    echo "$1" | tr ':' '\n' | awk '!seen[$0]++' | tr '\n' ':' | sed 's/:$//'
+}
+export LD_LIBRARY_PATH=$(clean_path "$LD_LIBRARY_PATH")
+export PATH=$(clean_path "$PATH")
+
 # ========== 启动 Ray 集群 ==========
 if [ "$RANK" -eq 0 ]; then
     ray start --head --dashboard-host=0.0.0.0

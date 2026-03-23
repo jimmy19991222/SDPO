@@ -16,6 +16,7 @@ ROLLOUT_N="${ROLLOUT_N:-8}"
 MODEL_NAME="${MODEL_NAME:-Qwen3-8B}"         # OSS base_models 下的目录名
 
 train_data_path="${OSS_ROOT}/datasets/${DATASET}/train.parquet"
+val_data_path="${OSS_ROOT}/datasets/${DATASET}/test.parquet"
 model_path="${OSS_ROOT}/base_models/${MODEL_NAME}"
 save_path="${OSS_ROOT}/models/${JOB_NAME:-grpo_sweep}"
 
@@ -36,7 +37,7 @@ python -m verl.trainer.main_ppo \
     --config-name baseline_grpo \
     data.train_batch_size=${TRAIN_BATCH_SIZE} \
     data.train_files="${train_data_path}" \
-    data.val_files=null \
+    data.val_files="${val_data_path}" \
     custom_reward_function.path="$(pwd)/verl/utils/reward_score/feedback/__init__.py" \
     actor_rollout_ref.model.path="${model_path}" \
     actor_rollout_ref.actor.optim.lr=${LR} \

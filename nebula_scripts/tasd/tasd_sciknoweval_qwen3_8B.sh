@@ -19,6 +19,7 @@ OSS_ROOT="/data/oss_bucket_0/ad/loujieming.ljm"
 # 数据集：sciknoweval biology（已提前上传到 OSS）
 # 本地对应：datasets/sciknoweval/biology/
 train_data_path="${OSS_ROOT}/datasets/sciknoweval/biology/train.parquet"
+val_data_path="${OSS_ROOT}/datasets/sciknoweval/biology/test.parquet"
 
 # 基底模型
 model_path="${OSS_ROOT}/base_models/Qwen3-8B"
@@ -68,7 +69,7 @@ python -m verl.trainer.main_ppo \
     --config-name tasd \
     data.train_batch_size=${train_batch_size} \
     data.train_files="${train_data_path}" \
-    data.val_files=null \
+    data.val_files="${val_data_path}" \
     custom_reward_function.path="$(pwd)/verl/utils/reward_score/feedback/__init__.py" \
     actor_rollout_ref.model.path="${model_path}" \
     actor_rollout_ref.actor.optim.lr=${LR} \

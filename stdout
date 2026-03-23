@@ -5,7 +5,7 @@ LD_LIBRARY_PATH: /opt/conda/envs/python3.10.13/lib/python3.10/site-packages/thir
 Looking in indexes: http://yum.tbsite.net/pypi/simple
 Collecting pip==24.0
   Downloading http://yum.tbsite.net/pypi/packages/8a/6a/19e9fe04fca059ccf770861c7d5721ab4c2aebc539889e97c7977528a53b/pip-24.0-py3-none-any.whl (2.1 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 62.6 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 9.3 MB/s eta 0:00:00
 Installing collected packages: pip
   Attempting uninstall: pip
     Found existing installation: pip 25.1.1
@@ -15,27 +15,27 @@ Successfully installed pip-24.0
 Looking in indexes: http://yum.tbsite.net/pypi/simple
 Collecting ai-scheduler==0.10.19
   Downloading http://nebula-cv.cn-zhangjiakou.oss.aliyuncs.com/docker_image/ai_scheduler/ai_scheduler-0.10.19-py3-none-any.whl (182 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 182.7/182.7 kB 7.9 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 182.7/182.7 kB 7.2 MB/s eta 0:00:00
 Installing collected packages: ai-scheduler
 Successfully installed ai-scheduler-0.10.19
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting kmontitor-client==0.0.0
   Downloading http://ados-nebula-v2.cn-zhangjiakou.oss.aliyuncs.com/nebula-one-proxy/ai_scheduler/kmontitor_client-0.0.0-py3-none-any.whl (66 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.0/66.0 kB 7.3 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.0/66.0 kB 7.2 MB/s eta 0:00:00
 Requirement already satisfied: thrift in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from kmontitor-client==0.0.0) (0.22.0)
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting pykmonitor==1.0
   Downloading http://ados-nebula-hz.cn-hangzhou.oss.aliyuncs.com/nebula-one-proxy/ai_scheduler/pykmonitor-1.0-py3-none-any.whl (9.6 kB)
 Collecting thrift==0.10.0 (from pykmonitor==1.0)
   Downloading http://yum.tbsite.net/pypi/packages/a3/ea/84a41e03f1ab14fb314c8bcf1c451090efa14c5cdfb9797d1079f502b54e/thrift-0.10.0.zip (87 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.8/87.8 kB 865.4 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.8/87.8 kB 4.0 MB/s eta 0:00:00
   Preparing metadata (setup.py): started
   Preparing metadata (setup.py): finished with status 'done'
 Requirement already satisfied: six>=1.7.2 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from thrift==0.10.0->pykmonitor==1.0) (1.14.0)
 Building wheels for collected packages: thrift
   Building wheel for thrift (setup.py): started
   Building wheel for thrift (setup.py): finished with status 'done'
-  Created wheel for thrift: filename=thrift-0.10.0-cp310-cp310-linux_x86_64.whl size=415617 sha256=639f33b37d0f3be7f8db1f882b0899c4fee272997b66eb5c95af0bad3c6c535c
+  Created wheel for thrift: filename=thrift-0.10.0-cp310-cp310-linux_x86_64.whl size=415599 sha256=da6acc6954052e6bd6b419c9dae1addb756fcf74667a1bfbd0f10eb740df134a
   Stored in directory: /root/.cache/pip/wheels/a2/7c/09/a0a5a7fc53c06c40bef95320e76d2c8d85facc1b36119be023
 Successfully built thrift
 Installing collected packages: thrift, pykmonitor
@@ -51,7 +51,7 @@ Successfully installed pykmonitor-1.0 thrift-0.10.0
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting kazoo==2.9.0
   Downloading http://yum.tbsite.net/pypi/packages/26/d9/bec6a24dfbee30cc477625e13e5b8750c2f6097675adb1f8cf1ceac021a6/kazoo-2.9.0-py2.py3-none-any.whl (145 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.6/145.6 kB 5.7 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.6/145.6 kB 6.0 MB/s eta 0:00:00
 Requirement already satisfied: six in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from kazoo==2.9.0) (1.14.0)
 Installing collected packages: kazoo
   Attempting uninstall: kazoo
@@ -62,7 +62,7 @@ Successfully installed kazoo-2.9.0
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting psutil==5.9.5
   Downloading http://yum.tbsite.net/pypi/packages/af/4d/389441079ecef400e2551a3933224885a7bde6b8a4810091d628cdd75afe/psutil-5.9.5-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (282 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 282.1/282.1 kB 32.3 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 282.1/282.1 kB 8.4 MB/s eta 0:00:00
 Installing collected packages: psutil
   Attempting uninstall: psutil
     Found existing installation: psutil 7.0.0
@@ -78,13 +78,13 @@ Successfully installed pynvml-12.0.0
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting tornado==6.1
   Downloading http://yum.tbsite.net/pypi/packages/cf/44/cc9590db23758ee7906d40cacff06c02a21c2a6166602e095a56cbf2f6f6/tornado-6.1.tar.gz (497 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 497.4/497.4 kB 4.2 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 497.4/497.4 kB 12.6 MB/s eta 0:00:00
   Preparing metadata (setup.py): started
   Preparing metadata (setup.py): finished with status 'done'
 Building wheels for collected packages: tornado
   Building wheel for tornado (setup.py): started
   Building wheel for tornado (setup.py): finished with status 'done'
-  Created wheel for tornado: filename=tornado-6.1-cp310-cp310-linux_x86_64.whl size=422080 sha256=5f8496a9a0b088fdfbbf7c5860c2d85912762799700e71eeee734f984354c14f
+  Created wheel for tornado: filename=tornado-6.1-cp310-cp310-linux_x86_64.whl size=422091 sha256=30f29300b0e898f0a5a7bc9b72fa00b549473e9ed8d2cf80942310cb6d841567
   Stored in directory: /root/.cache/pip/wheels/a3/9c/61/d796698d82438ba5fbe4cf112876bf51a349d0244d64b84bf7
 Successfully built tornado
 Installing collected packages: tornado
@@ -96,7 +96,7 @@ Successfully installed tornado-6.1
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting transitions==0.9.0
   Downloading http://yum.tbsite.net/pypi/packages/ee/35/77e8f975da682e14e1581ae0f47f4e3beed29871794f26ce7c9d4dd32b14/transitions-0.9.0-py2.py3-none-any.whl (97 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 97.7/97.7 kB 3.7 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 97.7/97.7 kB 4.3 MB/s eta 0:00:00
 Requirement already satisfied: six in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from transitions==0.9.0) (1.14.0)
 Installing collected packages: transitions
   Attempting uninstall: transitions
@@ -107,14 +107,14 @@ Successfully installed transitions-0.9.0
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting thrift==0.16.0
   Downloading http://yum.tbsite.net/pypi/packages/e4/23/dd951c9883cb49a73b750bdfe91e39d78e8a3f1f7175608634f381a197d5/thrift-0.16.0.tar.gz (59 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.6/59.6 kB 3.3 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.6/59.6 kB 782.0 kB/s eta 0:00:00
   Preparing metadata (setup.py): started
   Preparing metadata (setup.py): finished with status 'done'
 Requirement already satisfied: six>=1.7.2 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from thrift==0.16.0) (1.14.0)
 Building wheels for collected packages: thrift
   Building wheel for thrift (setup.py): started
   Building wheel for thrift (setup.py): finished with status 'done'
-  Created wheel for thrift: filename=thrift-0.16.0-cp310-cp310-linux_x86_64.whl size=465627 sha256=bd889671a7180790c68afa10fb808da1734bd1961efdaa429b9fd0d51f63d977
+  Created wheel for thrift: filename=thrift-0.16.0-cp310-cp310-linux_x86_64.whl size=465632 sha256=8726c08fc739202350266d29ef158babbf2d2f15af24768fc8eefc9e120b291d
   Stored in directory: /root/.cache/pip/wheels/52/ae/85/6be9a3788d2aa50d0389740cfde4d231f433a17f73ef8a44ad
 Successfully built thrift
 Installing collected packages: thrift
@@ -128,16 +128,16 @@ Requirement already satisfied: GPUtil==1.4.0 in /opt/conda/envs/python3.10.13/li
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting requests==2.22.0
   Downloading http://yum.tbsite.net/pypi/packages/51/bd/23c926cd341ea6b7dd0b2a00aba99ae0f828be89d72b2190f27c11d4b7fb/requests-2.22.0-py2.py3-none-any.whl (57 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.0/58.0 kB 2.7 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.0/58.0 kB 5.5 MB/s eta 0:00:00
 Collecting chardet<3.1.0,>=3.0.2 (from requests==2.22.0)
   Downloading http://yum.tbsite.net/pypi/packages/bc/a9/01ffebfb562e4274b6487b4bb1ddec7ca55ec7510b22e4c51f14098443b8/chardet-3.0.4-py2.py3-none-any.whl (133 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.4/133.4 kB 3.4 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.4/133.4 kB 7.9 MB/s eta 0:00:00
 Collecting idna<2.9,>=2.5 (from requests==2.22.0)
   Downloading http://yum.tbsite.net/pypi/packages/14/2c/cd551d81dbe15200be1cf41cd03869a46fe7226e7450af7a6545bfc474c9/idna-2.8-py2.py3-none-any.whl (58 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.6/58.6 kB 5.3 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.6/58.6 kB 4.7 MB/s eta 0:00:00
 Collecting urllib3!=1.25.0,!=1.25.1,<1.26,>=1.21.1 (from requests==2.22.0)
   Downloading http://yum.tbsite.net/pypi/packages/56/aa/4ef5aa67a9a62505db124a5cb5262332d1d4153462eb8fd89c9fa41e5d92/urllib3-1.25.11-py2.py3-none-any.whl (127 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 128.0/128.0 kB 3.1 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 128.0/128.0 kB 7.6 MB/s eta 0:00:00
 Requirement already satisfied: certifi>=2017.4.17 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from requests==2.22.0) (2025.4.26)
 Installing collected packages: chardet, urllib3, idna, requests
   Attempting uninstall: urllib3
@@ -174,7 +174,7 @@ Successfully installed mdl-0.3.3
 Looking in indexes: http://yum.tbsite.net/pypi/simple/
 Collecting common-io==0.8.26
   Downloading http://nebula-cv.cn-zhangjiakou.oss.aliyuncs.com/docker_image/common_io/release/common_io-0.8.26-cp310-cp310-linux_x86_64.whl (3.5 MB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.5/3.5 MB 56.4 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.5/3.5 MB 69.5 MB/s eta 0:00:00
 Requirement already satisfied: pyodps==0.12.3 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from common-io==0.8.26) (0.12.3)
 Requirement already satisfied: requests>=2.4.0 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from pyodps==0.12.3->common-io==0.8.26) (2.22.0)
 Requirement already satisfied: pyarrow>=2.0.0 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from pyodps==0.12.3->common-io==0.8.26) (20.0.0)
@@ -199,94 +199,92 @@ Requirement already satisfied: async-timeout>=4.0.3 in /opt/conda/envs/python3.1
 Requirement already satisfied: six>=1.7.2 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from thrift->lake-py-lib==0.1.16) (1.14.0)
 /opt/conda/envs/python3.10.13/bin/python: [/opt/conda/envs/python3.10.13/bin/python]
 ai_scheduler_wrapper_ok: [1]
-/opt/conda/envs/python3.10.13/bin/python -m ai_scheduler.wrapper --run_mode=dist --task_name=worker --app_id=xdl-44d4bf84c89e --zk_addr=zfs://search-zk-kubedl-na630cloud.vip.tbsite.net:2187/psplus/xdl-44d4bf84c89e --config=../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80 --task_index=0
+/opt/conda/envs/python3.10.13/bin/python -m ai_scheduler.wrapper --run_mode=dist --task_name=worker --app_id=xdl-4a04447a8304 --zk_addr=zfs://search-zk-kubedl-na630cloud.vip.tbsite.net:2187/psplus/xdl-4a04447a8304 --config=../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed --task_index=0
 Start execution
 RedirectLogger initializing task_index: [0]
-[2026-03-23 20:34:38,374] [INFO] [AiScheduler#1] [ai_wrapper.py:59] Start execution
+[2026-03-23 21:12:42,928] [INFO] [AiScheduler#1] [ai_wrapper.py:59] Start execution
 should_run_planner RUN_PLANNER: False
-[2026-03-23 20:34:38,374] [INFO] [AiScheduler#1] [cluster_util.py:49] zk_address: [search-zk-kubedl-na630cloud.vip.tbsite.net:2187]
-[2026-03-23 20:34:38,374] [INFO] [AiScheduler#1] [executor.py:72] Initializing Executor and redirect print.
-[2026-03-23 20:34:38,374] [INFO] [AiScheduler#1] [executor.py:73] Executor RunningMode: [CurrentMode.Online] TaskName: [worker] TaskIndex: [0] PanguCluster: [AY118F]
-[2026-03-23 20:34:38,374] [INFO] [AiScheduler#1] [executor.py:474] 'scheduler' in XDL_CONFIG['cluster'] and scheduler pod exists, skip background process.
-[2026-03-23 20:34:38,387] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
-[2026-03-23 20:34:38,387] [INFO] [AiScheduler#1] [cluster_util.py:48] parse opt.zk_addr: search-zk-kubedl-na630cloud.vip.tbsite.net:2187 got: list index out of range
-[2026-03-23 20:34:38,387] [INFO] [AiScheduler#1] [cluster_util.py:49] zk_address: [search-zk-kubedl-na630cloud.vip.tbsite.net:2187]
-[2026-03-23 20:34:38,387] [INFO] [AiScheduler#1] [heart_beat_client_thread.py:85] HeartbeatClient: Starting...
-[2026-03-23 20:34:38,387] [INFO] [AiScheduler#1] [executor.py:352] ---start HBClient for global_rank: 0---
-[2026-03-23 20:34:38,390] [INFO] [AiScheduler#1] [metrics_reporter.py:206] Container assigned gpu type: [nvidia], gpu indx: [2, 3, 4, 6]
-[2026-03-23 20:34:38,391] [INFO] [AiScheduler#1] [connection.py:650] Connecting to search-zk-kubedl-na630cloud.vip.tbsite.net(11.0.55.163):2187, use_ssl: False
-[2026-03-23 20:34:38,409] [INFO] [AiScheduler#1] [client.py:532] Zookeeper connection established, state: CONNECTED
-[2026-03-23 20:34:38,409] [INFO] [AiScheduler#1] [zk_service.py:79] ✅ Connected to ZK: search-zk-kubedl-na630cloud.vip.tbsite.net:2187
-[2026-03-23 20:34:38,410] [INFO] [AiScheduler#1] [zk_service.py:125] 🛡️ Background ephemeral node keeper started.
-[2026-03-23 20:34:38,427] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.111.112, scheduler_port:25771, scheduler_prefix:http://33.2.111.112:25771/
-[2026-03-23 20:34:38,435] [INFO] [AiScheduler#1] [metrics_reporter.py:94] ContainerMetricsReporter init, interval_seconds: [10], tags_dict: {'metric_from': 'xdl_wrapper', 'app_id': 'xdl-44d4bf84c89e', 'job_name': 'SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952', 'job_type': 'train', 'task_name': 'worker', 'task_index': 0, 'rank': 0, 'user': 'loujieming.ljm', 'scheduler_queue': 'lazada_llm_ad_h20', 'image_tag': 'user_cu128_gcc13_py3.10.13_torch260_20250619164439_hotfix_te_update_pangu_sdk_20251105174653_t1', 'ip_addr': '33.2.111.112', 'gpu_cores_userdef': 4.0, 'gpu_idx': -1, 'device': 'gpu', 'version': 'mdl', 'hbo_method': 0, 'scheduler_type': 'priority-9540', 'calculate_cluster': 'asi_bj_lj_01', 'signature': 'NO_SIGNATURE', 'is_odl': False, 'graphdef_signature': 'NO_GRAPHDEF_SIGNATURE', 'code_simhash': 'NO_CODE_SIMHASH', 'gpu_cores_assign': 4, 'gpu_name': 'NVIDIA_H20-3e'}
-[2026-03-23 20:34:38,600] [INFO] [AiScheduler#1] [metrics_reporter.py:434] ContainerMetricsReporter init, metric_names: ['xdl.metrics.available_shm_bytes', 'xdl.metrics.cpu_assign', 'xdl.metrics.cpu_quota', 'xdl.metrics.cpu_usage', 'xdl.metrics.memory_assign', 'xdl.metrics.memory_quota', 'xdl.metrics.memory_usage', 'xdl.metrics.role_counter', 'xdl.metrics.shm_used_ratio', 'xdl.metrics.total_shm_bytes', 'xdl.metrics.used_shm_bytes', 'xdl.metrics.gpu_cores_assign', 'xdl.metrics.gpu_memory_usage', 'xdl.metrics.gpu_usage']
-[2026-03-23 20:34:38,600] [INFO] [AiScheduler#1] [cluster_util.py:49] zk_address: [search-zk-kubedl-na630cloud.vip.tbsite.net:2187]
-[2026-03-23 20:34:38,600] [INFO] [AiScheduler#1] [launcher_factory.py:28] zk_address: [search-zk-kubedl-na630cloud.vip.tbsite.net:2187]
-[2026-03-23 20:34:38,601] [INFO] [AiScheduler#1] [launcher_factory.py:29] opt.config: [../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80]
-[2026-03-23 20:34:38,601] [INFO] [AiScheduler#1] [launcher_factory.py:30] docker_image: [hub.docker.alibaba-inc.com/mdl/mdl0.6:user_cu128_gcc13_py3.10.13_torch260_20250619164439_hotfix_te_update_pangu_sdk_20251105174653_t1]
-[2026-03-23 20:34:38,601] [INFO] [AiScheduler#1] [launcher_factory.py:48] Launcher: MdlLauncher
-[2026-03-23 20:34:38,601] [INFO] [AiScheduler#1] [base_launcher.py:85] worker_dir: /checkpoint/binary/train_package
-[2026-03-23 20:34:38,601] [INFO] [AiScheduler#1] [base_launcher.py:86] self.config_file: ../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80
-[2026-03-23 20:34:38,601] [INFO] [AiScheduler#1] [base_launcher.py:90] path: [/checkpoint/binary/train_package/../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80] exists.
-[2026-03-23 20:34:38,601] [INFO] [AiScheduler#1] [base_launcher.py:96] final json_conf_file: /checkpoint/binary/train_package/../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80
-[2026-03-23 20:34:39,603] [INFO] [AiScheduler#1] [util.py:68] /checkpoint/binary/train_package/../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80
-[2026-03-23 20:34:39,603] [INFO] [AiScheduler#1] [mdl_launcher.py:89] is_xla: False
-[2026-03-23 20:34:39,603] [INFO] [AiScheduler#1] [mdl_launcher.py:90] is_ppu: False
-[2026-03-23 20:34:39,603] [INFO] [AiScheduler#1] [mdl_launcher.py:91] is_rocm: False
-[2026-03-23 20:34:39,870] [INFO] [AiScheduler#1] [cluster_util.py:201] not ipv6 only cluster, nccl search ipv4 gid
+[2026-03-23 21:12:42,928] [INFO] [AiScheduler#1] [cluster_util.py:49] zk_address: [search-zk-kubedl-na630cloud.vip.tbsite.net:2187]
+[2026-03-23 21:12:42,928] [INFO] [AiScheduler#1] [executor.py:72] Initializing Executor and redirect print.
+[2026-03-23 21:12:42,928] [INFO] [AiScheduler#1] [executor.py:73] Executor RunningMode: [CurrentMode.Online] TaskName: [worker] TaskIndex: [0] PanguCluster: [AY118F]
+[2026-03-23 21:12:42,928] [INFO] [AiScheduler#1] [executor.py:474] 'scheduler' in XDL_CONFIG['cluster'] and scheduler pod exists, skip background process.
+[2026-03-23 21:12:42,943] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
+[2026-03-23 21:12:42,943] [INFO] [AiScheduler#1] [cluster_util.py:48] parse opt.zk_addr: search-zk-kubedl-na630cloud.vip.tbsite.net:2187 got: list index out of range
+[2026-03-23 21:12:42,943] [INFO] [AiScheduler#1] [cluster_util.py:49] zk_address: [search-zk-kubedl-na630cloud.vip.tbsite.net:2187]
+[2026-03-23 21:12:42,943] [INFO] [AiScheduler#1] [heart_beat_client_thread.py:85] HeartbeatClient: Starting...
+[2026-03-23 21:12:42,944] [INFO] [AiScheduler#1] [executor.py:352] ---start HBClient for global_rank: 0---
+[2026-03-23 21:12:42,946] [INFO] [AiScheduler#1] [connection.py:650] Connecting to search-zk-kubedl-na630cloud.vip.tbsite.net(11.0.55.163):2187, use_ssl: False
+[2026-03-23 21:12:42,947] [INFO] [AiScheduler#1] [metrics_reporter.py:206] Container assigned gpu type: [nvidia], gpu indx: [4, 5, 6, 7]
+[2026-03-23 21:12:42,962] [INFO] [AiScheduler#1] [client.py:532] Zookeeper connection established, state: CONNECTED
+[2026-03-23 21:12:42,962] [INFO] [AiScheduler#1] [zk_service.py:79] ✅ Connected to ZK: search-zk-kubedl-na630cloud.vip.tbsite.net:2187
+[2026-03-23 21:12:42,962] [INFO] [AiScheduler#1] [zk_service.py:125] 🛡️ Background ephemeral node keeper started.
+[2026-03-23 21:12:42,978] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.101.48, scheduler_port:27306, scheduler_prefix:http://33.2.101.48:27306/
+[2026-03-23 21:12:42,997] [INFO] [AiScheduler#1] [metrics_reporter.py:94] ContainerMetricsReporter init, interval_seconds: [10], tags_dict: {'metric_from': 'xdl_wrapper', 'app_id': 'xdl-4a04447a8304', 'job_name': 'SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432', 'job_type': 'train', 'task_name': 'worker', 'task_index': 0, 'rank': 0, 'user': 'loujieming.ljm', 'scheduler_queue': 'lazada_llm_ad_h20', 'image_tag': 'user_cu128_gcc13_py3.10.13_torch260_20250619164439_hotfix_te_update_pangu_sdk_20251105174653_t1', 'ip_addr': '33.2.101.48', 'gpu_cores_userdef': 4.0, 'gpu_idx': -1, 'device': 'gpu', 'version': 'mdl', 'hbo_method': 0, 'scheduler_type': 'priority-9540', 'calculate_cluster': 'asi_bj_lj_01', 'signature': 'NO_SIGNATURE', 'is_odl': False, 'graphdef_signature': 'NO_GRAPHDEF_SIGNATURE', 'code_simhash': 'NO_CODE_SIMHASH', 'gpu_cores_assign': 4, 'gpu_name': 'NVIDIA_H20-3e'}
+[2026-03-23 21:12:43,167] [INFO] [AiScheduler#1] [metrics_reporter.py:434] ContainerMetricsReporter init, metric_names: ['xdl.metrics.available_shm_bytes', 'xdl.metrics.cpu_assign', 'xdl.metrics.cpu_quota', 'xdl.metrics.cpu_usage', 'xdl.metrics.memory_assign', 'xdl.metrics.memory_quota', 'xdl.metrics.memory_usage', 'xdl.metrics.role_counter', 'xdl.metrics.shm_used_ratio', 'xdl.metrics.total_shm_bytes', 'xdl.metrics.used_shm_bytes', 'xdl.metrics.gpu_cores_assign', 'xdl.metrics.gpu_memory_usage', 'xdl.metrics.gpu_usage']
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [cluster_util.py:49] zk_address: [search-zk-kubedl-na630cloud.vip.tbsite.net:2187]
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [launcher_factory.py:28] zk_address: [search-zk-kubedl-na630cloud.vip.tbsite.net:2187]
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [launcher_factory.py:29] opt.config: [../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed]
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [launcher_factory.py:30] docker_image: [hub.docker.alibaba-inc.com/mdl/mdl0.6:user_cu128_gcc13_py3.10.13_torch260_20250619164439_hotfix_te_update_pangu_sdk_20251105174653_t1]
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [launcher_factory.py:48] Launcher: MdlLauncher
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [base_launcher.py:85] worker_dir: /checkpoint/binary/train_package
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [base_launcher.py:86] self.config_file: ../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [base_launcher.py:90] path: [/checkpoint/binary/train_package/../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed] exists.
+[2026-03-23 21:12:43,168] [INFO] [AiScheduler#1] [base_launcher.py:96] final json_conf_file: /checkpoint/binary/train_package/../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed
+[2026-03-23 21:12:44,170] [INFO] [AiScheduler#1] [util.py:68] /checkpoint/binary/train_package/../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed
+[2026-03-23 21:12:44,170] [INFO] [AiScheduler#1] [mdl_launcher.py:89] is_xla: False
+[2026-03-23 21:12:44,170] [INFO] [AiScheduler#1] [mdl_launcher.py:90] is_ppu: False
+[2026-03-23 21:12:44,170] [INFO] [AiScheduler#1] [mdl_launcher.py:91] is_rocm: False
+[2026-03-23 21:12:44,388] [INFO] [AiScheduler#1] [cluster_util.py:201] not ipv6 only cluster, nccl search ipv4 gid
 should_run_planner RUN_PLANNER: False
-[2026-03-23 20:34:41,303] [INFO] [AiScheduler#1] [odps_direct.py:39] Copy Python executable done.
-[2026-03-23 20:34:41,303] [INFO] [AiScheduler#1] [odps_direct.py:51] Launch nuwa cmd: [python2 /usr/local/nuwa_config_sync/nuwa_config_sync.py                      --mode prod --cluster AY118F --mount_tables_config                      cn-mongolia-in:ODPS,cn-zhangbei-in:ODPS,cn-shanghai-corp:ODPS                      --interval 900]
-[2026-03-23 20:34:41,303] [INFO] [AiScheduler#1] [odps_direct.py:61] odps_io_config file path: [/checkpoint/binary/train_package/../odps_io_config]
-[2026-03-23 20:34:41,304] [INFO] [AiScheduler#1] [mdl_launcher.py:399] MdlLauncher:  cmds: ['./python_bin -u -X faulthandler /checkpoint/binary/train_package/nebula_scripts/entry.py --script_path nebula_scripts/sdpo/sdpo_sciknoweval_parametric.sh --world_size 1 --job_name SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952']
-[2026-03-23 20:34:41,304] [INFO] [AiScheduler#1] [mdl_launcher.py:404] local_rank=0 install install_requirements
-[2026-03-23 20:34:41,307] [INFO] [AiScheduler#1] [requirements_util.py:38] use pip site packages cache False, task_name worker
-[2026-03-23 20:34:41,307] [INFO] [AiScheduler#1] [requirements_util.py:344] executing cmd: /opt/conda/envs/python3.10.13/bin/pip install --index-url http://yum.tbsite.net/mirrors/ppypi/nebula-ai/simple --extra-index-url http://yum.tbsite.net/aliyun-pypi/simple/ --trusted-host yum.tbsite.net -r /checkpoint/binary/train_package/requirements_nebula.txt --extra-index-url http://yum.tbsite.net/pypi/simple --user
-[2026-03-23 20:34:48,442] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
-[2026-03-23 20:34:48,459] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.111.112, scheduler_port:25771, scheduler_prefix:http://33.2.111.112:25771/
-[2026-03-23 20:34:58,468] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
-[2026-03-23 20:34:58,485] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.111.112, scheduler_port:25771, scheduler_prefix:http://33.2.111.112:25771/
-[2026-03-23 20:35:08,498] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
-[2026-03-23 20:35:08,514] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.111.112, scheduler_port:25771, scheduler_prefix:http://33.2.111.112:25771/
+[2026-03-23 21:12:45,572] [INFO] [AiScheduler#1] [odps_direct.py:39] Copy Python executable done.
+[2026-03-23 21:12:45,572] [INFO] [AiScheduler#1] [odps_direct.py:51] Launch nuwa cmd: [python2 /usr/local/nuwa_config_sync/nuwa_config_sync.py                      --mode prod --cluster AY118F --mount_tables_config                      cn-mongolia-in:ODPS,cn-zhangbei-in:ODPS,cn-shanghai-corp:ODPS                      --interval 900]
+[2026-03-23 21:12:45,573] [INFO] [AiScheduler#1] [odps_direct.py:61] odps_io_config file path: [/checkpoint/binary/train_package/../odps_io_config]
+[2026-03-23 21:12:45,574] [INFO] [AiScheduler#1] [mdl_launcher.py:399] MdlLauncher:  cmds: ['./python_bin -u -X faulthandler /checkpoint/binary/train_package/nebula_scripts/entry.py --script_path nebula_scripts/sdpo/sdpo_sciknoweval_parametric.sh --world_size 1 --job_name SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432']
+[2026-03-23 21:12:45,574] [INFO] [AiScheduler#1] [mdl_launcher.py:404] local_rank=0 install install_requirements
+[2026-03-23 21:12:45,576] [INFO] [AiScheduler#1] [requirements_util.py:38] use pip site packages cache False, task_name worker
+[2026-03-23 21:12:45,576] [INFO] [AiScheduler#1] [requirements_util.py:344] executing cmd: /opt/conda/envs/python3.10.13/bin/pip install --index-url http://yum.tbsite.net/mirrors/ppypi/nebula-ai/simple --extra-index-url http://yum.tbsite.net/aliyun-pypi/simple/ --trusted-host yum.tbsite.net -r /checkpoint/binary/train_package/requirements_nebula.txt --extra-index-url http://yum.tbsite.net/pypi/simple --user
+[2026-03-23 21:12:52,989] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
+[2026-03-23 21:12:53,006] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.101.48, scheduler_port:27306, scheduler_prefix:http://33.2.101.48:27306/
+[2026-03-23 21:13:03,019] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
+[2026-03-23 21:13:03,035] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.101.48, scheduler_port:27306, scheduler_prefix:http://33.2.101.48:27306/
 Looking in indexes: http://yum.tbsite.net/mirrors/ppypi/nebula-ai/simple, http://yum.tbsite.net/aliyun-pypi/simple/, http://yum.tbsite.net/pypi/simple
 Collecting swanlab (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 8))
   Downloading http://yum.tbsite.net/pypi/packages/00/6d/776c7fe2492f2e19ccd755049feb3a16aebbb51441a01bf6e4747d37eab4/swanlab-0.7.13-py3-none-any.whl (359 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 359.8/359.8 kB 3.2 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 359.8/359.8 kB 9.0 MB/s eta 0:00:00
 Requirement already satisfied: openlm-hub in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 9)) (0.0.35)
 Collecting codetiming (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 10))
   Downloading http://yum.tbsite.net/pypi/packages/bc/91/e4a2b7c64e738beefddfa24b409d6eecb16c378bde01578918b6ea722a09/codetiming-1.4.0-py3-none-any.whl (7.2 kB)
 Collecting liger-kernel (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 11))
   Downloading http://yum.tbsite.net/pypi/packages/f7/c6/66c6a3c59b53f4cfbfa0c9e8c573c8843fb1d83cf3c2eb79e39109b76c17/liger_kernel-0.7.0-py3-none-any.whl (276 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 276.5/276.5 kB 109.4 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 276.5/276.5 kB 15.8 MB/s eta 0:00:00
 Collecting tensordict (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 12))
   Downloading http://yum.tbsite.net/pypi/packages/a4/1f/72fc06c9f52174ca05499ecc6d8fe27e94e63b95728373c459fe35bd4970/tensordict-0.11.0-cp310-cp310-manylinux_2_28_x86_64.whl (461 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 461.7/461.7 kB 132.1 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 461.7/461.7 kB 14.1 MB/s eta 0:00:00
 Collecting hydra-core (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 13))
   Downloading http://yum.tbsite.net/pypi/packages/c6/50/e0edd38dcd63fb26a8547f13d28f7a008bc4a3fd4eb4ff030673f22ad41a/hydra_core-1.3.2-py3-none-any.whl (154 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 154.5/154.5 kB 80.3 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 154.5/154.5 kB 16.3 MB/s eta 0:00:00
 Collecting omegaconf (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 14))
   Downloading http://yum.tbsite.net/pypi/packages/e3/94/1843518e420fa3ed6919835845df698c7e27e183cb997394e4a670973a65/omegaconf-2.3.0-py3-none-any.whl (79 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 79.5/79.5 kB 51.5 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 79.5/79.5 kB 49.8 MB/s eta 0:00:00
 Requirement already satisfied: dill in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 15)) (0.3.8)
 Requirement already satisfied: pybind11 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 16)) (2.13.6)
 Collecting pylatexenc (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 17))
   Downloading http://yum.tbsite.net/pypi/packages/5d/ab/34ec41718af73c00119d0351b7a2531d2ebddb51833a36448fc7b862be60/pylatexenc-2.10.tar.gz (162 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 162.6/162.6 kB 83.4 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 162.6/162.6 kB 10.1 MB/s eta 0:00:00
   Preparing metadata (setup.py): started
   Preparing metadata (setup.py): finished with status 'done'
 Collecting torchdata (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 18))
   Downloading http://yum.tbsite.net/pypi/packages/95/d4/af694ef718aedbe95a72760ab9ff7a6a7a44ace2d7f70c27bfeb67c5c503/torchdata-0.11.0-py3-none-any.whl (61 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.0/62.0 kB 38.6 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.0/62.0 kB 6.6 MB/s eta 0:00:00
 Collecting peft (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 19))
   Downloading http://yum.tbsite.net/pypi/packages/b3/14/b4e3f574acf349ae6f61f9c000a77f97a3b315b4bb6ad03791e79ae4a568/peft-0.18.1-py3-none-any.whl (556 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 557.0/557.0 kB 18.6 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 557.0/557.0 kB 14.0 MB/s eta 0:00:00
 Collecting latex2sympy2_extended (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 23))
   Downloading http://yum.tbsite.net/pypi/packages/e9/61/f75cd1fa54d8434276126034aed54dd120747de9a8fa013cdd79545ccbeb/latex2sympy2_extended-1.11.0-py3-none-any.whl (209 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.1/209.1 kB 85.9 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.1/209.1 kB 911.2 kB/s eta 0:00:00
 Collecting latex2sympy2 (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 24))
   Downloading http://yum.tbsite.net/pypi/packages/0c/9e/4520682ab29a9219f1845643fdc75f1453bebf4b602c6e4421579de1f05d/latex2sympy2-1.9.1-py3-none-any.whl (89 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.8/89.8 kB 632.1 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.8/89.8 kB 687.3 kB/s eta 0:00:00
 Collecting word2number (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 25))
   Downloading http://yum.tbsite.net/pypi/packages/4a/29/a31940c848521f0725f0df6b25dca8917f13a2025b0e8fcbe5d0457e45e6/word2number-1.1.zip (9.7 kB)
   Preparing metadata (setup.py): started
@@ -301,18 +299,18 @@ Requirement already satisfied: psutil>=5.0.0 in /opt/conda/envs/python3.10.13/li
 Requirement already satisfied: pydantic~=2.0 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8)) (2.11.5)
 Collecting pyecharts>=2.0.0 (from swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8))
   Downloading http://yum.tbsite.net/pypi/packages/8b/4d/518d1c17575dc3a51f3c17490e75b1811873168a165c4eb585af9da093e3/pyecharts-2.1.0-py3-none-any.whl (161 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 161.1/161.1 kB 5.3 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 161.1/161.1 kB 865.7 kB/s eta 0:00:00
 Requirement already satisfied: pyyaml in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8)) (6.0.2)
 Collecting requests>=2.28.0 (from swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8))
   Downloading http://yum.tbsite.net/pypi/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl (64 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.7/64.7 kB 40.7 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.7/64.7 kB 37.3 MB/s eta 0:00:00
 Collecting rich<14.0.0,>=13.6.0 (from swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8))
   Downloading http://yum.tbsite.net/pypi/packages/19/71/39c7c0d87f8d4e6c020a393182060eaefeeae6c01dab6a84ec346f2567df/rich-13.9.4-py3-none-any.whl (242 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 242.4/242.4 kB 8.2 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 242.4/242.4 kB 958.5 kB/s eta 0:00:00
 Requirement already satisfied: setuptools in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8)) (78.1.1)
 Collecting urllib3>=1.26.0 (from swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8))
   Downloading http://yum.tbsite.net/pypi/packages/39/08/aaaad47bc4e9dc8c725e68f9d04865dbcb2052843ff09c97b08904852d84/urllib3-2.6.3-py3-none-any.whl (131 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.6/131.6 kB 68.0 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.6/131.6 kB 13.8 MB/s eta 0:00:00
 Requirement already satisfied: wrapt>=1.17.0 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8)) (1.17.2)
 Requirement already satisfied: filelock in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from openlm-hub->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 9)) (3.18.0)
 Requirement already satisfied: fsspec in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from openlm-hub->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 9)) (2025.5.1)
@@ -326,12 +324,12 @@ Requirement already satisfied: packaging in /opt/conda/envs/python3.10.13/lib/py
 Requirement already satisfied: importlib_metadata in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from tensordict->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 12)) (8.0.0)
 Collecting orjson (from tensordict->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 12))
   Downloading http://yum.tbsite.net/pypi/packages/8f/ed/f2b5d66aa9b6b5c02ff5f120efc7b38c7c4962b21e6be0f00fd99a5c348e/orjson-3.11.7-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (133 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.7/133.7 kB 67.3 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 133.7/133.7 kB 15.5 MB/s eta 0:00:00
 Collecting pyvers<0.3.0,>=0.2.0 (from tensordict->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 12))
   Downloading http://yum.tbsite.net/pypi/packages/36/bf/ea840f706b7824dd57220484465995309c8c217995ddb7ce4b262240e912/pyvers-0.2.2-py3-none-any.whl (11 kB)
 Collecting antlr4-python3-runtime==4.9.* (from hydra-core->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 13))
   Downloading http://yum.tbsite.net/pypi/packages/3e/38/7859ff46355f76f8d19459005ca000b6e7012f2f1ca597746cbcd1fbfe5e/antlr4-python3-runtime-4.9.3.tar.gz (117 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 117.0/117.0 kB 65.1 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 117.0/117.0 kB 64.2 MB/s eta 0:00:00
   Preparing metadata (setup.py): started
   Preparing metadata (setup.py): finished with status 'done'
 Requirement already satisfied: transformers in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from peft->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 19)) (4.52.4)
@@ -343,79 +341,79 @@ Requirement already satisfied: sympy in /opt/conda/envs/python3.10.13/lib/python
 INFO: pip is looking at multiple versions of latex2sympy2 to determine which version is compatible with other requirements. This could take a while.
 Collecting latex2sympy2 (from -r /checkpoint/binary/train_package/requirements_nebula.txt (line 24))
   Downloading http://yum.tbsite.net/pypi/packages/7c/ca/e70855e7df02b5d46d70d7f58cc657858303bc7b6e82c224d98bc15310d7/latex2sympy2-1.9.0-py3-none-any.whl (89 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.9/89.9 kB 513.2 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.9/89.9 kB 576.1 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/41/92/ceb1a9ad8cdf14ba0ff6b755b467139799a9ad5a88c5b1666c9cc23433e3/latex2sympy2-1.8.6-py3-none-any.whl (88 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.6/88.6 kB 637.7 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.6/88.6 kB 611.7 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/c2/d2/eca237b70b0e43aafc712388e559fc9aa1ac5a9933bb533d000db857d615/latex2sympy2-1.8.5-py3-none-any.whl (88 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.6/88.6 kB 665.4 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 88.6/88.6 kB 544.9 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/b6/01/b877edc50fe1afe37efaa54e524e51b0304ecc9da952c5b113a657afefb1/latex2sympy2-1.8.3-py3-none-any.whl (86 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 86.1/86.1 kB 678.8 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 86.1/86.1 kB 680.6 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/d5/18/0d843fe97c6760c8c24255f6f5464ac8c561dc156d3df95b454b67349ee4/latex2sympy2-1.8.2-py3-none-any.whl (85 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.9/85.9 kB 768.1 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.9/85.9 kB 576.4 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/3a/9a/5058906cf0a6bce2dae79702673d9dcd420f1a82c3a932b304cd4d4486a6/latex2sympy2-1.8.0-py3-none-any.whl (84 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.6/84.6 kB 614.9 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.6/84.6 kB 520.9 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/71/9a/3eade727c65dba39472fbab62fa25bad87f56928f61458672517a184209e/latex2sympy2-1.7.9-py3-none-any.whl (84 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.5/84.5 kB 623.4 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 84.5/84.5 kB 614.8 kB/s eta 0:00:00
 INFO: pip is still looking at multiple versions of latex2sympy2 to determine which version is compatible with other requirements. This could take a while.
   Downloading http://yum.tbsite.net/pypi/packages/76/c3/fd4fca2e1c24fb95e2026f9730c4eec12c5a20e4fa458691852c252d0569/latex2sympy2-1.7.8-py3-none-any.whl (83 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.7/83.7 kB 541.6 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.7/83.7 kB 498.5 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/76/98/6c5dd97d6793a50cefdecb648da67dd8d2f712d9ba091ad08ef609147b55/latex2sympy2-1.7.7-py3-none-any.whl (83 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.5/83.5 kB 461.9 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.5/83.5 kB 685.3 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/66/83/b4b6405af23e5f3f1f3f4a63d54bfda91bb7c14f62594d8ed417d45bc496/latex2sympy2-1.7.6-py3-none-any.whl (83 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.4/83.4 kB 581.4 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.4/83.4 kB 604.3 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/88/8e/afe939bdfbf41d8c4465fdac9e88d1a413ba0a4fa284eae5e4de3a867294/latex2sympy2-1.7.4-py3-none-any.whl (83 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.4/83.4 kB 626.3 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.4/83.4 kB 643.9 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/6e/be/ccd2189d974c1655e2b59ca5cb05b75f0441b46d572973660b1de9d64812/latex2sympy2-1.7.2-py3-none-any.whl (83 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.1/83.1 kB 605.6 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 83.1/83.1 kB 506.9 kB/s eta 0:00:00
 INFO: This is taking longer than usual. You might need to provide the dependency resolver with stricter constraints to reduce runtime. See https://pip.pypa.io/warnings/backtracking for guidance. If you want to abort this run, press Ctrl + C.
   Downloading http://yum.tbsite.net/pypi/packages/ea/69/ebab63635e05a1910abd1390be9dd39807eb5e217b557570043cecc9ad58/latex2sympy2-1.6.20-py3-none-any.whl (76 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.3/76.3 kB 533.1 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.3/76.3 kB 475.3 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/13/dc/e1e3b9e37c68f88b536c24644b3eb9c166d4923f10f8ebce9b95e331f60c/latex2sympy2-1.6.19-py3-none-any.whl (76 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.3/76.3 kB 661.7 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.3/76.3 kB 558.3 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/3a/ca/8e1b7fb8968a5bbea3edb6687630e54ed90bffa4f5648e8f6808ca40719d/latex2sympy2-1.6.18-py3-none-any.whl (76 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.3/76.3 kB 618.2 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.3/76.3 kB 687.2 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/c9/58/2199535a6517050ffc393adaa8caac5813ab46e87650780e65395bcc12b7/latex2sympy2-1.6.16-py3-none-any.whl (76 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.0/76.0 kB 600.6 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 76.0/76.0 kB 510.4 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/ee/46/94813ef1e50819fedd1fa091745e1dbb3a25d3bb0c1ec4dd8e92062b652b/latex2sympy2-1.6.14-py3-none-any.whl (75 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.3/75.3 kB 635.9 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.3/75.3 kB 535.6 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/40/6a/fb2fffb5e8acc02cfeff1147cb3d1602076e8457a00dbc119fea88ee7b2b/latex2sympy2-1.6.12-py3-none-any.whl (75 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.3/75.3 kB 566.7 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.3/75.3 kB 621.2 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/42/47/9b75cdcda13e588493844014ee075af4931c455a1e8c76631359fa0d9718/latex2sympy2-1.6.11-py3-none-any.whl (75 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.2/75.2 kB 594.1 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.2/75.2 kB 549.5 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/0d/d1/92cf3c94bb8196625280dfc1f238799942051fc5d87d522d79abd8184cb0/latex2sympy2-1.6.10-py3-none-any.whl (75 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.4/75.4 kB 636.3 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.4/75.4 kB 606.8 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/0c/b7/9b195192f1bf8a373914d8deda25a76cf44c4999b1fc9e3ae99d50801563/latex2sympy2-1.6.9-py3-none-any.whl (75 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.4/75.4 kB 461.7 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 75.4/75.4 kB 960.3 kB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/5f/9a/37ff38637e155cda935faecfcae1617122734a3da378f350706472bf0faf/latex2sympy2-1.6.8-py3-none-any.whl (74 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 74.4/74.4 kB 553.6 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 74.4/74.4 kB 1.9 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/5f/6f/fd0d198d98d68a3095c5a7fc1da7e3e570e5ce66c1d44f53cdaf8f5145f8/latex2sympy2-1.6.7-py3-none-any.whl (74 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 74.3/74.3 kB 483.8 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 74.3/74.3 kB 47.5 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/b5/13/eaa9fc778434591eecaec7e23c2766dc059459a10de528933cad9efaf833/latex2sympy2-1.6.6-py3-none-any.whl (74 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 74.2/74.2 kB 632.7 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 74.2/74.2 kB 45.4 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/c4/9d/8b66dc85475aea8c9e4e8c0a548d97cc342688a180bab597b6af731e185a/latex2sympy2-1.6.5-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.8/73.8 kB 528.3 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.8/73.8 kB 45.2 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/39/b0/73214efa877fbfa7585daab10d03bd58248552dbb18213394249c279d470/latex2sympy2-1.6.4-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.8/73.8 kB 585.2 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.8/73.8 kB 38.7 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/fc/23/39b1ccfe1f399b9aa000d4a967fb44e62f6dca1b6e6384d0a8bc8e04b410/latex2sympy2-1.6.3-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.7/73.7 kB 505.1 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.7/73.7 kB 45.0 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/b8/7d/4f303e187814d426f646859c57fc9996b2b04c4eb4102ddd8a5eaa1a4ef6/latex2sympy2-1.6.2-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.7/73.7 kB 538.5 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.7/73.7 kB 40.2 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/d4/9a/881a551ddde0cc1983b15d307cb10bea0392aefeb4e512007376c16bab8f/latex2sympy2-1.6.1-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 440.9 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 45.0 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/72/e5/69f077300bc6130e2e61b3713d265d39b1229de11c6e40efe6025d978e27/latex2sympy2-1.6.0-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 460.6 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 42.8 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/8f/97/52cad2b14099bf26b72e059391f5c23b0d165cbb5dc542a4229fabedba46/latex2sympy2-1.5.9-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 600.5 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 44.8 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/a6/47/360e3328c67946afece6f4ef5da600a81d292dfdf1c1b51508d2b0fbd7b0/latex2sympy2-1.5.8-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.4/73.4 kB 499.1 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.4/73.4 kB 44.6 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/14/e6/8b24be24987a6233698ef6fcabdc0c553a2a671a8778c2265eb1f0da76e3/latex2sympy2-1.5.7-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.4/73.4 kB 319.4 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.4/73.4 kB 46.1 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/df/ba/c7aa6deb8f024b8b349a2b87bab3a47e67bdf2b6e9db0c96c291bbf61437/latex2sympy2-1.5.6-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.4/73.4 kB 473.7 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.4/73.4 kB 35.9 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/65/e8/1bbeec96ab8d4fc804741dd38a39c0af890b6ce02c0bbea39222a4579011/latex2sympy2-1.5.5-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.3/73.3 kB 494.2 kB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.3/73.3 kB 45.1 MB/s eta 0:00:00
   Downloading http://yum.tbsite.net/pypi/packages/ff/ac/d6f469cbfb4b6cd887f9bb1d558c044219b0550aa0ba8928bae05690e971/latex2sympy2-1.5.4-py3-none-any.whl (73 kB)
-     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.3/73.3 kB 6.5 MB/s eta 0:00:00
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.3/73.3 kB 41.3 MB/s eta 0:00:00
 Requirement already satisfied: typing-extensions>=3.7.4.3 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from huggingface_hub>=0.25.0->peft->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 19)) (4.14.0)
 Requirement already satisfied: hf-xet<2.0.0,>=1.1.2 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from huggingface_hub>=0.25.0->peft->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 19)) (1.1.3)
 Requirement already satisfied: annotated-types>=0.6.0 in /opt/conda/envs/python3.10.13/lib/python3.10/site-packages (from pydantic~=2.0->swanlab->-r /checkpoint/binary/train_package/requirements_nebula.txt (line 8)) (0.7.0)
@@ -462,71 +460,71 @@ Requirement already satisfied: pycparser in /opt/conda/envs/python3.10.13/lib/py
 Building wheels for collected packages: antlr4-python3-runtime, pylatexenc, word2number
   Building wheel for antlr4-python3-runtime (setup.py): started
   Building wheel for antlr4-python3-runtime (setup.py): finished with status 'done'
-  Created wheel for antlr4-python3-runtime: filename=antlr4_python3_runtime-4.9.3-py3-none-any.whl size=144590 sha256=463f152d7a054fee369ebf7f1da43363ccddb8453c9e778dfbef0adb682958af
+  Created wheel for antlr4-python3-runtime: filename=antlr4_python3_runtime-4.9.3-py3-none-any.whl size=144590 sha256=b104d86a8501d786158428021c0cc22b17e04a54f82a6a1dccb6076ae0c15674
   Stored in directory: /root/.cache/pip/wheels/29/6a/41/4f6a87c2d0775885c696685be12e075ee058d04f168b1d4d5e
   Building wheel for pylatexenc (setup.py): started
   Building wheel for pylatexenc (setup.py): finished with status 'done'
-  Created wheel for pylatexenc: filename=pylatexenc-2.10-py3-none-any.whl size=136896 sha256=5a48a245d3c80112cd874744e4345d0c326eb40eef5cf564eaae6633ce695ea2
+  Created wheel for pylatexenc: filename=pylatexenc-2.10-py3-none-any.whl size=136896 sha256=593015131fad155fb31abd63c19c2ca22b82eaa43a4e56996121e8f16aba4bcb
   Stored in directory: /root/.cache/pip/wheels/ca/1c/d6/aab2b14d0df3be9903526832756ca58435f46366c0ac7d9358
   Building wheel for word2number (setup.py): started
   Building wheel for word2number (setup.py): finished with status 'done'
-  Created wheel for word2number: filename=word2number-1.1-py3-none-any.whl size=5658 sha256=85596d44334de2459d8dc21b13be8b493dce18a7faa7cf00839ef17f3e5fefb7
+  Created wheel for word2number: filename=word2number-1.1-py3-none-any.whl size=5658 sha256=508a7d1ecfd1a65d1824583655e32fae3b3ca8d6b1b453a552a4fc26d0cc0fae
   Stored in directory: /root/.cache/pip/wheels/11/bb/9a/8b016ad23d1824cc0c642dd7838484850ed8c6b87b8f168cdf
 Successfully built antlr4-python3-runtime pylatexenc word2number
 Installing collected packages: word2number, pylatexenc, antlr4-python3-runtime, urllib3, pyvers, prettytable, orjson, omegaconf, codetiming, rich, requests, pyecharts, latex2sympy2_extended, latex2sympy2, hydra-core, torchdata, tensordict, swanlab, math-verify, liger-kernel, peft
 Successfully installed antlr4-python3-runtime-4.9.3 codetiming-1.4.0 hydra-core-1.3.2 latex2sympy2-1.5.4 latex2sympy2_extended-1.11.0 liger-kernel-0.7.0 math-verify-0.9.0 omegaconf-2.3.0 orjson-3.11.7 peft-0.18.1 prettytable-3.17.0 pyecharts-2.1.0 pylatexenc-2.10 pyvers-0.2.2 requests-2.32.5 rich-13.9.4 swanlab-0.7.13 tensordict-0.11.0 torchdata-0.11.0 urllib3-2.6.3 word2number-1.1
-[2026-03-23 20:35:10,945] [INFO] [AiScheduler#1] [requirements_util.py:353] install success, used time 29.640576601028442!
-[2026-03-23 20:35:10,945] [INFO] [AiScheduler#1] [requirements_util.py:357] executing cmd: /opt/conda/envs/python3.10.13/bin/pip list --format=freeze
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [env_report.py:52] General environment info:
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [env_report.py:54] python version ******************* 3.10.13+gc (heads/release/3.10.13-inc_gc:866f61ca61, Jun 13 2025, 02:25:33) [GCC 13.3.1 20240611 (Red Hat 13.3.1-2)]
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [env_report.py:54] sys file system encoding ********* utf-8
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [env_report.py:54] nvcc version ********************* 12.8
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [env_report.py:54] torch install path *************** ['/opt/conda/envs/python3.10.13/lib/python3.10/site-packages/torch']
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [env_report.py:54] torch version ******************** 2.6.0
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [env_report.py:54] torch cuda version *************** 12.8
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [env_report.py:54] torchvision version ************** 0.21.0
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [mdl_launcher.py:511] MdlLauncher:  Successfully generated SubprocContainers
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [executor.py:156] docker_fusion_mode False
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [mdl_rendezvous_util.py:55] PytorchEnvs: Acquiring master info for Pytorch DDP...
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [mdl_rendezvous_util.py:72] set_ddp_master:[{'MASTER_ADDR': '33.2.111.112', 'MASTER_PORT': 56483, 'ALLOCATED_RANK': 0}]
-[2026-03-23 20:35:13,035] [INFO] [AiScheduler#1] [mdl_rendezvous_util.py:78] PytorchEnvs: Successfully acquired master, master_addr: 33.2.111.112, master_port: 56483, rank: 0, allocated_rank: 0
-[C4D] RANK=0 /usr/bin/c4d -m 33.2.111.112 -l debug -e -d -f /var/log/c4d_log/c4d_0.log -t /var/log/c4d_log/
-[2026-03-23 20:35:18,523] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
-[2026-03-23 20:35:18,540] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.111.112, scheduler_port:25771, scheduler_prefix:http://33.2.111.112:25771/
-[2026-03-23 20:35:28,548] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
-[2026-03-23 20:35:28,566] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.111.112, scheduler_port:25771, scheduler_prefix:http://33.2.111.112:25771/
-[2026-03-23 20:35:38,579] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
-[2026-03-23 20:35:38,600] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.111.112, scheduler_port:25771, scheduler_prefix:http://33.2.111.112:25771/
-[2026-03-23 20:35:43,084] [INFO] [AiScheduler#1] [executor.py:197] Executor:  worker_dir: /checkpoint/binary/train_package
-[2026-03-23 20:35:43,084] [INFO] [AiScheduler#1] [executor.py:198] Executor:  Launch command: ['./python_bin -u -X faulthandler /checkpoint/binary/train_package/nebula_scripts/entry.py --script_path nebula_scripts/sdpo/sdpo_sciknoweval_parametric.sh --world_size 1 --job_name SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952']
-[2026-03-23 20:35:43,084] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
-[2026-03-23 20:35:43,101] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.111.112, scheduler_port:25771, scheduler_prefix:http://33.2.111.112:25771/
+[2026-03-23 21:13:10,851] [INFO] [AiScheduler#1] [requirements_util.py:353] install success, used time 25.276984691619873!
+[2026-03-23 21:13:10,851] [INFO] [AiScheduler#1] [requirements_util.py:357] executing cmd: /opt/conda/envs/python3.10.13/bin/pip list --format=freeze
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [env_report.py:52] General environment info:
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [env_report.py:54] python version ******************* 3.10.13+gc (heads/release/3.10.13-inc_gc:866f61ca61, Jun 13 2025, 02:25:33) [GCC 13.3.1 20240611 (Red Hat 13.3.1-2)]
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [env_report.py:54] sys file system encoding ********* utf-8
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [env_report.py:54] nvcc version ********************* 12.8
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [env_report.py:54] torch install path *************** ['/opt/conda/envs/python3.10.13/lib/python3.10/site-packages/torch']
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [env_report.py:54] torch version ******************** 2.6.0
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [env_report.py:54] torch cuda version *************** 12.8
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [env_report.py:54] torchvision version ************** 0.21.0
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [mdl_launcher.py:511] MdlLauncher:  Successfully generated SubprocContainers
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [executor.py:156] docker_fusion_mode False
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [mdl_rendezvous_util.py:55] PytorchEnvs: Acquiring master info for Pytorch DDP...
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [mdl_rendezvous_util.py:72] set_ddp_master:[{'MASTER_ADDR': '33.2.101.48', 'MASTER_PORT': 35181, 'ALLOCATED_RANK': 0}]
+[2026-03-23 21:13:12,680] [INFO] [AiScheduler#1] [mdl_rendezvous_util.py:78] PytorchEnvs: Successfully acquired master, master_addr: 33.2.101.48, master_port: 35181, rank: 0, allocated_rank: 0
+[C4D] RANK=0 /usr/bin/c4d -m 33.2.101.48 -l debug -e -d -f /var/log/c4d_log/c4d_0.log -t /var/log/c4d_log/
+[2026-03-23 21:13:13,039] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
+[2026-03-23 21:13:13,055] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.101.48, scheduler_port:27306, scheduler_prefix:http://33.2.101.48:27306/
+[2026-03-23 21:13:23,068] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
+[2026-03-23 21:13:23,084] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.101.48, scheduler_port:27306, scheduler_prefix:http://33.2.101.48:27306/
+[2026-03-23 21:13:33,089] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
+[2026-03-23 21:13:33,105] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.101.48, scheduler_port:27306, scheduler_prefix:http://33.2.101.48:27306/
+[2026-03-23 21:13:42,729] [INFO] [AiScheduler#1] [executor.py:197] Executor:  worker_dir: /checkpoint/binary/train_package
+[2026-03-23 21:13:42,729] [INFO] [AiScheduler#1] [executor.py:198] Executor:  Launch command: ['./python_bin -u -X faulthandler /checkpoint/binary/train_package/nebula_scripts/entry.py --script_path nebula_scripts/sdpo/sdpo_sciknoweval_parametric.sh --world_size 1 --job_name SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432']
+[2026-03-23 21:13:42,729] [INFO] [AiScheduler#1] [notice_board.py:216] notice_board going to lookup_scheduler
+[2026-03-23 21:13:42,745] [INFO] [AiScheduler#1] [communication_api.py:147] scheduler_addr:33.2.101.48, scheduler_port:27306, scheduler_prefix:http://33.2.101.48:27306/
 SCRIPT_PATH = nebula_scripts/sdpo/sdpo_sciknoweval_parametric.sh
 WORLD_SIZE  = 1
-JOB_NAME    = SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952
+JOB_NAME    = SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432
 Detected 4 GPUs, setting CUDA_VISIBLE_DEVICES=0,1,2,3
 PYTHONPATH = /checkpoint/binary/train_package:/checkpoint/binary/train_package
-2026-03-23 20:35:44,490	INFO usage_lib.py:467 -- Usage stats collection is enabled by default without user confirmation because this terminal is detected to be non-interactive. To disable this, add `--disable-usage-stats` to the command that starts the cluster, or run the following command: `ray disable-usage-stats` before starting the cluster. See https://docs.ray.io/en/master/cluster/usage-stats.html for more details.
-2026-03-23 20:35:44,490	INFO scripts.py:971 -- Local node IP: 33.2.111.112
-2026-03-23 20:35:45,504	SUCC scripts.py:1007 -- --------------------
-2026-03-23 20:35:45,504	SUCC scripts.py:1008 -- Ray runtime started.
-2026-03-23 20:35:45,505	SUCC scripts.py:1009 -- --------------------
-2026-03-23 20:35:45,505	INFO scripts.py:1011 -- Next steps
-2026-03-23 20:35:45,505	INFO scripts.py:1014 -- To add another node to this Ray cluster, run
-2026-03-23 20:35:45,505	INFO scripts.py:1017 --   ray start --address='33.2.111.112:6379'
-2026-03-23 20:35:45,505	INFO scripts.py:1026 -- To connect to this Ray cluster:
-2026-03-23 20:35:45,505	INFO scripts.py:1028 -- import ray
-2026-03-23 20:35:45,505	INFO scripts.py:1029 -- ray.init()
-2026-03-23 20:35:45,505	INFO scripts.py:1060 -- To terminate the Ray runtime, run
-2026-03-23 20:35:45,505	INFO scripts.py:1061 --   ray stop
-2026-03-23 20:35:45,505	INFO scripts.py:1064 -- To view the status of the cluster, use
-2026-03-23 20:35:45,505	INFO scripts.py:1065 --   ray status
+2026-03-23 21:13:44,088	INFO usage_lib.py:467 -- Usage stats collection is enabled by default without user confirmation because this terminal is detected to be non-interactive. To disable this, add `--disable-usage-stats` to the command that starts the cluster, or run the following command: `ray disable-usage-stats` before starting the cluster. See https://docs.ray.io/en/master/cluster/usage-stats.html for more details.
+2026-03-23 21:13:44,088	INFO scripts.py:971 -- Local node IP: 33.2.101.48
+2026-03-23 21:13:45,196	SUCC scripts.py:1007 -- --------------------
+2026-03-23 21:13:45,196	SUCC scripts.py:1008 -- Ray runtime started.
+2026-03-23 21:13:45,196	SUCC scripts.py:1009 -- --------------------
+2026-03-23 21:13:45,196	INFO scripts.py:1011 -- Next steps
+2026-03-23 21:13:45,196	INFO scripts.py:1014 -- To add another node to this Ray cluster, run
+2026-03-23 21:13:45,196	INFO scripts.py:1017 --   ray start --address='33.2.101.48:6379'
+2026-03-23 21:13:45,196	INFO scripts.py:1026 -- To connect to this Ray cluster:
+2026-03-23 21:13:45,196	INFO scripts.py:1028 -- import ray
+2026-03-23 21:13:45,196	INFO scripts.py:1029 -- ray.init()
+2026-03-23 21:13:45,196	INFO scripts.py:1060 -- To terminate the Ray runtime, run
+2026-03-23 21:13:45,196	INFO scripts.py:1061 --   ray stop
+2026-03-23 21:13:45,196	INFO scripts.py:1064 -- To view the status of the cluster, use
+2026-03-23 21:13:45,196	INFO scripts.py:1065 --   ray status
 Ray head started
-======== Autoscaler status: 2026-03-23 20:36:05.098388 ========
+======== Autoscaler status: 2026-03-23 21:14:04.688205 ========
 Node status
 ---------------------------------------------------------------
 Active:
- 1 node_ab1da022f99eae10b23995b8d3e66d268b9dcefa6b0d468af7e211d2
+ 1 node_74e21c6204f56d2dfa98bb31bc23736782152037468e533e1f105d83
 Pending:
  (no pending nodes)
 Recent failures:
@@ -545,12 +543,626 @@ Total Constraints:
 Total Demands:
  (no resource demands)
 ray init kwargs: {'num_cpus': None, 'runtime_env': {'env_vars': {'TOKENIZERS_PARALLELISM': 'true', 'VLLM_ALLOW_RUNTIME_LORA_UPDATING': 'true', 'VLLM_ALLREDUCE_USE_SYMM_MEM': '0', 'CUDA_DEVICE_MAX_CONNECTIONS': '1', 'NCCL_CUMEM_ENABLE': '0'}, 'working_dir': None}}
-[36m(TaskRunner pid=6306)[0m TaskRunner hostname: e01-cn-62l4e478k0u, PID: 6306
-[2026-03-23 20:36:21,138] [INFO] [AiScheduler#1] [mdl_launcher.py:517] MdlLauncher:  going to close.
-[2026-03-23 20:36:23,149] [INFO] [AiScheduler#1] [connection.py:617] Closing connection to search-zk-kubedl-na630cloud.vip.tbsite.net:2187
-[2026-03-23 20:36:23,149] [INFO] [AiScheduler#1] [client.py:537] Zookeeper session closed, state: CLOSED
-[2026-03-23 20:36:23,149] [INFO] [AiScheduler#1] [zk_service.py:148] CloseOperation: ZkClient stopped.
-[2026-03-23 20:36:23,152] [INFO] [AiScheduler#1] [heart_beat_client_thread.py:183] HeartbeatClient: stopped.
-[2026-03-23 20:36:23,152] [INFO] [AiScheduler#1] [executor.py:129] Executor going to report_scheduler my exit code: 0
-[2026-03-23 20:36:23,152] [INFO] [AiScheduler#1] [exit.py:55] Handle exit, before exit, code: [0]
-[2026-03-23 20:36:28,655] [INFO] [AiScheduler#1] [heart_beat_client_thread.py:105] HeartbeatClient: Stopping heartbeat thread
+[36m(TaskRunner pid=6301)[0m TaskRunner hostname: e01-cn-hic4dsqo70c, PID: 6301
+[36m(TaskRunner pid=6301)[0m {'actor_rollout_ref': {'actor': {'_target_': 'verl.workers.config.FSDPActorConfig',
+[36m(TaskRunner pid=6301)[0m                                  'calculate_entropy': False,
+[36m(TaskRunner pid=6301)[0m                                  'calculate_sum_pi_squared': False,
+[36m(TaskRunner pid=6301)[0m                                  'checkpoint': {'_target_': 'verl.trainer.config.CheckpointConfig',
+[36m(TaskRunner pid=6301)[0m                                                 'async_save': False,
+[36m(TaskRunner pid=6301)[0m                                                 'load_contents': ['model',
+[36m(TaskRunner pid=6301)[0m                                                                   'optimizer',
+[36m(TaskRunner pid=6301)[0m                                                                   'extra'],
+[36m(TaskRunner pid=6301)[0m                                                 'save_contents': ['model',
+[36m(TaskRunner pid=6301)[0m                                                                   'optimizer',
+[36m(TaskRunner pid=6301)[0m                                                                   'extra']},
+[36m(TaskRunner pid=6301)[0m                                  'clip_ratio': 0.2,
+[36m(TaskRunner pid=6301)[0m                                  'clip_ratio_c': 3.0,
+[36m(TaskRunner pid=6301)[0m                                  'clip_ratio_high': 0.28,
+[36m(TaskRunner pid=6301)[0m                                  'clip_ratio_low': 0.2,
+[36m(TaskRunner pid=6301)[0m                                  'data_loader_seed': 42,
+[36m(TaskRunner pid=6301)[0m                                  'entropy_checkpointing': False,
+[36m(TaskRunner pid=6301)[0m                                  'entropy_coeff': 0,
+[36m(TaskRunner pid=6301)[0m                                  'entropy_from_logits_with_chunking': False,
+[36m(TaskRunner pid=6301)[0m                                  'freeze_vision_tower': False,
+[36m(TaskRunner pid=6301)[0m                                  'fsdp_config': {'_target_': 'verl.workers.config.FSDPEngineConfig',
+[36m(TaskRunner pid=6301)[0m                                                  'dtype': 'bfloat16',
+[36m(TaskRunner pid=6301)[0m                                                  'entropy_checkpointing': False,
+[36m(TaskRunner pid=6301)[0m                                                  'entropy_from_logits_with_chunking': False,
+[36m(TaskRunner pid=6301)[0m                                                  'forward_only': False,
+[36m(TaskRunner pid=6301)[0m                                                  'forward_prefetch': False,
+[36m(TaskRunner pid=6301)[0m                                                  'fsdp_size': -1,
+[36m(TaskRunner pid=6301)[0m                                                  'full_determinism': False,
+[36m(TaskRunner pid=6301)[0m                                                  'model_dtype': 'bfloat16',
+[36m(TaskRunner pid=6301)[0m                                                  'offload_policy': False,
+[36m(TaskRunner pid=6301)[0m                                                  'optimizer_offload': False,
+[36m(TaskRunner pid=6301)[0m                                                  'param_offload': False,
+[36m(TaskRunner pid=6301)[0m                                                  'reshard_after_forward': True,
+[36m(TaskRunner pid=6301)[0m                                                  'seed': 42,
+[36m(TaskRunner pid=6301)[0m                                                  'strategy': 'fsdp',
+[36m(TaskRunner pid=6301)[0m                                                  'ulysses_sequence_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                                  'use_orig_params': False,
+[36m(TaskRunner pid=6301)[0m                                                  'use_torch_compile': True,
+[36m(TaskRunner pid=6301)[0m                                                  'wrap_policy': {'min_num_params': 0}},
+[36m(TaskRunner pid=6301)[0m                                  'grad_clip': 1.0,
+[36m(TaskRunner pid=6301)[0m                                  'kl_loss_coef': 0.001,
+[36m(TaskRunner pid=6301)[0m                                  'kl_loss_type': 'low_var_kl',
+[36m(TaskRunner pid=6301)[0m                                  'loss_agg_mode': 'token-mean',
+[36m(TaskRunner pid=6301)[0m                                  'loss_scale_factor': None,
+[36m(TaskRunner pid=6301)[0m                                  'optim': {'_target_': 'verl.workers.config.FSDPOptimizerConfig',
+[36m(TaskRunner pid=6301)[0m                                            'betas': [0.9, 0.999],
+[36m(TaskRunner pid=6301)[0m                                            'clip_grad': 1.0,
+[36m(TaskRunner pid=6301)[0m                                            'lr': 1e-05,
+[36m(TaskRunner pid=6301)[0m                                            'lr_scheduler_type': 'constant',
+[36m(TaskRunner pid=6301)[0m                                            'lr_warmup_steps': 10,
+[36m(TaskRunner pid=6301)[0m                                            'lr_warmup_steps_ratio': 0.0,
+[36m(TaskRunner pid=6301)[0m                                            'min_lr_ratio': 0.0,
+[36m(TaskRunner pid=6301)[0m                                            'num_cycles': 0.5,
+[36m(TaskRunner pid=6301)[0m                                            'optimizer': 'AdamW',
+[36m(TaskRunner pid=6301)[0m                                            'optimizer_impl': 'torch.optim',
+[36m(TaskRunner pid=6301)[0m                                            'override_optimizer_config': None,
+[36m(TaskRunner pid=6301)[0m                                            'total_training_steps': -1,
+[36m(TaskRunner pid=6301)[0m                                            'warmup_style': None,
+[36m(TaskRunner pid=6301)[0m                                            'weight_decay': 0.01},
+[36m(TaskRunner pid=6301)[0m                                  'policy_loss': {'_target_': 'verl.workers.config.PolicyLossConfig',
+[36m(TaskRunner pid=6301)[0m                                                  'clip_cov_lb': 1.0,
+[36m(TaskRunner pid=6301)[0m                                                  'clip_cov_ratio': 0.0002,
+[36m(TaskRunner pid=6301)[0m                                                  'clip_cov_ub': 5.0,
+[36m(TaskRunner pid=6301)[0m                                                  'kl_cov_ratio': 0.0002,
+[36m(TaskRunner pid=6301)[0m                                                  'loss_mode': 'sdpo',
+[36m(TaskRunner pid=6301)[0m                                                  'ppo_kl_coef': 0.1},
+[36m(TaskRunner pid=6301)[0m                                  'ppo_epochs': 1,
+[36m(TaskRunner pid=6301)[0m                                  'ppo_max_token_len_per_gpu': 18944,
+[36m(TaskRunner pid=6301)[0m                                  'ppo_micro_batch_size': None,
+[36m(TaskRunner pid=6301)[0m                                  'ppo_micro_batch_size_per_gpu': 1,
+[36m(TaskRunner pid=6301)[0m                                  'ppo_mini_batch_size': 32,
+[36m(TaskRunner pid=6301)[0m                                  'profiler': {'_target_': 'verl.utils.profiler.ProfilerConfig',
+[36m(TaskRunner pid=6301)[0m                                               'all_ranks': False,
+[36m(TaskRunner pid=6301)[0m                                               'enable': False,
+[36m(TaskRunner pid=6301)[0m                                               'ranks': [],
+[36m(TaskRunner pid=6301)[0m                                               'save_path': 'outputs/profile',
+[36m(TaskRunner pid=6301)[0m                                               'tool': None,
+[36m(TaskRunner pid=6301)[0m                                               'tool_config': {'npu': {'_target_': 'verl.utils.profiler.config.NPUToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                       'analysis': True,
+[36m(TaskRunner pid=6301)[0m                                                                       'contents': [],
+[36m(TaskRunner pid=6301)[0m                                                                       'discrete': False,
+[36m(TaskRunner pid=6301)[0m                                                                       'level': 'level0'},
+[36m(TaskRunner pid=6301)[0m                                                               'nsys': {'_target_': 'verl.utils.profiler.config.NsightToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                        'discrete': False},
+[36m(TaskRunner pid=6301)[0m                                                               'torch': {'_target_': 'verl.utils.profiler.config.TorchProfilerToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                         'step_end': None,
+[36m(TaskRunner pid=6301)[0m                                                                         'step_start': 0},
+[36m(TaskRunner pid=6301)[0m                                                               'torch_memory': {'_target_': 'verl.utils.profiler.config.TorchMemoryToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                                'stack_depth': 32,
+[36m(TaskRunner pid=6301)[0m                                                                                'trace_alloc_max_entries': 100000}}},
+[36m(TaskRunner pid=6301)[0m                                  'rollout_n': 8,
+[36m(TaskRunner pid=6301)[0m                                  'router_replay': {'_target_': 'verl.workers.config.RouterReplayConfig',
+[36m(TaskRunner pid=6301)[0m                                                    'mode': 'disabled',
+[36m(TaskRunner pid=6301)[0m                                                    'record_file': None,
+[36m(TaskRunner pid=6301)[0m                                                    'replay_file': None},
+[36m(TaskRunner pid=6301)[0m                                  'self_distillation': {'_target_': 'verl.workers.config.SelfDistillationConfig',
+[36m(TaskRunner pid=6301)[0m                                                        'alpha': 0.5,
+[36m(TaskRunner pid=6301)[0m                                                        'distillation_add_tail': True,
+[36m(TaskRunner pid=6301)[0m                                                        'distillation_topk': 100,
+[36m(TaskRunner pid=6301)[0m                                                        'dont_reprompt_on_self_success': True,
+[36m(TaskRunner pid=6301)[0m                                                        'entropy_temperature': 1.0,
+[36m(TaskRunner pid=6301)[0m                                                        'entropy_weighting': False,
+[36m(TaskRunner pid=6301)[0m                                                        'entropy_weighting_version': 'v4',
+[36m(TaskRunner pid=6301)[0m                                                        'environment_feedback_only_without_solution': True,
+[36m(TaskRunner pid=6301)[0m                                                        'feedback_template': '\n'
+[36m(TaskRunner pid=6301)[0m                                                                             'The '
+[36m(TaskRunner pid=6301)[0m                                                                             'following '
+[36m(TaskRunner pid=6301)[0m                                                                             'is '
+[36m(TaskRunner pid=6301)[0m                                                                             'feedback '
+[36m(TaskRunner pid=6301)[0m                                                                             'from '
+[36m(TaskRunner pid=6301)[0m                                                                             'your '
+[36m(TaskRunner pid=6301)[0m                                                                             'unsuccessful '
+[36m(TaskRunner pid=6301)[0m                                                                             'earlier '
+[36m(TaskRunner pid=6301)[0m                                                                             'attempt:\n'
+[36m(TaskRunner pid=6301)[0m                                                                             '\n'
+[36m(TaskRunner pid=6301)[0m                                                                             '{feedback_raw}',
+[36m(TaskRunner pid=6301)[0m                                                        'full_logit_distillation': True,
+[36m(TaskRunner pid=6301)[0m                                                        'include_environment_feedback': False,
+[36m(TaskRunner pid=6301)[0m                                                        'is_clip': 2.0,
+[36m(TaskRunner pid=6301)[0m                                                        'max_reprompt_len': 10240,
+[36m(TaskRunner pid=6301)[0m                                                        'remove_thinking_from_demonstration': True,
+[36m(TaskRunner pid=6301)[0m                                                        'reprompt_template': '{prompt}{solution}{feedback}\n'
+[36m(TaskRunner pid=6301)[0m                                                                             '\n'
+[36m(TaskRunner pid=6301)[0m                                                                             'Correctly '
+[36m(TaskRunner pid=6301)[0m                                                                             'solve '
+[36m(TaskRunner pid=6301)[0m                                                                             'the '
+[36m(TaskRunner pid=6301)[0m                                                                             'original '
+[36m(TaskRunner pid=6301)[0m                                                                             'question.',
+[36m(TaskRunner pid=6301)[0m                                                        'reprompt_truncation': 'right',
+[36m(TaskRunner pid=6301)[0m                                                        'solution_template': '\n'
+[36m(TaskRunner pid=6301)[0m                                                                             'Correct '
+[36m(TaskRunner pid=6301)[0m                                                                             'solution:\n'
+[36m(TaskRunner pid=6301)[0m                                                                             '\n'
+[36m(TaskRunner pid=6301)[0m                                                                             '{successful_previous_attempt}',
+[36m(TaskRunner pid=6301)[0m                                                        'success_reward_threshold': 0.5,
+[36m(TaskRunner pid=6301)[0m                                                        'teacher_regularization': 'ema',
+[36m(TaskRunner pid=6301)[0m                                                        'teacher_update_rate': 0.05},
+[36m(TaskRunner pid=6301)[0m                                  'shuffle': False,
+[36m(TaskRunner pid=6301)[0m                                  'strategy': 'fsdp',
+[36m(TaskRunner pid=6301)[0m                                  'sum_pi_squared_checkpointing': False,
+[36m(TaskRunner pid=6301)[0m                                  'tau_neg': 1.05,
+[36m(TaskRunner pid=6301)[0m                                  'tau_pos': 1.0,
+[36m(TaskRunner pid=6301)[0m                                  'ulysses_sequence_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                  'use_dynamic_bsz': False,
+[36m(TaskRunner pid=6301)[0m                                  'use_fused_kernels': False,
+[36m(TaskRunner pid=6301)[0m                                  'use_kl_loss': False,
+[36m(TaskRunner pid=6301)[0m                                  'use_prefix_grouper': False,
+[36m(TaskRunner pid=6301)[0m                                  'use_remove_padding': True,
+[36m(TaskRunner pid=6301)[0m                                  'use_torch_compile': True},
+[36m(TaskRunner pid=6301)[0m                        'hybrid_engine': True,
+[36m(TaskRunner pid=6301)[0m                        'model': {'_target_': 'verl.workers.config.HFModelConfig',
+[36m(TaskRunner pid=6301)[0m                                  'custom_chat_template': None,
+[36m(TaskRunner pid=6301)[0m                                  'enable_activation_offload': False,
+[36m(TaskRunner pid=6301)[0m                                  'enable_gradient_checkpointing': True,
+[36m(TaskRunner pid=6301)[0m                                  'exclude_modules': None,
+[36m(TaskRunner pid=6301)[0m                                  'external_lib': None,
+[36m(TaskRunner pid=6301)[0m                                  'fused_kernel_options': {'impl_backend': 'torch'},
+[36m(TaskRunner pid=6301)[0m                                  'hf_config_path': None,
+[36m(TaskRunner pid=6301)[0m                                  'lora_adapter_path': None,
+[36m(TaskRunner pid=6301)[0m                                  'lora_alpha': 16,
+[36m(TaskRunner pid=6301)[0m                                  'lora_rank': 0,
+[36m(TaskRunner pid=6301)[0m                                  'override_config': {},
+[36m(TaskRunner pid=6301)[0m                                  'path': '/data/oss_bucket_0/ad/loujieming.ljm/base_models/Qwen3-8B',
+[36m(TaskRunner pid=6301)[0m                                  'target_modules': 'all-linear',
+[36m(TaskRunner pid=6301)[0m                                  'tiled_mlp': {'enabled': False,
+[36m(TaskRunner pid=6301)[0m                                                'num_shards': 4},
+[36m(TaskRunner pid=6301)[0m                                  'tokenizer_path': None,
+[36m(TaskRunner pid=6301)[0m                                  'trust_remote_code': True,
+[36m(TaskRunner pid=6301)[0m                                  'use_fused_kernels': False,
+[36m(TaskRunner pid=6301)[0m                                  'use_liger': False,
+[36m(TaskRunner pid=6301)[0m                                  'use_remove_padding': True,
+[36m(TaskRunner pid=6301)[0m                                  'use_shm': False},
+[36m(TaskRunner pid=6301)[0m                        'nccl_timeout': 600,
+[36m(TaskRunner pid=6301)[0m                        'ref': {'_target_': 'verl.workers.config.FSDPActorConfig',
+[36m(TaskRunner pid=6301)[0m                                'entropy_checkpointing': False,
+[36m(TaskRunner pid=6301)[0m                                'entropy_from_logits_with_chunking': False,
+[36m(TaskRunner pid=6301)[0m                                'fsdp_config': {'_target_': 'verl.workers.config.FSDPEngineConfig',
+[36m(TaskRunner pid=6301)[0m                                                'dtype': 'bfloat16',
+[36m(TaskRunner pid=6301)[0m                                                'entropy_checkpointing': False,
+[36m(TaskRunner pid=6301)[0m                                                'entropy_from_logits_with_chunking': False,
+[36m(TaskRunner pid=6301)[0m                                                'forward_only': True,
+[36m(TaskRunner pid=6301)[0m                                                'forward_prefetch': False,
+[36m(TaskRunner pid=6301)[0m                                                'fsdp_size': -1,
+[36m(TaskRunner pid=6301)[0m                                                'full_determinism': False,
+[36m(TaskRunner pid=6301)[0m                                                'model_dtype': 'fp32',
+[36m(TaskRunner pid=6301)[0m                                                'offload_policy': False,
+[36m(TaskRunner pid=6301)[0m                                                'optimizer_offload': False,
+[36m(TaskRunner pid=6301)[0m                                                'param_offload': False,
+[36m(TaskRunner pid=6301)[0m                                                'reshard_after_forward': True,
+[36m(TaskRunner pid=6301)[0m                                                'seed': 42,
+[36m(TaskRunner pid=6301)[0m                                                'strategy': 'fsdp',
+[36m(TaskRunner pid=6301)[0m                                                'ulysses_sequence_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                                'use_orig_params': False,
+[36m(TaskRunner pid=6301)[0m                                                'use_torch_compile': True,
+[36m(TaskRunner pid=6301)[0m                                                'wrap_policy': {'min_num_params': 0}},
+[36m(TaskRunner pid=6301)[0m                                'log_prob_max_token_len_per_gpu': 18944,
+[36m(TaskRunner pid=6301)[0m                                'log_prob_micro_batch_size': None,
+[36m(TaskRunner pid=6301)[0m                                'log_prob_micro_batch_size_per_gpu': 1,
+[36m(TaskRunner pid=6301)[0m                                'log_prob_use_dynamic_bsz': False,
+[36m(TaskRunner pid=6301)[0m                                'profiler': {'_target_': 'verl.utils.profiler.ProfilerConfig',
+[36m(TaskRunner pid=6301)[0m                                             'all_ranks': False,
+[36m(TaskRunner pid=6301)[0m                                             'enable': False,
+[36m(TaskRunner pid=6301)[0m                                             'ranks': [],
+[36m(TaskRunner pid=6301)[0m                                             'save_path': 'outputs/profile',
+[36m(TaskRunner pid=6301)[0m                                             'tool': None,
+[36m(TaskRunner pid=6301)[0m                                             'tool_config': {'npu': {'_target_': 'verl.utils.profiler.config.NPUToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                     'analysis': True,
+[36m(TaskRunner pid=6301)[0m                                                                     'contents': [],
+[36m(TaskRunner pid=6301)[0m                                                                     'discrete': False,
+[36m(TaskRunner pid=6301)[0m                                                                     'level': 'level0'},
+[36m(TaskRunner pid=6301)[0m                                                             'nsys': {'_target_': 'verl.utils.profiler.config.NsightToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                      'discrete': False},
+[36m(TaskRunner pid=6301)[0m                                                             'torch': {'_target_': 'verl.utils.profiler.config.TorchProfilerToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                       'step_end': None,
+[36m(TaskRunner pid=6301)[0m                                                                       'step_start': 0},
+[36m(TaskRunner pid=6301)[0m                                                             'torch_memory': {'_target_': 'verl.utils.profiler.config.TorchMemoryToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                              'stack_depth': 32,
+[36m(TaskRunner pid=6301)[0m                                                                              'trace_alloc_max_entries': 100000}}},
+[36m(TaskRunner pid=6301)[0m                                'rollout_n': 8,
+[36m(TaskRunner pid=6301)[0m                                'router_replay': {'_target_': 'verl.workers.config.RouterReplayConfig',
+[36m(TaskRunner pid=6301)[0m                                                  'mode': 'disabled',
+[36m(TaskRunner pid=6301)[0m                                                  'record_file': None,
+[36m(TaskRunner pid=6301)[0m                                                  'replay_file': None},
+[36m(TaskRunner pid=6301)[0m                                'strategy': 'fsdp',
+[36m(TaskRunner pid=6301)[0m                                'ulysses_sequence_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                'use_torch_compile': True},
+[36m(TaskRunner pid=6301)[0m                        'rollout': {'_target_': 'verl.workers.config.RolloutConfig',
+[36m(TaskRunner pid=6301)[0m                                    'agent': {'_target_': 'verl.workers.config.AgentLoopConfig',
+[36m(TaskRunner pid=6301)[0m                                              'agent_loop_config_path': None,
+[36m(TaskRunner pid=6301)[0m                                              'custom_async_server': {'_target_': 'verl.workers.config.CustomAsyncServerConfig',
+[36m(TaskRunner pid=6301)[0m                                                                      'name': None,
+[36m(TaskRunner pid=6301)[0m                                                                      'path': None},
+[36m(TaskRunner pid=6301)[0m                                              'default_agent_loop': 'single_turn_agent',
+[36m(TaskRunner pid=6301)[0m                                              'num_workers': 8},
+[36m(TaskRunner pid=6301)[0m                                    'calculate_log_probs': True,
+[36m(TaskRunner pid=6301)[0m                                    'cudagraph_capture_sizes': None,
+[36m(TaskRunner pid=6301)[0m                                    'data_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                    'disable_log_stats': True,
+[36m(TaskRunner pid=6301)[0m                                    'do_sample': True,
+[36m(TaskRunner pid=6301)[0m                                    'dtype': 'bfloat16',
+[36m(TaskRunner pid=6301)[0m                                    'enable_chunked_prefill': True,
+[36m(TaskRunner pid=6301)[0m                                    'enable_prefix_caching': True,
+[36m(TaskRunner pid=6301)[0m                                    'enable_rollout_routing_replay': False,
+[36m(TaskRunner pid=6301)[0m                                    'enforce_eager': False,
+[36m(TaskRunner pid=6301)[0m                                    'engine_kwargs': {'sglang': {}, 'vllm': {}},
+[36m(TaskRunner pid=6301)[0m                                    'expert_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                    'free_cache_engine': True,
+[36m(TaskRunner pid=6301)[0m                                    'gpu_memory_utilization': 0.85,
+[36m(TaskRunner pid=6301)[0m                                    'ignore_eos': False,
+[36m(TaskRunner pid=6301)[0m                                    'layered_summon': False,
+[36m(TaskRunner pid=6301)[0m                                    'load_format': 'dummy',
+[36m(TaskRunner pid=6301)[0m                                    'log_prob_max_token_len_per_gpu': 18944,
+[36m(TaskRunner pid=6301)[0m                                    'log_prob_micro_batch_size': None,
+[36m(TaskRunner pid=6301)[0m                                    'log_prob_micro_batch_size_per_gpu': 1,
+[36m(TaskRunner pid=6301)[0m                                    'log_prob_use_dynamic_bsz': False,
+[36m(TaskRunner pid=6301)[0m                                    'logprobs_mode': 'processed_logprobs',
+[36m(TaskRunner pid=6301)[0m                                    'max_model_len': 18944,
+[36m(TaskRunner pid=6301)[0m                                    'max_num_batched_tokens': 18944,
+[36m(TaskRunner pid=6301)[0m                                    'max_num_seqs': 1024,
+[36m(TaskRunner pid=6301)[0m                                    'mode': 'async',
+[36m(TaskRunner pid=6301)[0m                                    'multi_stage_wake_up': False,
+[36m(TaskRunner pid=6301)[0m                                    'multi_turn': {'_target_': 'verl.workers.config.MultiTurnConfig',
+[36m(TaskRunner pid=6301)[0m                                                   'enable': False,
+[36m(TaskRunner pid=6301)[0m                                                   'format': 'hermes',
+[36m(TaskRunner pid=6301)[0m                                                   'interaction_config_path': None,
+[36m(TaskRunner pid=6301)[0m                                                   'max_assistant_turns': None,
+[36m(TaskRunner pid=6301)[0m                                                   'max_parallel_calls': 1,
+[36m(TaskRunner pid=6301)[0m                                                   'max_tool_response_length': 256,
+[36m(TaskRunner pid=6301)[0m                                                   'max_user_turns': None,
+[36m(TaskRunner pid=6301)[0m                                                   'num_repeat_rollouts': None,
+[36m(TaskRunner pid=6301)[0m                                                   'tokenization_sanity_check_mode': 'strict',
+[36m(TaskRunner pid=6301)[0m                                                   'tool_config_path': None,
+[36m(TaskRunner pid=6301)[0m                                                   'tool_response_truncate_side': 'middle',
+[36m(TaskRunner pid=6301)[0m                                                   'use_inference_chat_template': False},
+[36m(TaskRunner pid=6301)[0m                                    'n': 8,
+[36m(TaskRunner pid=6301)[0m                                    'name': 'vllm',
+[36m(TaskRunner pid=6301)[0m                                    'over_sample_rate': 0,
+[36m(TaskRunner pid=6301)[0m                                    'pipeline_model_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                    'profiler': {'_target_': 'verl.utils.profiler.ProfilerConfig',
+[36m(TaskRunner pid=6301)[0m                                                 'all_ranks': False,
+[36m(TaskRunner pid=6301)[0m                                                 'enable': False,
+[36m(TaskRunner pid=6301)[0m                                                 'ranks': [],
+[36m(TaskRunner pid=6301)[0m                                                 'save_path': 'outputs/profile',
+[36m(TaskRunner pid=6301)[0m                                                 'tool': None,
+[36m(TaskRunner pid=6301)[0m                                                 'tool_config': {'npu': {'_target_': 'verl.utils.profiler.config.NPUToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                         'analysis': True,
+[36m(TaskRunner pid=6301)[0m                                                                         'contents': [],
+[36m(TaskRunner pid=6301)[0m                                                                         'discrete': False,
+[36m(TaskRunner pid=6301)[0m                                                                         'level': 'level0'},
+[36m(TaskRunner pid=6301)[0m                                                                 'nsys': {'_target_': 'verl.utils.profiler.config.NsightToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                          'discrete': False},
+[36m(TaskRunner pid=6301)[0m                                                                 'torch': {'_target_': 'verl.utils.profiler.config.TorchProfilerToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                           'step_end': None,
+[36m(TaskRunner pid=6301)[0m                                                                           'step_start': 0},
+[36m(TaskRunner pid=6301)[0m                                                                 'torch_memory': {'_target_': 'verl.utils.profiler.config.TorchMemoryToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                                  'stack_depth': 32,
+[36m(TaskRunner pid=6301)[0m                                                                                  'trace_alloc_max_entries': 100000}}},
+[36m(TaskRunner pid=6301)[0m                                    'prometheus': {'_target_': 'verl.workers.config.PrometheusConfig',
+[36m(TaskRunner pid=6301)[0m                                                   'enable': False,
+[36m(TaskRunner pid=6301)[0m                                                   'file': '/tmp/ray/session_latest/metrics/prometheus/prometheus.yml',
+[36m(TaskRunner pid=6301)[0m                                                   'port': 9090,
+[36m(TaskRunner pid=6301)[0m                                                   'served_model_name': '/data/oss_bucket_0/ad/loujieming.ljm/base_models/Qwen3-8B'},
+[36m(TaskRunner pid=6301)[0m                                    'prompt_length': 2048,
+[36m(TaskRunner pid=6301)[0m                                    'quantization': None,
+[36m(TaskRunner pid=6301)[0m                                    'quantization_config_file': None,
+[36m(TaskRunner pid=6301)[0m                                    'response_length': 8192,
+[36m(TaskRunner pid=6301)[0m                                    'scheduling_policy': 'fcfs',
+[36m(TaskRunner pid=6301)[0m                                    'skip_dump_dir': '/tmp/rollout_dump',
+[36m(TaskRunner pid=6301)[0m                                    'skip_rollout': False,
+[36m(TaskRunner pid=6301)[0m                                    'skip_tokenizer_init': True,
+[36m(TaskRunner pid=6301)[0m                                    'temperature': 1.0,
+[36m(TaskRunner pid=6301)[0m                                    'tensor_model_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                    'top_k': -1,
+[36m(TaskRunner pid=6301)[0m                                    'top_p': 1,
+[36m(TaskRunner pid=6301)[0m                                    'trace': {'_target_': 'verl.workers.config.TraceConfig',
+[36m(TaskRunner pid=6301)[0m                                              'backend': None,
+[36m(TaskRunner pid=6301)[0m                                              'max_samples_per_step_per_worker': None,
+[36m(TaskRunner pid=6301)[0m                                              'token2text': False},
+[36m(TaskRunner pid=6301)[0m                                    'update_weights_bucket_megabytes': 512,
+[36m(TaskRunner pid=6301)[0m                                    'val_kwargs': {'_target_': 'verl.workers.config.SamplingConfig',
+[36m(TaskRunner pid=6301)[0m                                                   'do_sample': True,
+[36m(TaskRunner pid=6301)[0m                                                   'n': 16,
+[36m(TaskRunner pid=6301)[0m                                                   'temperature': 0.6,
+[36m(TaskRunner pid=6301)[0m                                                   'top_k': -1,
+[36m(TaskRunner pid=6301)[0m                                                   'top_p': 0.95}}},
+[36m(TaskRunner pid=6301)[0m  'algorithm': {'_target_': 'verl.trainer.config.AlgoConfig',
+[36m(TaskRunner pid=6301)[0m                'adv_estimator': 'grpo',
+[36m(TaskRunner pid=6301)[0m                'gamma': 1.0,
+[36m(TaskRunner pid=6301)[0m                'kl_ctrl': {'_target_': 'verl.trainer.config.KLControlConfig',
+[36m(TaskRunner pid=6301)[0m                            'horizon': 10000,
+[36m(TaskRunner pid=6301)[0m                            'kl_coef': 0.001,
+[36m(TaskRunner pid=6301)[0m                            'target_kl': 0.1,
+[36m(TaskRunner pid=6301)[0m                            'type': 'fixed'},
+[36m(TaskRunner pid=6301)[0m                'kl_penalty': 'kl',
+[36m(TaskRunner pid=6301)[0m                'lam': 1.0,
+[36m(TaskRunner pid=6301)[0m                'norm_adv_by_std_in_grpo': False,
+[36m(TaskRunner pid=6301)[0m                'pf_ppo': {'reweight_method': 'pow', 'weight_pow': 2.0},
+[36m(TaskRunner pid=6301)[0m                'rollout_correction': {'bypass_mode': False,
+[36m(TaskRunner pid=6301)[0m                                       'loss_type': 'ppo_clip',
+[36m(TaskRunner pid=6301)[0m                                       'rollout_is': 'token',
+[36m(TaskRunner pid=6301)[0m                                       'rollout_is_batch_normalize': False,
+[36m(TaskRunner pid=6301)[0m                                       'rollout_is_threshold': 2.0,
+[36m(TaskRunner pid=6301)[0m                                       'rollout_rs': None,
+[36m(TaskRunner pid=6301)[0m                                       'rollout_rs_threshold': None},
+[36m(TaskRunner pid=6301)[0m                'use_kl_in_reward': False,
+[36m(TaskRunner pid=6301)[0m                'use_pf_ppo': False},
+[36m(TaskRunner pid=6301)[0m  'critic': {'_target_': 'verl.workers.config.FSDPCriticConfig',
+[36m(TaskRunner pid=6301)[0m             'checkpoint': {'_target_': 'verl.trainer.config.CheckpointConfig',
+[36m(TaskRunner pid=6301)[0m                            'async_save': False,
+[36m(TaskRunner pid=6301)[0m                            'load_contents': ['model', 'optimizer', 'extra'],
+[36m(TaskRunner pid=6301)[0m                            'save_contents': ['model', 'optimizer', 'extra']},
+[36m(TaskRunner pid=6301)[0m             'cliprange_value': 0.5,
+[36m(TaskRunner pid=6301)[0m             'data_loader_seed': 42,
+[36m(TaskRunner pid=6301)[0m             'enable': None,
+[36m(TaskRunner pid=6301)[0m             'forward_max_token_len_per_gpu': 32768,
+[36m(TaskRunner pid=6301)[0m             'forward_micro_batch_size': None,
+[36m(TaskRunner pid=6301)[0m             'forward_micro_batch_size_per_gpu': None,
+[36m(TaskRunner pid=6301)[0m             'grad_clip': 1.0,
+[36m(TaskRunner pid=6301)[0m             'loss_agg_mode': 'token-mean',
+[36m(TaskRunner pid=6301)[0m             'model': {'_target_': 'verl.workers.config.FSDPCriticModelCfg',
+[36m(TaskRunner pid=6301)[0m                       'enable_activation_offload': False,
+[36m(TaskRunner pid=6301)[0m                       'enable_gradient_checkpointing': True,
+[36m(TaskRunner pid=6301)[0m                       'external_lib': None,
+[36m(TaskRunner pid=6301)[0m                       'fsdp_config': {'_target_': 'verl.workers.config.FSDPEngineConfig',
+[36m(TaskRunner pid=6301)[0m                                       'dtype': 'bfloat16',
+[36m(TaskRunner pid=6301)[0m                                       'entropy_checkpointing': False,
+[36m(TaskRunner pid=6301)[0m                                       'entropy_from_logits_with_chunking': False,
+[36m(TaskRunner pid=6301)[0m                                       'forward_only': False,
+[36m(TaskRunner pid=6301)[0m                                       'forward_prefetch': False,
+[36m(TaskRunner pid=6301)[0m                                       'fsdp_size': -1,
+[36m(TaskRunner pid=6301)[0m                                       'full_determinism': False,
+[36m(TaskRunner pid=6301)[0m                                       'model_dtype': 'fp32',
+[36m(TaskRunner pid=6301)[0m                                       'offload_policy': False,
+[36m(TaskRunner pid=6301)[0m                                       'optimizer_offload': False,
+[36m(TaskRunner pid=6301)[0m                                       'param_offload': False,
+[36m(TaskRunner pid=6301)[0m                                       'reshard_after_forward': True,
+[36m(TaskRunner pid=6301)[0m                                       'seed': 42,
+[36m(TaskRunner pid=6301)[0m                                       'strategy': 'fsdp',
+[36m(TaskRunner pid=6301)[0m                                       'ulysses_sequence_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                                       'use_orig_params': False,
+[36m(TaskRunner pid=6301)[0m                                       'use_torch_compile': True,
+[36m(TaskRunner pid=6301)[0m                                       'wrap_policy': {'min_num_params': 0}},
+[36m(TaskRunner pid=6301)[0m                       'lora_alpha': 16,
+[36m(TaskRunner pid=6301)[0m                       'lora_rank': 0,
+[36m(TaskRunner pid=6301)[0m                       'override_config': {},
+[36m(TaskRunner pid=6301)[0m                       'path': 'Qwen/Qwen3-8B',
+[36m(TaskRunner pid=6301)[0m                       'target_modules': 'all-linear',
+[36m(TaskRunner pid=6301)[0m                       'tiled_mlp': {'enabled': False, 'num_shards': 4},
+[36m(TaskRunner pid=6301)[0m                       'tokenizer_path': '/data/oss_bucket_0/ad/loujieming.ljm/base_models/Qwen3-8B',
+[36m(TaskRunner pid=6301)[0m                       'trust_remote_code': True,
+[36m(TaskRunner pid=6301)[0m                       'use_remove_padding': False,
+[36m(TaskRunner pid=6301)[0m                       'use_shm': False},
+[36m(TaskRunner pid=6301)[0m             'optim': {'_target_': 'verl.workers.config.FSDPOptimizerConfig',
+[36m(TaskRunner pid=6301)[0m                       'betas': [0.9, 0.999],
+[36m(TaskRunner pid=6301)[0m                       'clip_grad': 1.0,
+[36m(TaskRunner pid=6301)[0m                       'lr': 1e-05,
+[36m(TaskRunner pid=6301)[0m                       'lr_scheduler_type': 'constant',
+[36m(TaskRunner pid=6301)[0m                       'lr_warmup_steps': -1,
+[36m(TaskRunner pid=6301)[0m                       'lr_warmup_steps_ratio': 0.0,
+[36m(TaskRunner pid=6301)[0m                       'min_lr_ratio': 0.0,
+[36m(TaskRunner pid=6301)[0m                       'num_cycles': 0.5,
+[36m(TaskRunner pid=6301)[0m                       'optimizer': 'AdamW',
+[36m(TaskRunner pid=6301)[0m                       'optimizer_impl': 'torch.optim',
+[36m(TaskRunner pid=6301)[0m                       'override_optimizer_config': None,
+[36m(TaskRunner pid=6301)[0m                       'total_training_steps': -1,
+[36m(TaskRunner pid=6301)[0m                       'warmup_style': None,
+[36m(TaskRunner pid=6301)[0m                       'weight_decay': 0.01},
+[36m(TaskRunner pid=6301)[0m             'ppo_epochs': 1,
+[36m(TaskRunner pid=6301)[0m             'ppo_max_token_len_per_gpu': 32768,
+[36m(TaskRunner pid=6301)[0m             'ppo_micro_batch_size': None,
+[36m(TaskRunner pid=6301)[0m             'ppo_micro_batch_size_per_gpu': None,
+[36m(TaskRunner pid=6301)[0m             'ppo_mini_batch_size': 32,
+[36m(TaskRunner pid=6301)[0m             'profiler': {'_target_': 'verl.utils.profiler.ProfilerConfig',
+[36m(TaskRunner pid=6301)[0m                          'all_ranks': False,
+[36m(TaskRunner pid=6301)[0m                          'enable': False,
+[36m(TaskRunner pid=6301)[0m                          'ranks': [],
+[36m(TaskRunner pid=6301)[0m                          'save_path': 'outputs/profile',
+[36m(TaskRunner pid=6301)[0m                          'tool': None,
+[36m(TaskRunner pid=6301)[0m                          'tool_config': {'npu': {'_target_': 'verl.utils.profiler.config.NPUToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                  'analysis': True,
+[36m(TaskRunner pid=6301)[0m                                                  'contents': [],
+[36m(TaskRunner pid=6301)[0m                                                  'discrete': False,
+[36m(TaskRunner pid=6301)[0m                                                  'level': 'level0'},
+[36m(TaskRunner pid=6301)[0m                                          'nsys': {'_target_': 'verl.utils.profiler.config.NsightToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                   'discrete': False},
+[36m(TaskRunner pid=6301)[0m                                          'torch': {'_target_': 'verl.utils.profiler.config.TorchProfilerToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                    'step_end': None,
+[36m(TaskRunner pid=6301)[0m                                                    'step_start': 0},
+[36m(TaskRunner pid=6301)[0m                                          'torch_memory': {'_target_': 'verl.utils.profiler.config.TorchMemoryToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                           'stack_depth': 32,
+[36m(TaskRunner pid=6301)[0m                                                           'trace_alloc_max_entries': 100000}}},
+[36m(TaskRunner pid=6301)[0m             'rollout_n': 8,
+[36m(TaskRunner pid=6301)[0m             'shuffle': False,
+[36m(TaskRunner pid=6301)[0m             'strategy': 'fsdp',
+[36m(TaskRunner pid=6301)[0m             'ulysses_sequence_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m             'use_dynamic_bsz': False},
+[36m(TaskRunner pid=6301)[0m  'custom_reward_function': {'name': 'compute_score',
+[36m(TaskRunner pid=6301)[0m                             'path': '/checkpoint/binary/train_package/verl/utils/reward_score/feedback/__init__.py'},
+[36m(TaskRunner pid=6301)[0m  'data': {'apply_chat_template_kwargs': {'enable_thinking': False},
+[36m(TaskRunner pid=6301)[0m           'custom_cls': {'name': None, 'path': None},
+[36m(TaskRunner pid=6301)[0m           'datagen': {'name': None, 'path': None},
+[36m(TaskRunner pid=6301)[0m           'dataloader_num_workers': 8,
+[36m(TaskRunner pid=6301)[0m           'filter_overlong_prompts': True,
+[36m(TaskRunner pid=6301)[0m           'filter_overlong_prompts_workers': 1,
+[36m(TaskRunner pid=6301)[0m           'image_key': 'images',
+[36m(TaskRunner pid=6301)[0m           'image_patch_size': 14,
+[36m(TaskRunner pid=6301)[0m           'max_prompt_length': 2048,
+[36m(TaskRunner pid=6301)[0m           'max_response_length': 8192,
+[36m(TaskRunner pid=6301)[0m           'prompt_key': 'prompt',
+[36m(TaskRunner pid=6301)[0m           'return_full_prompt': False,
+[36m(TaskRunner pid=6301)[0m           'return_multi_modal_inputs': True,
+[36m(TaskRunner pid=6301)[0m           'return_raw_chat': True,
+[36m(TaskRunner pid=6301)[0m           'return_raw_input_ids': False,
+[36m(TaskRunner pid=6301)[0m           'reward_fn_key': 'data_source',
+[36m(TaskRunner pid=6301)[0m           'sampler': {'class_name': None, 'class_path': None},
+[36m(TaskRunner pid=6301)[0m           'seed': None,
+[36m(TaskRunner pid=6301)[0m           'shuffle': True,
+[36m(TaskRunner pid=6301)[0m           'tokenizer': None,
+[36m(TaskRunner pid=6301)[0m           'tool_config_path': None,
+[36m(TaskRunner pid=6301)[0m           'train_batch_size': 32,
+[36m(TaskRunner pid=6301)[0m           'train_files': '/data/oss_bucket_0/ad/loujieming.ljm/datasets/sciknoweval/biology/train.parquet',
+[36m(TaskRunner pid=6301)[0m           'train_max_samples': -1,
+[36m(TaskRunner pid=6301)[0m           'truncation': 'error',
+[36m(TaskRunner pid=6301)[0m           'trust_remote_code': True,
+[36m(TaskRunner pid=6301)[0m           'use_shm': False,
+[36m(TaskRunner pid=6301)[0m           'val_batch_size': None,
+[36m(TaskRunner pid=6301)[0m           'val_files': None,
+[36m(TaskRunner pid=6301)[0m           'val_max_samples': -1,
+[36m(TaskRunner pid=6301)[0m           'validation_shuffle': False,
+[36m(TaskRunner pid=6301)[0m           'video_key': 'videos'},
+[36m(TaskRunner pid=6301)[0m  'global_profiler': {'_target_': 'verl.utils.profiler.ProfilerConfig',
+[36m(TaskRunner pid=6301)[0m                      'global_tool_config': {'nsys': {'_target_': 'verl.utils.profiler.config.NsightToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                      'controller_nsight_options': {'cuda-graph-trace': 'graph',
+[36m(TaskRunner pid=6301)[0m                                                                                    'cuda-memory-usage': 'true',
+[36m(TaskRunner pid=6301)[0m                                                                                    'trace': 'cuda,nvtx,cublas,ucx'},
+[36m(TaskRunner pid=6301)[0m                                                      'discrete': False,
+[36m(TaskRunner pid=6301)[0m                                                      'worker_nsight_options': {'capture-range': 'cudaProfilerApi',
+[36m(TaskRunner pid=6301)[0m                                                                                'capture-range-end': None,
+[36m(TaskRunner pid=6301)[0m                                                                                'cuda-graph-trace': 'graph',
+[36m(TaskRunner pid=6301)[0m                                                                                'cuda-memory-usage': 'true',
+[36m(TaskRunner pid=6301)[0m                                                                                'kill': 'none',
+[36m(TaskRunner pid=6301)[0m                                                                                'trace': 'cuda,nvtx,cublas,ucx'}},
+[36m(TaskRunner pid=6301)[0m                                             'torch_memory': {'context': 'all',
+[36m(TaskRunner pid=6301)[0m                                                              'kw_args': {},
+[36m(TaskRunner pid=6301)[0m                                                              'stack_depth': 32,
+[36m(TaskRunner pid=6301)[0m                                                              'stacks': 'all',
+[36m(TaskRunner pid=6301)[0m                                                              'trace_alloc_max_entries': 100000}},
+[36m(TaskRunner pid=6301)[0m                      'profile_continuous_steps': False,
+[36m(TaskRunner pid=6301)[0m                      'save_path': 'outputs/profile',
+[36m(TaskRunner pid=6301)[0m                      'steps': None,
+[36m(TaskRunner pid=6301)[0m                      'tool': None},
+[36m(TaskRunner pid=6301)[0m  'max_model_len': 18944,
+[36m(TaskRunner pid=6301)[0m  'ray_kwargs': {'ray_init': {'num_cpus': None}, 'timeline_json_file': None},
+[36m(TaskRunner pid=6301)[0m  'reward_manager': {'_target_': 'verl.trainer.config.config.RewardManagerConfig',
+[36m(TaskRunner pid=6301)[0m                     'module': {'_target_': 'verl.trainer.config.config.ModuleConfig',
+[36m(TaskRunner pid=6301)[0m                                'name': 'custom_reward_manager',
+[36m(TaskRunner pid=6301)[0m                                'path': None},
+[36m(TaskRunner pid=6301)[0m                     'name': 'naive',
+[36m(TaskRunner pid=6301)[0m                     'source': 'register'},
+[36m(TaskRunner pid=6301)[0m  'reward_model': {'enable': False,
+[36m(TaskRunner pid=6301)[0m                   'enable_resource_pool': False,
+[36m(TaskRunner pid=6301)[0m                   'forward_max_token_len_per_gpu': 32768,
+[36m(TaskRunner pid=6301)[0m                   'launch_reward_fn_async': False,
+[36m(TaskRunner pid=6301)[0m                   'max_length': None,
+[36m(TaskRunner pid=6301)[0m                   'micro_batch_size': None,
+[36m(TaskRunner pid=6301)[0m                   'micro_batch_size_per_gpu': None,
+[36m(TaskRunner pid=6301)[0m                   'model': {'external_lib': None,
+[36m(TaskRunner pid=6301)[0m                             'fsdp_config': {'_target_': 'verl.workers.config.FSDPEngineConfig',
+[36m(TaskRunner pid=6301)[0m                                             'forward_prefetch': False,
+[36m(TaskRunner pid=6301)[0m                                             'fsdp_size': -1,
+[36m(TaskRunner pid=6301)[0m                                             'param_offload': False,
+[36m(TaskRunner pid=6301)[0m                                             'reshard_after_forward': True,
+[36m(TaskRunner pid=6301)[0m                                             'wrap_policy': {'min_num_params': 0}},
+[36m(TaskRunner pid=6301)[0m                             'input_tokenizer': '/data/oss_bucket_0/ad/loujieming.ljm/base_models/Qwen3-8B',
+[36m(TaskRunner pid=6301)[0m                             'override_config': {},
+[36m(TaskRunner pid=6301)[0m                             'path': '~/models/FsfairX-LLaMA3-RM-v0.1',
+[36m(TaskRunner pid=6301)[0m                             'trust_remote_code': False,
+[36m(TaskRunner pid=6301)[0m                             'use_fused_kernels': False,
+[36m(TaskRunner pid=6301)[0m                             'use_remove_padding': False,
+[36m(TaskRunner pid=6301)[0m                             'use_shm': False},
+[36m(TaskRunner pid=6301)[0m                   'n_gpus_per_node': 8,
+[36m(TaskRunner pid=6301)[0m                   'nnodes': 0,
+[36m(TaskRunner pid=6301)[0m                   'num_workers': 1,
+[36m(TaskRunner pid=6301)[0m                   'profiler': {'_target_': 'verl.utils.profiler.ProfilerConfig',
+[36m(TaskRunner pid=6301)[0m                                'all_ranks': False,
+[36m(TaskRunner pid=6301)[0m                                'enable': False,
+[36m(TaskRunner pid=6301)[0m                                'ranks': [],
+[36m(TaskRunner pid=6301)[0m                                'save_path': 'outputs/profile',
+[36m(TaskRunner pid=6301)[0m                                'tool': None,
+[36m(TaskRunner pid=6301)[0m                                'tool_config': {'npu': {'_target_': 'verl.utils.profiler.config.NPUToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                        'analysis': True,
+[36m(TaskRunner pid=6301)[0m                                                        'contents': [],
+[36m(TaskRunner pid=6301)[0m                                                        'discrete': False,
+[36m(TaskRunner pid=6301)[0m                                                        'level': 'level0'},
+[36m(TaskRunner pid=6301)[0m                                                'nsys': {'_target_': 'verl.utils.profiler.config.NsightToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                         'discrete': False},
+[36m(TaskRunner pid=6301)[0m                                                'torch': {'_target_': 'verl.utils.profiler.config.TorchProfilerToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                          'step_end': None,
+[36m(TaskRunner pid=6301)[0m                                                          'step_start': 0},
+[36m(TaskRunner pid=6301)[0m                                                'torch_memory': {'_target_': 'verl.utils.profiler.config.TorchMemoryToolConfig',
+[36m(TaskRunner pid=6301)[0m                                                                 'stack_depth': 32,
+[36m(TaskRunner pid=6301)[0m                                                                 'trace_alloc_max_entries': 100000}}},
+[36m(TaskRunner pid=6301)[0m                   'reward_loop_class_name': None,
+[36m(TaskRunner pid=6301)[0m                   'reward_loop_module_path': None,
+[36m(TaskRunner pid=6301)[0m                   'reward_loop_source': 'register',
+[36m(TaskRunner pid=6301)[0m                   'reward_manager': 'naive',
+[36m(TaskRunner pid=6301)[0m                   'rollout': {'_target_': 'verl.workers.config.RolloutConfig',
+[36m(TaskRunner pid=6301)[0m                               'cudagraph_capture_sizes': None,
+[36m(TaskRunner pid=6301)[0m                               'data_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                               'disable_log_stats': True,
+[36m(TaskRunner pid=6301)[0m                               'dtype': 'bfloat16',
+[36m(TaskRunner pid=6301)[0m                               'enable_chunked_prefill': True,
+[36m(TaskRunner pid=6301)[0m                               'enable_prefix_caching': True,
+[36m(TaskRunner pid=6301)[0m                               'enforce_eager': True,
+[36m(TaskRunner pid=6301)[0m                               'engine_kwargs': {},
+[36m(TaskRunner pid=6301)[0m                               'expert_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                               'free_cache_engine': True,
+[36m(TaskRunner pid=6301)[0m                               'gpu_memory_utilization': 0.5,
+[36m(TaskRunner pid=6301)[0m                               'limit_images': None,
+[36m(TaskRunner pid=6301)[0m                               'load_format': 'auto',
+[36m(TaskRunner pid=6301)[0m                               'max_model_len': None,
+[36m(TaskRunner pid=6301)[0m                               'max_num_batched_tokens': 8192,
+[36m(TaskRunner pid=6301)[0m                               'max_num_seqs': 1024,
+[36m(TaskRunner pid=6301)[0m                               'name': '???',
+[36m(TaskRunner pid=6301)[0m                               'prompt_length': 2048,
+[36m(TaskRunner pid=6301)[0m                               'response_length': 2048,
+[36m(TaskRunner pid=6301)[0m                               'skip_tokenizer_init': False,
+[36m(TaskRunner pid=6301)[0m                               'tensor_model_parallel_size': 2},
+[36m(TaskRunner pid=6301)[0m                   'sandbox_fusion': {'max_concurrent': 64,
+[36m(TaskRunner pid=6301)[0m                                      'memory_limit_mb': 1024,
+[36m(TaskRunner pid=6301)[0m                                      'url': None},
+[36m(TaskRunner pid=6301)[0m                   'strategy': 'fsdp',
+[36m(TaskRunner pid=6301)[0m                   'ulysses_sequence_parallel_size': 1,
+[36m(TaskRunner pid=6301)[0m                   'use_dynamic_bsz': False,
+[36m(TaskRunner pid=6301)[0m                   'use_reward_loop': False},
+[36m(TaskRunner pid=6301)[0m  'trainer': {'balance_batch': True,
+[36m(TaskRunner pid=6301)[0m              'critic_warmup': 0,
+[36m(TaskRunner pid=6301)[0m              'default_hdfs_dir': None,
+[36m(TaskRunner pid=6301)[0m              'default_local_dir': '/data/oss_bucket_0/ad/loujieming.ljm/models/SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432',
+[36m(TaskRunner pid=6301)[0m              'del_local_ckpt_after_load': False,
+[36m(TaskRunner pid=6301)[0m              'device': 'cuda',
+[36m(TaskRunner pid=6301)[0m              'esi_redundant_time': 0,
+[36m(TaskRunner pid=6301)[0m              'experiment_name': 'SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432',
+[36m(TaskRunner pid=6301)[0m              'group_name': 'SDPO-generalization',
+[36m(TaskRunner pid=6301)[0m              'log_val_generations': 0,
+[36m(TaskRunner pid=6301)[0m              'logger': ['console', 'swanlab'],
+[36m(TaskRunner pid=6301)[0m              'max_actor_ckpt_to_keep': 1,
+[36m(TaskRunner pid=6301)[0m              'max_critic_ckpt_to_keep': None,
+[36m(TaskRunner pid=6301)[0m              'n_gpus_per_node': 4,
+[36m(TaskRunner pid=6301)[0m              'nnodes': 1,
+[36m(TaskRunner pid=6301)[0m              'project_name': 'SDPO-Baseline',
+[36m(TaskRunner pid=6301)[0m              'ray_wait_register_center_timeout': 300,
+[36m(TaskRunner pid=6301)[0m              'resume_from_path': None,
+[36m(TaskRunner pid=6301)[0m              'resume_mode': 'auto',
+[36m(TaskRunner pid=6301)[0m              'rollout_data_dir': None,
+[36m(TaskRunner pid=6301)[0m              'save_freq': 0,
+[36m(TaskRunner pid=6301)[0m              'seed': 42,
+[36m(TaskRunner pid=6301)[0m              'test_freq': 5,
+[36m(TaskRunner pid=6301)[0m              'total_epochs': 30,
+[36m(TaskRunner pid=6301)[0m              'total_training_steps': 250,
+[36m(TaskRunner pid=6301)[0m              'use_legacy_worker_impl': 'auto',
+[36m(TaskRunner pid=6301)[0m              'val_before_train': False,
+[36m(TaskRunner pid=6301)[0m              'val_only': False,
+[36m(TaskRunner pid=6301)[0m              'validation_data_dir': None},
+[36m(TaskRunner pid=6301)[0m  'transfer_queue': {'enable': False},
+[36m(TaskRunner pid=6301)[0m  'vars': {'ckpt_dir': '/home/root/ttrl_runs/default',
+[36m(TaskRunner pid=6301)[0m           'dir': '/home/root/SDPO',
+[36m(TaskRunner pid=6301)[0m           'log_dir': '/home/root/output',
+[36m(TaskRunner pid=6301)[0m           'task': 'default'}}
+[36m(TaskRunner pid=6301)[0m [validate_config] All configuration checks passed successfully!
+[36m(TaskRunner pid=6301)[0m Using dataset class: RLHFDataset
+[36m(TaskRunner pid=6301)[0m dataset len: 450
+[36m(TaskRunner pid=6301)[0m filter dataset len: 450
+[36m(TaskRunner pid=6301)[0m Using dataset class: RLHFDataset
+[2026-03-23 21:14:28,788] [INFO] [AiScheduler#1] [mdl_launcher.py:517] MdlLauncher:  going to close.
+[2026-03-23 21:14:30,798] [INFO] [AiScheduler#1] [connection.py:617] Closing connection to search-zk-kubedl-na630cloud.vip.tbsite.net:2187
+[2026-03-23 21:14:30,798] [INFO] [AiScheduler#1] [client.py:537] Zookeeper session closed, state: CLOSED
+[2026-03-23 21:14:30,798] [INFO] [AiScheduler#1] [zk_service.py:148] CloseOperation: ZkClient stopped.
+[2026-03-23 21:14:30,801] [INFO] [AiScheduler#1] [heart_beat_client_thread.py:183] HeartbeatClient: stopped.
+[2026-03-23 21:14:30,801] [INFO] [AiScheduler#1] [executor.py:129] Executor going to report_scheduler my exit code: 0
+[2026-03-23 21:14:30,801] [INFO] [AiScheduler#1] [exit.py:55] Handle exit, before exit, code: [0]
+[2026-03-23 21:14:33,163] [INFO] [AiScheduler#1] [heart_beat_client_thread.py:105] HeartbeatClient: Stopping heartbeat thread

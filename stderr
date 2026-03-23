@@ -228,7 +228,7 @@ WARNING: Running pip as the 'root' user can result in broken permissions and con
 + python_bin=/opt/conda/envs/python3.10.13/bin/python
 + params='-m ai_scheduler.wrapper '
 + '[' --run_mode=dist == python ']'
-+ python_params='-m ai_scheduler.wrapper --run_mode=dist --task_name=worker --app_id=xdl-44d4bf84c89e --zk_addr=zfs://search-zk-kubedl-na630cloud.vip.tbsite.net:2187/psplus/xdl-44d4bf84c89e --config=../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80 --task_index=0'
++ python_params='-m ai_scheduler.wrapper --run_mode=dist --task_name=worker --app_id=xdl-4a04447a8304 --zk_addr=zfs://search-zk-kubedl-na630cloud.vip.tbsite.net:2187/psplus/xdl-4a04447a8304 --config=../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed --task_index=0'
 + set --
 + source activate
 ++ _CONDA_ROOT=/opt/conda
@@ -418,8 +418,8 @@ export CONDA_PYTHON_EXE='\''/opt/conda/bin/python'\'''
 + '[' -n '' ']'
 + '[' -n '' ']'
 + hash -r
-+ echo '/opt/conda/envs/python3.10.13/bin/python -m ai_scheduler.wrapper --run_mode=dist --task_name=worker --app_id=xdl-44d4bf84c89e --zk_addr=zfs://search-zk-kubedl-na630cloud.vip.tbsite.net:2187/psplus/xdl-44d4bf84c89e --config=../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80 --task_index=0'
-+ exec /opt/conda/envs/python3.10.13/bin/python -m ai_scheduler.wrapper --run_mode=dist --task_name=worker --app_id=xdl-44d4bf84c89e --zk_addr=zfs://search-zk-kubedl-na630cloud.vip.tbsite.net:2187/psplus/xdl-44d4bf84c89e --config=../xdl_config_9c222c83-3bc4-4373-be52-28aab96fb401.json_0d33598aad80 --task_index=0
++ echo '/opt/conda/envs/python3.10.13/bin/python -m ai_scheduler.wrapper --run_mode=dist --task_name=worker --app_id=xdl-4a04447a8304 --zk_addr=zfs://search-zk-kubedl-na630cloud.vip.tbsite.net:2187/psplus/xdl-4a04447a8304 --config=../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed --task_index=0'
++ exec /opt/conda/envs/python3.10.13/bin/python -m ai_scheduler.wrapper --run_mode=dist --task_name=worker --app_id=xdl-4a04447a8304 --zk_addr=zfs://search-zk-kubedl-na630cloud.vip.tbsite.net:2187/psplus/xdl-4a04447a8304 --config=../xdl_config_50848d80-3e83-4861-a7df-47f10b425cc8.json_fbd2c19f8bed --task_index=0
   WARNING: The scripts latex2text, latexencode and latexwalker are installed in '/root/.local/bin' which is not on PATH.
   Consider adding this directory to PATH or, if you prefer to suppress this warning, use --no-warn-script-location.
   WARNING: The script swanlab is installed in '/root/.local/bin' which is not on PATH.
@@ -809,16 +809,16 @@ zipp==3.23.0
 + shift
 + [[ 1 -gt 0 ]]
 + case "$1" in
-+ JOB_NAME=SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952
++ JOB_NAME=SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432
 + shift
 + [[ 0 -gt 0 ]]
 + export WORLD_SIZE=1
 + WORLD_SIZE=1
-+ export JOB_NAME=SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952
-+ JOB_NAME=SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952
++ export JOB_NAME=SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432
++ JOB_NAME=SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432
 + echo 'SCRIPT_PATH = nebula_scripts/sdpo/sdpo_sciknoweval_parametric.sh'
 + echo 'WORLD_SIZE  = 1'
-+ echo 'JOB_NAME    = SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952'
++ echo 'JOB_NAME    = SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432'
 ++ pwd
 + export PYTHONPATH=/checkpoint/binary/train_package:/checkpoint/binary/train_package
 + PYTHONPATH=/checkpoint/binary/train_package:/checkpoint/binary/train_package
@@ -855,9 +855,20 @@ zipp==3.23.0
 + ray status
 + '[' 0 -eq 0 ']'
 + bash nebula_scripts/sdpo/sdpo_sciknoweval_parametric.sh
-2026-03-23 20:36:13,854	INFO worker.py:1723 -- Connecting to existing Ray cluster at address: 33.2.111.112:6379...
-2026-03-23 20:36:13,865	INFO worker.py:1917 -- Connected to Ray cluster.
-Error executing job with overrides: ['data.train_batch_size=32', 'data.train_files=/data/oss_bucket_0/ad/loujieming.ljm/datasets/sciknoweval/biology', 'actor_rollout_ref.model.path=/data/oss_bucket_0/ad/loujieming.ljm/base_models/Qwen3-8B', 'actor_rollout_ref.actor.optim.lr=1e-5', 'actor_rollout_ref.actor.optim.lr_warmup_steps=10', 'actor_rollout_ref.actor.ppo_mini_batch_size=32', 'actor_rollout_ref.actor.self_distillation.distillation_topk=100', 'actor_rollout_ref.actor.self_distillation.alpha=0.5', 'actor_rollout_ref.actor.self_distillation.dont_reprompt_on_self_success=True', 'actor_rollout_ref.actor.self_distillation.include_environment_feedback=False', 'actor_rollout_ref.actor.fsdp_config.model_dtype=bfloat16', 'actor_rollout_ref.rollout.n=8', 'actor_rollout_ref.rollout.val_kwargs.n=16', 'actor_rollout_ref.rollout.tensor_model_parallel_size=1', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.85', 'algorithm.rollout_correction.rollout_is=token', 'trainer.total_epochs=30', 'trainer.total_training_steps=250', 'trainer.n_gpus_per_node=4', 'trainer.val_before_train=False', 'trainer.default_local_dir=/data/oss_bucket_0/ad/loujieming.ljm/models/SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952', 'trainer.project_name=SDPO-Baseline', 'trainer.experiment_name=SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_202952', 'trainer.group_name=SDPO-generalization', 'trainer.logger=[console,swanlab]']
+2026-03-23 21:14:13,398	INFO worker.py:1723 -- Connecting to existing Ray cluster at address: 33.2.101.48:6379...
+2026-03-23 21:14:13,408	INFO worker.py:1917 -- Connected to Ray cluster.
+[36m(TaskRunner pid=6301)[0m /checkpoint/binary/train_package/verl/trainer/main_ppo.py:314: UserWarning: Disabled critic as algorithm.adv_estimator != gae. If it is not intended, please set critic.enable=True
+[36m(TaskRunner pid=6301)[0m   use_critic=need_critic(config),
+[36m(TaskRunner pid=6301)[0m /checkpoint/binary/train_package/verl/utils/profiler/config.py:52: UserWarning: Torch profiler tool config is not fully supported now.
+[36m(TaskRunner pid=6301)[0m   warnings.warn("Torch profiler tool config is not fully supported now.", stacklevel=1)
+[36m(TaskRunner pid=6301)[0m /checkpoint/binary/train_package/verl/utils/tokenizer.py:107: UserWarning: Failed to create processor: Unsupported processor type: Qwen2TokenizerFast. This may affect multimodal processing
+[36m(TaskRunner pid=6301)[0m   warnings.warn(f"Failed to create processor: {e}. This may affect multimodal processing", stacklevel=1)
+[36m(TaskRunner pid=6301)[0m 
+Generating train split: 0 examples [00:00, ? examples/s]
+Generating train split: 450 examples [00:00, 10515.61 examples/s]
+[36m(TaskRunner pid=6301)[0m 
+Filtering prompts longer than 2048 tokens:   0%|          | 0/450 [00:00<?, ? examples/s]
+Error executing job with overrides: ['data.train_batch_size=32', 'data.train_files=/data/oss_bucket_0/ad/loujieming.ljm/datasets/sciknoweval/biology/train.parquet', 'data.val_files=null', 'custom_reward_function.path=/checkpoint/binary/train_package/verl/utils/reward_score/feedback/__init__.py', 'actor_rollout_ref.model.path=/data/oss_bucket_0/ad/loujieming.ljm/base_models/Qwen3-8B', 'actor_rollout_ref.actor.optim.lr=1e-5', 'actor_rollout_ref.actor.optim.lr_warmup_steps=10', 'actor_rollout_ref.actor.ppo_mini_batch_size=32', 'actor_rollout_ref.actor.self_distillation.distillation_topk=100', 'actor_rollout_ref.actor.self_distillation.alpha=0.5', 'actor_rollout_ref.actor.self_distillation.dont_reprompt_on_self_success=True', 'actor_rollout_ref.actor.self_distillation.include_environment_feedback=False', 'actor_rollout_ref.actor.fsdp_config.model_dtype=bfloat16', 'actor_rollout_ref.rollout.n=8', 'actor_rollout_ref.rollout.val_kwargs.n=16', 'actor_rollout_ref.rollout.tensor_model_parallel_size=1', 'actor_rollout_ref.rollout.gpu_memory_utilization=0.85', 'algorithm.rollout_correction.rollout_is=token', 'trainer.total_epochs=30', 'trainer.total_training_steps=250', 'trainer.n_gpus_per_node=4', 'trainer.val_before_train=False', 'trainer.default_local_dir=/data/oss_bucket_0/ad/loujieming.ljm/models/SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432', 'trainer.project_name=SDPO-Baseline', 'trainer.experiment_name=SDPO-sciknoweval-biology-train32-alpha0.5-lr1e-5-drossTrue-Qwen3-8B-20260323_210432', 'trainer.group_name=SDPO-generalization', 'trainer.logger=[console,swanlab]']
 Traceback (most recent call last):
   File "/checkpoint/binary/train_package/verl/trainer/main_ppo.py", line 45, in main
     run_ppo(config)
@@ -871,106 +882,23 @@ Traceback (most recent call last):
     values, debugger_breakpoint = worker.get_objects(object_refs, timeout=timeout)
   File "/opt/conda/envs/python3.10.13/lib/python3.10/site-packages/ray/_private/worker.py", line 937, in get_objects
     raise value.as_instanceof_cause()
-ray.exceptions.RayTaskError(InterpolationResolutionError): [36mray::TaskRunner.run()[39m (pid=6306, ip=33.2.111.112, actor_id=018344c1f638921cdf05023a01000000, repr=<main_ppo.TaskRunner object at 0x7f5b839d0070>)
-  File "/checkpoint/binary/train_package/verl/trainer/main_ppo.py", line 293, in run
-    pprint(OmegaConf.to_container(config, resolve=True))
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/omegaconf.py", line 573, in to_container
-    return BaseContainer._to_content(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/basecontainer.py", line 292, in _to_content
-    value = get_node_value(key)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/basecontainer.py", line 247, in get_node_value
-    value = BaseContainer._to_content(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/basecontainer.py", line 292, in _to_content
-    value = get_node_value(key)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/basecontainer.py", line 247, in get_node_value
-    value = BaseContainer._to_content(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/basecontainer.py", line 300, in _to_content
-    item = get_node_value(index)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/basecontainer.py", line 244, in get_node_value
-    conf._format_and_raise(key=key, value=None, cause=e)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 231, in _format_and_raise
-    format_and_raise(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/_utils.py", line 899, in format_and_raise
-    _raise(ex, cause)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/_utils.py", line 797, in _raise
-    raise ex.with_traceback(sys.exc_info()[2])  # set env var OC_CAUSE=1 for full trace
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/basecontainer.py", line 242, in get_node_value
-    node = node._dereference_node()
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 246, in _dereference_node
-    node = self._dereference_node_impl(throw_on_resolution_failure=True)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 277, in _dereference_node_impl
-    return parent._resolve_interpolation_from_parse_tree(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 584, in _resolve_interpolation_from_parse_tree
-    resolved = self.resolve_parse_tree(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 764, in resolve_parse_tree
-    return visitor.visit(parse_tree)
-  File "/root/.local/lib/python3.10/site-packages/antlr4/tree/Tree.py", line 34, in visit
-    return tree.accept(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar/gen/OmegaConfGrammarParser.py", line 206, in accept
-    return visitor.visitConfigValue(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 101, in visitConfigValue
-    return self.visit(ctx.getChild(0))
-  File "/root/.local/lib/python3.10/site-packages/antlr4/tree/Tree.py", line 34, in visit
-    return tree.accept(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar/gen/OmegaConfGrammarParser.py", line 342, in accept
-    return visitor.visitText(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 301, in visitText
-    return self._unescape(list(ctx.getChildren()))
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 389, in _unescape
-    text = str(self.visitInterpolation(node))
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 125, in visitInterpolation
-    return self.visit(ctx.getChild(0))
-  File "/root/.local/lib/python3.10/site-packages/antlr4/tree/Tree.py", line 34, in visit
-    return tree.accept(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar/gen/OmegaConfGrammarParser.py", line 921, in accept
-    return visitor.visitInterpolationNode(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 158, in visitInterpolationNode
-    return self.node_interpolation_callback(inter_key, self.memo)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 745, in node_interpolation_callback
-    return self._resolve_node_interpolation(inter_key=inter_key, memo=memo)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 664, in _resolve_node_interpolation
-    parent, last_key, value = root_node._select_impl(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 531, in _select_impl
-    value = root._maybe_resolve_interpolation(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 719, in _maybe_resolve_interpolation
-    return self._resolve_interpolation_from_parse_tree(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 584, in _resolve_interpolation_from_parse_tree
-    resolved = self.resolve_parse_tree(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 769, in resolve_parse_tree
-    raise InterpolationResolutionError(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 764, in resolve_parse_tree
-    return visitor.visit(parse_tree)
-  File "/root/.local/lib/python3.10/site-packages/antlr4/tree/Tree.py", line 34, in visit
-    return tree.accept(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar/gen/OmegaConfGrammarParser.py", line 206, in accept
-    return visitor.visitConfigValue(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 101, in visitConfigValue
-    return self.visit(ctx.getChild(0))
-  File "/root/.local/lib/python3.10/site-packages/antlr4/tree/Tree.py", line 34, in visit
-    return tree.accept(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar/gen/OmegaConfGrammarParser.py", line 342, in accept
-    return visitor.visitText(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 298, in visitText
-    return self.visitInterpolation(c)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 125, in visitInterpolation
-    return self.visit(ctx.getChild(0))
-  File "/root/.local/lib/python3.10/site-packages/antlr4/tree/Tree.py", line 34, in visit
-    return tree.accept(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar/gen/OmegaConfGrammarParser.py", line 1041, in accept
-    return visitor.visitInterpolationResolver(self)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/grammar_visitor.py", line 179, in visitInterpolationResolver
-    return self.resolver_interpolation_callback(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 750, in resolver_interpolation_callback
-    return self._evaluate_custom_resolver(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/base.py", line 694, in _evaluate_custom_resolver
-    return resolver(
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/omegaconf.py", line 445, in resolver_wrapper
-    ret = resolver(*args, **kwargs)
-  File "/root/.local/lib/python3.10/site-packages/omegaconf/resolvers/oc/__init__.py", line 38, in env
-    raise KeyError(f"Environment variable '{key}' not found")
-omegaconf.errors.InterpolationResolutionError: KeyError raised while resolving interpolation: "Environment variable 'TASK' not found"
-    full_key: data.val_files[0]
-    object_type=list
+ray.exceptions.RayTaskError(TypeError): [36mray::TaskRunner.run()[39m (pid=6301, ip=33.2.101.48, actor_id=a70f8eff79a3799f85c80c5a01000000, repr=<main_ppo.TaskRunner object at 0x7edf010dc490>)
+  File "/checkpoint/binary/train_package/verl/trainer/main_ppo.py", line 352, in run
+    val_dataset = create_rl_dataset(
+  File "/checkpoint/binary/train_package/verl/trainer/main_ppo.py", line 403, in create_rl_dataset
+    dataset = dataset_cls(
+  File "/checkpoint/binary/train_package/verl/utils/dataset/rl_dataset.py", line 143, in __init__
+    self._download()
+  File "/checkpoint/binary/train_package/verl/utils/dataset/rl_dataset.py", line 151, in _download
+    self.data_files[i] = copy_to_local(src=parquet_file, cache_dir=self.cache_dir, use_shm=self.use_shm)
+  File "/checkpoint/binary/train_package/verl/utils/fs.py", line 212, in copy_to_local
+    local_path = copy_local_path_from_hdfs(src, cache_dir, filelock, verbose, always_recopy)
+  File "/checkpoint/binary/train_package/verl/utils/fs.py", line 238, in copy_local_path_from_hdfs
+    assert src[-1] != "/", f"Make sure the last char in src is not / because it will cause error. Got {src}"
+TypeError: 'NoneType' object is not subscriptable
 
 Set the environment variable HYDRA_FULL_ERROR=1 for a complete stack trace.
-[2026-03-23 20:36:23,152] [WARNING] [AiScheduler#1] [heart_beat_client_thread.py:176] HeartbeatClient: Failed to send finial message on stop status: internal_exception, detail: Internal program exception, detail: KeyError('RANK')
+[36m(TaskRunner pid=6301)[0m 
+Filtering prompts longer than 2048 tokens: 100%|██████████| 450/450 [00:00<00:00, 1586.25 examples/s]
+Filtering prompts longer than 2048 tokens: 100%|██████████| 450/450 [00:00<00:00, 1579.38 examples/s]
+[2026-03-23 21:14:30,801] [WARNING] [AiScheduler#1] [heart_beat_client_thread.py:176] HeartbeatClient: Failed to send finial message on stop status: internal_exception, detail: Internal program exception, detail: KeyError('RANK')
