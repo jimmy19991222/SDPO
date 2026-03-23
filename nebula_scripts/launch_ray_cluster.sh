@@ -1,0 +1,98 @@
+#!/bin/bash
+set -e
+set -x
+
+# ========== 参数解析 ==========
+SCRIPT_PATH=""
+WORLD_SIZE=""
+JOB_NAME=""
+
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        --script_path=*) SCRIPT_PATH="${1#*=}" ;;
+        --world_size=*) WORLD_SIZE="${1#*=}" ;;
+        --job_name=*) JOB_NAME="${1#*=}" ;;
+        *) echo "Unknown parameter passed: $1"; exit 1 ;;
+    esac
+    shift
+done
+
+export WORLD_SIZE=$WORLD_SIZE
+export JOB_NAME=$JOB_NAME
+
+echo "SCRIPT_PATH = $SCRIPT_PATH"
+echo "WORLD_SIZE  = $WORLD_SIZE"
+echo "JOB_NAME    = $JOB_NAME"
+
+# ── 在 ray start 之前设置环境变量 ──
+# Ray worker 进程从 ray daemon 继承环境变量，必须在 ray start 前设置
+
+# 1. PYTHONPATH: 让 worker 加载 SDPO 自定义的 verl
+export PYTHONPATH="$(pwd):${PYTHONPATH:-}"
+
+# 2. CUDA 环境 ───────────────────────────────────────────────────
+#    确保 Ray worker 继承正确的 CUDA 环境
+#    动态检测 GPU 数量并设置 CUDA_VISIBLE_DEVICES
+GPU_COUNT=$(nvidia-smi --query-gpu=index --format=csv,noheader 2>/dev/null | wc -l || echo 0)
+if [ "$GPU_COUNT" -gt 0 ]; then
+    GPU_INDICES=$(nvidia-smi --query-gpu=index --format=csv,noheader | tr '\n' ',' | sed 's/,$//')
+    export CUDA_VISIBLE_DEVICES="$GPU_INDICES"
+    echo "Detected $GPU_COUNT GPUs, setting CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
+fi
+
+# 3. 禁用 deepspeed triton 功能 ──────────────────────────────────────────
+#    transformers 在导入时会无条件 import deepspeed，
+#    deepspeed 的 triton ops 在模块加载时需要 CUDA driver，
+#    但 Ray worker 在导入阶段无法正确检测 GPU，导致 "0 active drivers" 错误。
+#    设置以下环境变量来绕过这个问题：
+export DS_BUILD_OPS=0                           # 禁止编译 deepspeed ops
+export DS_SKIP_CUDA_CHECK=1                     # 跳过 CUDA 检查
+export TRITON_PTXAS_PATH=/usr/local/cuda/bin/ptxas  # 设置正确的 ptxas 路径
+export TRITON_INTERPRET=1                       # 使用 triton interpreter 模式避免 driver 初始化
+
+# 4. vLLM / PyTorch 配置
+export VLLM_USE_V1=1
+export VLLM_LOGGING_LEVEL=WARN
+export TORCH_WARN_ACCUMULATE_GRAD_STREAM=0
+
+echo "PYTHONPATH = $PYTHONPATH"
+
+# ========== 启动 Ray 集群 ==========
+if [ "$RANK" -eq 0 ]; then
+    ray start --head --dashboard-host=0.0.0.0
+    sleep 20
+    echo "Ray head started"
+else
+    ray start --address="$MASTER_ADDR:6379"
+fi
+
+ray status
+
+# ========== Rank 0 执行训练 ==========
+if [ "$RANK" -eq 0 ]; then
+    bash $SCRIPT_PATH
+fi
+
+# ========== 等待训练结束（通过显存监控保持进程存活）==========
+GPU_COUNT=$(nvidia-smi --query-gpu=index --format=csv,noheader | wc -l)
+
+while true; do
+    total_used=0
+    total_total=0
+
+    for i in $(seq 0 $((GPU_COUNT - 1))); do
+        mem_info=$(nvidia-smi --id=$i --query-gpu=memory.used,memory.total --format=csv,noheader,nounits)
+        used=$(echo "$mem_info" | cut -d',' -f1)
+        total=$(echo "$mem_info" | cut -d',' -f2)
+        total_used=$((total_used + used))
+        total_total=$((total_total + total))
+    done
+
+    if [ "$total_total" -eq 0 ]; then
+        avg_usage_percent=0
+    else
+        avg_usage_percent=$(( (total_used * 100) / total_total ))
+    fi
+
+    sleep 60
+done

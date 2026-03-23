@@ -2,10 +2,10 @@ defaults:
   - _self_
 
 vars:
-  dir: /home/${oc.env:USER}/SDPO
-  task: ${oc.env:TASK}
-  log_dir: /home/${oc.env:USER}/output
-  ckpt_dir:  /home/${oc.env:USER}/ttrl_runs/${vars.task}
+  dir: /home/${oc.env:USER,user}/SDPO
+  task: ${oc.env:TASK,default}
+  log_dir: /home/${oc.env:USER,user}/output
+  ckpt_dir:  /home/${oc.env:USER,user}/ttrl_runs/${vars.task}
 
 data:
   train_files: ["${vars.dir}/${vars.task}/train.parquet"]
@@ -44,7 +44,7 @@ algorithm:
   use_kl_in_reward: False
 
 custom_reward_function:
-  path: /home/${oc.env:USER}/SDPO/verl/utils/reward_score/feedback/__init__.py
+  path: /home/${oc.env:USER,user}/SDPO/verl/utils/reward_score/feedback/__init__.py
   name: compute_score
 
 critic:
@@ -56,8 +56,8 @@ reward_model:
 
 trainer:
   project_name: TASD
-  group_name: ${oc.env:EXPERIMENT}
-  experiment_name: ${oc.env:EXPERIMENT}
+  group_name: ${oc.env:EXPERIMENT,default}
+  experiment_name: ${oc.env:EXPERIMENT,default}
   n_gpus_per_node: 4
   nnodes: 1
   save_freq: 0
