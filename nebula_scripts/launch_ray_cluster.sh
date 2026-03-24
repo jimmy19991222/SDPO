@@ -26,11 +26,10 @@ echo "JOB_NAME    = $JOB_NAME"
 
 # ── 激活自定义 conda 环境（若存在）───────────────────────────────
 # 必须在 Ray start 之前激活，让 Ray worker 继承正确的 Python 环境
+# 直接 export PATH 而非 conda activate，避免非交互式 shell 下 conda hook 未初始化问题
 CONDA_ENV_NAME="sdpo_env"
-CONDA_ENV_BIN="${HOME}/.conda/envs/${CONDA_ENV_NAME}/bin"
+CONDA_ENV_BIN="/opt/conda/envs/${CONDA_ENV_NAME}/bin"
 if [ -d "${CONDA_ENV_BIN}" ]; then
-    source /opt/conda/bin/activate 2>/dev/null || true
-    conda activate "${CONDA_ENV_NAME}" 2>/dev/null || true
     export PATH="${CONDA_ENV_BIN}:${PATH}"
     echo "Activated conda env: ${CONDA_ENV_NAME} (${CONDA_ENV_BIN})"
 else
@@ -61,7 +60,7 @@ fi
 export DS_BUILD_OPS=0                           # 禁止编译 deepspeed ops
 export DS_SKIP_CUDA_CHECK=1                     # 跳过 CUDA 检查
 export TRITON_PTXAS_PATH=/usr/local/cuda/bin/ptxas  # 设置正确的 ptxas 路径
-export TRITON_INTERPRET=1                       # 使用 triton interpreter 模式避免 driver 初始化
+# TRITON_INTERPRET=1 已移除：自定义镜像 sdpo_env 中 triton 正常，无需解释器模式（会极大拖慢训练）
 
 # 4. vLLM / PyTorch 配置
 export VLLM_USE_V1=1
