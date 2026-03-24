@@ -41,7 +41,7 @@ LRS=(
     # "5e-6"
 )
 ENTROPY_COEFF_LIST=(
-    "0.0" 
+    # "0.0" 
     # "0.01" 
     # "0.03" 
     "0.05"
@@ -52,7 +52,7 @@ TEACHER_REGULARIZATION_LIST=(
 )
 TEACHER_UPDATE_RATE_LIST=(
     "0.0" 
-    "0.05" 
+    # "0.05" 
     "0.1"
 )
 
