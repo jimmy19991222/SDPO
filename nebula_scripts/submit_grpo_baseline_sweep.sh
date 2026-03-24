@@ -18,6 +18,7 @@ CLUSTER_FILE="nebula_scripts/cluster_gpu_4.json"
 SCRIPT_PATH="nebula_scripts/grpo/grpo_sciknoweval_parametric.sh"
 # 自定义镜像（留空则使用 --algo_name=pytorch260 默认镜像）
 CUSTOM_DOCKER_IMAGE="${CUSTOM_DOCKER_IMAGE:-hub.docker.alibaba-inc.com/mdl/notebook_saved:loujieming.ljm_yueqiu_sdpo_env_torch260_20260324155942}"
+PROJECT_NAME="TASD"
 
 DRY_RUN=false
 if [ $# -gt 0 ] && [[ "$1" == "--dry-run" ]]; then
@@ -91,6 +92,7 @@ for MINI_BATCH_SIZE in "${MINI_BATCH_SIZES[@]}"; do
             --access_key=${access_key} \
             --env=OPENLM_TOKEN=${OPENLM_TOKEN} \
             --env=SWANLAB_API_KEY=${SWANLAB_API_KEY:?SWANLAB_API_KEY not set} \
+            --env=PROJECT_NAME=${PROJECT_NAME} \
             --env=JOB_NAME=${JOB_NAME} \
             --env=DATASET=${DATASET} \
             --env=MODEL_NAME=${MODEL_NAME} \

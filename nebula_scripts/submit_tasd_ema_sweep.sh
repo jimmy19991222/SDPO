@@ -21,6 +21,7 @@ OSS_BUCKET="lazada-ai-model"
 CUSTOM_DOCKER_IMAGE="${CUSTOM_DOCKER_IMAGE:-hub.docker.alibaba-inc.com/mdl/notebook_saved:loujieming.ljm_yueqiu_sdpo_env_torch260_20260324155942}"
 CLUSTER_FILE="nebula_scripts/cluster_gpu_4.json"    # 4 GPU
 SCRIPT_PATH="nebula_scripts/tasd/tasd_sciknoweval_parametric.sh"
+PROJECT_NAME="TASD"
 
 # ── dry-run 模式 ─────────────────────────────────────────────────────────
 DRY_RUN=false
@@ -119,6 +120,7 @@ for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
             --access_key=${access_key} \
             --env=OPENLM_TOKEN=${OPENLM_TOKEN} \
             --env=SWANLAB_API_KEY=${SWANLAB_API_KEY:?SWANLAB_API_KEY not set} \
+            --env=PROJECT_NAME=${PROJECT_NAME} \
             --env=JOB_NAME=${JOB_NAME} \
             --env=REWARD_TYPE=${REWARD_TYPE} \
             --env=LR=${LR} \

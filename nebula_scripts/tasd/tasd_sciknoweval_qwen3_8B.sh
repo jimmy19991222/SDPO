@@ -102,7 +102,7 @@ python -m verl.trainer.main_ppo \
     trainer.n_gpus_per_node=${n_gpus_per_node} \
     trainer.val_before_train=False \
     trainer.default_local_dir="${save_path}" \
-    trainer.project_name="SDPO-TASD" \
+    trainer.project_name="${PROJECT_NAME:-TASD}" \
     trainer.experiment_name="${JOB_NAME}" \
     trainer.group_name="TASD-nebula" \
     "trainer.logger=[console,swanlab]"

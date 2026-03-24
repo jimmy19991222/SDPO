@@ -69,7 +69,7 @@ python -m verl.trainer.main_ppo \
     trainer.n_gpus_per_node=4 \
     trainer.val_before_train=False \
     trainer.default_local_dir="${save_path}" \
-    trainer.project_name="SDPO-EntropyWeighting" \
+    trainer.project_name="${PROJECT_NAME:-TASD}" \
     trainer.experiment_name="${JOB_NAME:-sdpo_ew_sweep}" \
     trainer.group_name="SDPO-generalization" \
     "trainer.logger=[console,swanlab]"
