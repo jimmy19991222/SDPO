@@ -45,11 +45,12 @@ ENTROPY_COEFF_LIST=(
     # "0.0" 
     # "0.01" 
     # "0.03" 
-    "0.05"
+    # "0.05"
+    "0.1"
 )
 TEACHER_REGULARIZATION_LIST=(
     "ema" 
-    "none"
+    # "none"
 )
 TEACHER_UPDATE_RATE_LIST=(
     "0.0" 
