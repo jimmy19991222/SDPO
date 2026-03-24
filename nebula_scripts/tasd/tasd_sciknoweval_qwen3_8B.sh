@@ -16,10 +16,12 @@ JOB_NAME="${JOB_NAME:-${SCRIPT_NAME%.*}_${CURRENT_TIME}}"
 # ── 路径配置（Nebula OSS 挂载路径）────────────────────────────────────────
 OSS_ROOT="/data/oss_bucket_0/ad/loujieming.ljm"
 
-# 数据集：sciknoweval biology（已提前上传到 OSS）
-# 本地对应：datasets/sciknoweval/biology/
-train_data_path="${OSS_ROOT}/datasets/sciknoweval/biology/train.parquet"
-val_data_path="${OSS_ROOT}/datasets/sciknoweval/biology/test.parquet"
+# 数据集列表（目前只跑第一个，扩展时直接往数组里加）
+DATA_PATHS=(
+    "${OSS_ROOT}/datasets/sciknoweval/biology"
+)
+train_data_path="${DATA_PATHS[0]}/train.parquet"
+val_data_path="${DATA_PATHS[0]}/test.parquet"
 
 # 基底模型
 model_path="${OSS_ROOT}/base_models/Qwen3-8B"
@@ -58,7 +60,7 @@ export WANDB_MODE=offline
 export WANDB_ENTITY=oh-my-team
 export WANDB_DIR="${OSS_ROOT}/logs/wandb_logs"
 export SWANLAB_MODE=cloud
-export SWANLAB_API_KEY="${SWANLAB_API_KEY:M5oC00EEt8G1wC0XaHkal}"
+export SWANLAB_API_KEY="${SWANLAB_API_KEY:-M5oC00EEt8G1wC0XaHkal}"
 export SWANLAB_LOG_DIR="${OSS_ROOT}/logs/swanlab_logs"
 export TORCH_WARN_ACCUMULATE_GRAD_STREAM=0
 

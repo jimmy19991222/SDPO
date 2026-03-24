@@ -15,8 +15,12 @@ TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-32}"
 ROLLOUT_N="${ROLLOUT_N:-8}"
 MODEL_NAME="${MODEL_NAME:-Qwen3-8B}"         # OSS base_models 下的目录名
 
-train_data_path="${OSS_ROOT}/datasets/${DATASET}/train.parquet"
-val_data_path="${OSS_ROOT}/datasets/${DATASET}/test.parquet"
+# 数据集列表（目前只跑第一个，扩展时直接往数组里加）
+DATA_PATHS=(
+    "${OSS_ROOT}/datasets/sciknoweval/biology"
+)
+train_data_path="${DATA_PATHS[0]}/train.parquet"
+val_data_path="${DATA_PATHS[0]}/test.parquet"
 model_path="${OSS_ROOT}/base_models/${MODEL_NAME}"
 save_path="${OSS_ROOT}/models/${JOB_NAME:-grpo_sweep}"
 
@@ -27,7 +31,7 @@ export VLLM_LOGGING_LEVEL=WARN
 export WANDB_MODE=offline
 export WANDB_ENTITY=oh-my-team
 export SWANLAB_MODE=cloud
-export SWANLAB_API_KEY="${SWANLAB_API_KEY:M5oC00EEt8G1wC0XaHkal}"
+export SWANLAB_API_KEY="${SWANLAB_API_KEY:-M5oC00EEt8G1wC0XaHkal}"
 export SWANLAB_LOG_DIR="${OSS_ROOT}/logs/swanlab_logs"
 export TORCH_WARN_ACCUMULATE_GRAD_STREAM=0
 
