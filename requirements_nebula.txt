@@ -5,6 +5,7 @@
 #         ray, pandas, numpy, pyarrow, wandb 等
 
 # ── SDPO 特有依赖（镜像中可能没有）────────────────────────────────────────────
+vllm>=0.9.0
 swanlab                     # 日志（替代 ml_tracker）
 openlm-hub                  # 模型加载
 codetiming                  # 性能计时

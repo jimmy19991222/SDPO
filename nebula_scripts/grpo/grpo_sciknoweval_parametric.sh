@@ -26,6 +26,7 @@ save_path="${OSS_ROOT}/models/${JOB_NAME:-grpo_sweep}"
 
 # ── 环境 ──────────────────────────────────────────────────────────────
 export PYTHONPATH="$(pwd):${PYTHONPATH:-}"
+unset VLLM_ATTENTION_BACKEND  # 与 verl_training.sh 行为一致，避免平台注入的值影响 attention 计算
 export VLLM_USE_V1=1
 export VLLM_LOGGING_LEVEL=WARN
 export WANDB_MODE=offline

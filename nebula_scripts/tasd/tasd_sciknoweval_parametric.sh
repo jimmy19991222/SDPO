@@ -21,6 +21,7 @@ ROLLOUT_IS="${ROLLOUT_IS:-token}"
 TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-32}"
 MINI_BATCH_SIZE="${MINI_BATCH_SIZE:-32}"
 ROLLOUT_N="${ROLLOUT_N:-8}"
+INCLUDE_SUCCESSFUL_ROLLOUTS="${INCLUDE_SUCCESSFUL_ROLLOUTS:-False}"
 
 # ── 路径 ────────────────────────────────────────────────────────────────
 # 数据集列表（目前只跑第一个，扩展时直接往数组里加）
@@ -34,6 +35,7 @@ save_path="${OSS_ROOT}/models/${JOB_NAME:-tasd_sweep}"
 
 # ── 环境 ────────────────────────────────────────────────────────────────
 export PYTHONPATH="$(pwd):${PYTHONPATH:-}"
+unset VLLM_ATTENTION_BACKEND  # 与 verl_training.sh 行为一致，避免平台注入的值影响 attention 计算
 export VLLM_USE_V1=1
 export VLLM_LOGGING_LEVEL=WARN
 export WANDB_MODE=offline
@@ -68,8 +70,8 @@ python -m verl.trainer.main_ppo \
     algorithm.tasd.reward_transform=none \
     algorithm.tasd.reward_scale=1.0 \
     algorithm.tasd.distill_topk=100 \
-    algorithm.tasd.use_self_as_teacher_on_success=True \
-    algorithm.tasd.include_successful_rollouts=True \
+    algorithm.tasd.use_self_as_teacher_on_success=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
+    algorithm.tasd.include_successful_rollouts=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
     algorithm.tasd.success_reward_threshold=1.0 \
     algorithm.tasd.norm_adv_by_std=${NORM_ADV_BY_STD} \
     algorithm.tasd.clip_adv=${CLIP_ADV} \

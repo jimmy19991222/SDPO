@@ -21,7 +21,7 @@ OSS_BUCKET="lazada-ai-model"
 CUSTOM_DOCKER_IMAGE="${CUSTOM_DOCKER_IMAGE:-hub.docker.alibaba-inc.com/mdl/notebook_saved:loujieming.ljm_yueqiu_sdpo_env_torch260_20260324155942}"
 CLUSTER_FILE="nebula_scripts/cluster_gpu_4.json"    # 4 GPU
 SCRIPT_PATH="nebula_scripts/tasd/tasd_sciknoweval_parametric.sh"
-PROJECT_NAME="TASD_para_search"
+PROJECT_NAME="TASD_param_search"
 
 # ── dry-run 模式 ─────────────────────────────────────────────────────────
 DRY_RUN=false
@@ -31,31 +31,35 @@ if [ $# -gt 0 ] && [[ "$1" == "--dry-run" ]]; then
 fi
 
 # =============================================================================
-# 超参配置（与 run_tasd_ema_teacher_local.sh 保持一致）
+# 超参配置
+# 上轮实验发现 entropy_coeff=0.1 时所有 TASD job entropy 极速崩溃至 ~0.02
+# 本轮大幅提升 entropy_coeff，并加入 none/ema 对照 + 更多 update_rate
 # =============================================================================
 REWARD_TYPES=(
-    "teacher_prob" 
+    "teacher_prob"
     # "log_teacher_prob"
 )
 LRS=(
-    "1e-5" 
+    "1e-5"
     # "5e-6"
 )
 ENTROPY_COEFF_LIST=(
-    # "0.0" 
-    # "0.01" 
-    # "0.03" 
+    # "0.0"
+    # "0.01"
+    # "0.03"
     # "0.05"
-    "0.1"
+    "0.1"   # 上轮实验：entropy 早期崩溃（~0.016），val mean@16 < 0.41，效果差
+    # "0.5"    # 本轮：大幅提升，防止早期 entropy 崩溃
+    "1.0"    # 本轮：激进版，进一步抑制坍缩
 )
 TEACHER_REGULARIZATION_LIST=(
-    "ema" 
-    "none"
+    # "none"   # 先跑无 EMA 的干净基线，排除 EMA 的影响
+    "ema"
 )
 TEACHER_UPDATE_RATE_LIST=(
-    "0.0" 
-    # "0.05" 
-    "0.1"
+    # "0.0"    # EMA 极慢更新（teacher ≈ 初始模型）
+    # "0.05"   # EMA 适中更新
+    "0.1"    # 上轮实验 step45 最佳（0.476 vs ema0.0 的 0.361），加回
 )
 
 # 固定参数（不扫描）
@@ -66,6 +70,10 @@ ROLLOUT_IS="token"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
 ROLLOUT_N="8"
+INCLUDE_SUCCESSFUL_ROLLOUTS_LIST=(
+    "True"   # 成功rollout也参与TASD reward
+    "False"  # 只让失败rollout参与TASD reward，信号更干净
+)
 
 # =============================================================================
 # 提交循环
@@ -78,6 +86,7 @@ for LR in "${LRS[@]}"; do
 for ENTROPY_COEFF in "${ENTROPY_COEFF_LIST[@]}"; do
 for TEACHER_REG in "${TEACHER_REGULARIZATION_LIST[@]}"; do
 for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
+for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
 
     # teacher_regularization=none 时 update_rate 无意义，只跑一次
     if [ "$TEACHER_REG" = "none" ] && [ "$TEACHER_UPDATE_RATE" != "${TEACHER_UPDATE_RATE_LIST[0]}" ]; then
@@ -96,8 +105,13 @@ for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
         EMA_TAG="-ema${TEACHER_UPDATE_RATE}"
     fi
 
+    ISR_TAG="-isr1"
+    if [ "$INCLUDE_SUCCESSFUL_ROLLOUTS" = "False" ]; then
+        ISR_TAG="-isr0"
+    fi
+
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
-    JOB_NAME="TASD-bio-lr${LR}-rt${REWARD_TYPE}-nostd-clip5.0${ENT_TAG}-rctoken${EMA_TAG}-Qwen3-8B-${CURRENT_TIME}"
+    JOB_NAME="TASD-bio-lr${LR}-rt${REWARD_TYPE}-nostd-clip5.0${ENT_TAG}-rctoken${ISR_TAG}${EMA_TAG}-Qwen3-8B-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
@@ -105,6 +119,7 @@ for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
         echo "Job #${TOTAL}: ${JOB_NAME}"
         echo "  REWARD_TYPE=$REWARD_TYPE LR=$LR ENTROPY=$ENTROPY_COEFF"
         echo "  TEACHER_REG=$TEACHER_REG UPDATE_RATE=$TEACHER_UPDATE_RATE"
+        echo "  INCLUDE_SUCCESSFUL_ROLLOUTS=$INCLUDE_SUCCESSFUL_ROLLOUTS"
     else
         echo "提交 Job #${TOTAL}: ${JOB_NAME}"
 
@@ -135,6 +150,7 @@ for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
             --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} \
             --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} \
             --env=ROLLOUT_N=${ROLLOUT_N} \
+            --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
             $([ -n "$CUSTOM_DOCKER_IMAGE" ] && echo "--custom_docker_image=${CUSTOM_DOCKER_IMAGE}" || echo "--algo_name=pytorch260") \
             --requirements_file_name=requirements_nebula.txt \
             --oss_access_id=${OSS_ACCESS_ID} \
@@ -152,6 +168,7 @@ for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
         sleep 2    # 避免提交过快被限流
     fi
 
+done  # INCLUDE_SUCCESSFUL_ROLLOUTS
 done  # TEACHER_UPDATE_RATE
 done  # TEACHER_REG
 done  # ENTROPY_COEFF
