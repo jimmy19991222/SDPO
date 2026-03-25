@@ -36,8 +36,11 @@ fi
 # 本轮大幅提升 entropy_coeff，并加入 none/ema 对照 + 更多 update_rate
 # =============================================================================
 REWARD_TYPES=(
-    "teacher_prob"
+    # "teacher_prob"
     # "log_teacher_prob"
+    # "top1_match"
+    "student_topk_teacher_prob"           # 新增：student topk 位置上 teacher prob 均值，更平滑
+    "student_topk_teacher_prob_weighted"  # 新增：student prob 加权的 teacher prob，双向对称
 )
 LRS=(
     "1e-5"
@@ -48,7 +51,7 @@ ENTROPY_COEFF_LIST=(
     # "0.01"
     # "0.03"
     # "0.05"
-    "0.1"   # 上轮实验：entropy 早期崩溃（~0.016），val mean@16 < 0.41，效果差
+    # "0.1"   # 上轮实验：entropy 早期崩溃（~0.016），val mean@16 < 0.41，效果差
     # "0.5"    # 本轮：大幅提升，防止早期 entropy 崩溃
     "1.0"    # 本轮：激进版，进一步抑制坍缩
 )
@@ -72,7 +75,7 @@ MINI_BATCH_SIZE="32"
 ROLLOUT_N="8"
 INCLUDE_SUCCESSFUL_ROLLOUTS_LIST=(
     "True"   # 成功rollout也参与TASD reward
-    "False"  # 只让失败rollout参与TASD reward，信号更干净
+    # "False"  # 只让失败rollout参与TASD reward，信号更干净
 )
 
 # =============================================================================

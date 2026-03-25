@@ -47,9 +47,9 @@ DONT_REPROMPT_LIST=("True")
 ENTROPY_WEIGHTING_LIST=("True")
 # temperature 仅在 EW=True 时有意义，EW=False 时跳过多余组合
 ENTROPY_TEMPERATURE_LIST=(
-    "1.0" 
-    # "0.5" 
-    # "2.0"
+    # "1.0" 
+    "0.5" 
+    "2.0"
 )
 ENTROPY_WEIGHTING_VERSION_LIST=(
     "v1" 

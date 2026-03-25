@@ -1691,6 +1691,7 @@ class RayPPOTrainer:
                 "forward_kl", "reverse_kl", "jsd", "vocab_log_ratio",
                 "teacher_prob_relative", "teacher_prob_certainty",
                 "top1_match", "topk_match",
+                "student_topk_teacher_prob", "student_topk_teacher_prob_weighted",
             )
             tasd_distill_topk      = _tasd_cfg.get("distill_topk", 100) if tasd_need_topk else None
             tasd_temperature       = self.config.actor_rollout_ref.rollout.temperature

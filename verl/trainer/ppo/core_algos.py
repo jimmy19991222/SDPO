@@ -2596,6 +2596,27 @@ def compute_tasd_token_rewards(
         delta = teacher_best_rank.float()                                         # (B, T) ∈ [0, K-1]
         reward = (1.0 - delta / K).clamp(min=0.0)                                 # (B, T) ∈ (0,1]
 
+    elif reward_type == "student_topk_teacher_prob":
+        # student topk 位置上 teacher prob 的均值
+        # 语义：student 认为可能的 token 里，teacher 平均有多认可
+        # 优点：更平滑，减少单 token 采样方差，可能缓解 entropy 崩溃
+        assert teacher_topk_log_probs is not None, \
+            "student_topk_teacher_prob requires teacher_topk_log_probs (set distill_topk)"
+        teacher_topk_probs = teacher_topk_log_probs.exp()                         # (B, T, K)
+        reward = teacher_topk_probs.mean(dim=-1)                                  # (B, T) ∈ (0,1)
+
+    elif reward_type == "student_topk_teacher_prob_weighted":
+        # student prob 加权的 teacher prob：sum(student_prob * teacher_prob) over topk
+        # 语义：两个分布在 topk 上的点积（重叠度），student 更自信的 token 权重更高
+        # 优点：双向对称，加权合理，可能更好缓解 entropy 崩溃
+        assert student_topk_log_probs is not None, \
+            "student_topk_teacher_prob_weighted requires student_topk_log_probs (set distill_topk)"
+        assert teacher_topk_log_probs is not None, \
+            "student_topk_teacher_prob_weighted requires teacher_topk_log_probs (set distill_topk)"
+        student_topk_probs = student_topk_log_probs.exp()                         # (B, T, K)
+        teacher_topk_probs = teacher_topk_log_probs.exp()                         # (B, T, K)
+        reward = (student_topk_probs * teacher_topk_probs).sum(dim=-1)            # (B, T) ∈ (0,1)
+
     else:
         assert student_topk_log_probs is not None and \
                teacher_topk_log_probs is not None
