@@ -83,6 +83,9 @@ export PATH=$(clean_path "$PATH")
 
 # ========== 启动 Ray 集群 ==========
 if [ "$RANK" -eq 0 ]; then
+    # 清理残留的 Ray 进程，防止 session name 冲突（上次任务异常中断时触发）
+    ray stop --force 2>/dev/null || true
+    sleep 2
     ray start --head --dashboard-host=0.0.0.0
     sleep 20
     echo "Ray head started"
