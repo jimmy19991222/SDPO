@@ -96,27 +96,3 @@ ray status
 if [ "$RANK" -eq 0 ]; then
     bash $SCRIPT_PATH
 fi
-
-# ========== 等待训练结束（通过显存监控保持进程存活）==========
-GPU_COUNT=$(nvidia-smi --query-gpu=index --format=csv,noheader | wc -l)
-
-while true; do
-    total_used=0
-    total_total=0
-
-    for i in $(seq 0 $((GPU_COUNT - 1))); do
-        mem_info=$(nvidia-smi --id=$i --query-gpu=memory.used,memory.total --format=csv,noheader,nounits)
-        used=$(echo "$mem_info" | cut -d',' -f1)
-        total=$(echo "$mem_info" | cut -d',' -f2)
-        total_used=$((total_used + used))
-        total_total=$((total_total + total))
-    done
-
-    if [ "$total_total" -eq 0 ]; then
-        avg_usage_percent=0
-    else
-        avg_usage_percent=$(( (total_used * 100) / total_total ))
-    fi
-
-    sleep 60
-done
