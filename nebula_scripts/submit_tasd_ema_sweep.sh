@@ -32,55 +32,39 @@ fi
 
 # =============================================================================
 # 超参配置
-# 上轮实验发现 entropy_coeff=0.1 时所有 TASD job entropy 极速崩溃至 ~0.02
-# 本轮大幅提升 entropy_coeff，并加入 none/ema 对照 + 更多 update_rate
+# 尝试 teacher_prob + NORM_ADV_BY_STD=True，对比之前 nostd 版本
+# 目标：验证 std 归一化能否改善 entropy 崩溃
 # =============================================================================
 REWARD_TYPES=(
-    # "teacher_prob"
-    # "log_teacher_prob"
-    # "top1_match"
-    # "student_topk_teacher_prob"           # student topk 位置上 teacher prob 均值，更平滑
-    # "student_topk_teacher_prob_weighted"  # student prob 加权的 teacher prob，双向对称
-    # "teacher_prob_kl_weighted"            # teacher认可度 × KL(teacher∥student)，分歧大才给强信号，有平衡点
-    # "teacher_prob_jsd_weighted"           # teacher认可度 × JSD(teacher,student)，对称分歧，天然有界[0,log2]
-    # "teacher_prob_diff_weighted"          # teacher认可度 × (teacher_prob-student_prob).clamp(0)，最简单，无需topk
-    # "teacher_logit"                       # logit(teacher_prob)，将[0,1]映射到(-∞,+∞)，方差扩大≈20倍，group内归一化后自然有正负
-    "teacher_seq_log_prob"                # seq-level 平均 log_prob 作为 outcome reward，走 GRPO advantage 路径，天然有正有负，根本解决 entropy 崩溃
+    "teacher_prob"                        # 历史最优 reward type
+    # "teacher_seq_log_prob"              # seq-level 方案
 )
 LRS=(
     "1e-5"
-    # "5e-6"
 )
 ENTROPY_COEFF_LIST=(
-    # "0.0"
-    # "0.01"
-    # "0.03"
-    "0.05"
-    # "0.1"   # 上轮实验：entropy 早期崩溃（~0.016），val mean@16 < 0.41，效果差
-    # "0.5"    # 本轮：大幅提升，防止早期 entropy 崩溃
-    # "1.0"    # 本轮：激进版，进一步抑制坍缩
+    "1.0"    # 历史最优 entropy_coeff
 )
 TEACHER_REGULARIZATION_LIST=(
-    # "none"   # 先跑无 EMA 的干净基线，排除 EMA 的影响
     "ema"
 )
 TEACHER_UPDATE_RATE_LIST=(
-    # "0.0"    # EMA 极慢更新（teacher ≈ 初始模型）
-    # "0.05"   # EMA 适中更新
-    "0.1"    # 上轮实验 step45 最佳（0.476 vs ema0.0 的 0.361），加回
+    "0.1"    # 历史最优 update_rate
 )
 
 # 固定参数（不扫描）
-NORM_ADV_BY_STD="True"
+NORM_ADV_BY_STD="True"   # 开启 std 归一化，对比之前的 nostd
 CLIP_ADV="True"
 CLIP_ADV_VALUE="5.0"
 ROLLOUT_IS="token"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
 ROLLOUT_N="8"
+USE_SHARED_TEACHER_LIST=(
+    "False"  # isr1+sht0 是 teacher_prob 的最优配置
+)
 INCLUDE_SUCCESSFUL_ROLLOUTS_LIST=(
-    "True"   # 成功rollout也参与TASD reward
-    # "False"  # 只让失败rollout参与TASD reward，信号更干净
+    "True"   # isr1
 )
 
 # =============================================================================
@@ -95,9 +79,15 @@ for ENTROPY_COEFF in "${ENTROPY_COEFF_LIST[@]}"; do
 for TEACHER_REG in "${TEACHER_REGULARIZATION_LIST[@]}"; do
 for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
 for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
+for USE_SHARED_TEACHER in "${USE_SHARED_TEACHER_LIST[@]}"; do
 
     # teacher_regularization=none 时 update_rate 无意义，只跑一次
     if [ "$TEACHER_REG" = "none" ] && [ "$TEACHER_UPDATE_RATE" != "${TEACHER_UPDATE_RATE_LIST[0]}" ]; then
+        continue
+    fi
+
+    # isr=False（只用失败rollout）时，shared_teacher=False 无意义（失败rollout本身就要找成功rollout当teacher），只跑 sht=True
+    if [ "$INCLUDE_SUCCESSFUL_ROLLOUTS" = "False" ] && [ "$USE_SHARED_TEACHER" = "False" ]; then
         continue
     fi
 
@@ -123,8 +113,13 @@ for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
         STD_TAG="-nostd"
     fi
 
+    SHT_TAG="-sht0"
+    if [ "$USE_SHARED_TEACHER" = "True" ]; then
+        SHT_TAG="-sht1"
+    fi
+
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
-    JOB_NAME="TASD-bio-lr${LR}-rt${REWARD_TYPE}${STD_TAG}-clip5.0${ENT_TAG}-rctoken${ISR_TAG}${EMA_TAG}-Qwen3-8B-${CURRENT_TIME}"
+    JOB_NAME="TASD-bio-lr${LR}-rt${REWARD_TYPE}${STD_TAG}-clip5.0${ENT_TAG}-rctoken${ISR_TAG}${SHT_TAG}${EMA_TAG}-Qwen3-8B-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
@@ -164,6 +159,7 @@ for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
             --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} \
             --env=ROLLOUT_N=${ROLLOUT_N} \
             --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
+            --env=USE_SHARED_TEACHER=${USE_SHARED_TEACHER} \
             $([ -n "$CUSTOM_DOCKER_IMAGE" ] && echo "--custom_docker_image=${CUSTOM_DOCKER_IMAGE}" || echo "--algo_name=pytorch260") \
             --requirements_file_name=requirements_nebula.txt \
             --oss_access_id=${OSS_ACCESS_ID} \
@@ -181,6 +177,7 @@ for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
         sleep 2    # 避免提交过快被限流
     fi
 
+done  # USE_SHARED_TEACHER
 done  # INCLUDE_SUCCESSFUL_ROLLOUTS
 done  # TEACHER_UPDATE_RATE
 done  # TEACHER_REG

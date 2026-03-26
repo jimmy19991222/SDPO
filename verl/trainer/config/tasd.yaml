@@ -42,6 +42,7 @@ algorithm:
     distill_topk: 100              # vocab_log_ratio/jsd/kl类需要topk
     include_successful_rollouts: true      # true=成功rollout也走TASD；false=成功rollout不走TASD
     use_self_as_teacher_on_success: true   # 成功rollout用自己的response作为teacher context
+    use_shared_teacher_per_uid: false      # true=同一uid下所有rollout共用同一条成功rollout作为teacher（保证reward分布同质）
     success_reward_threshold: 1.0          # reward>=1.0视为成功，与self_distillation保持一致
     reward_transform: "none"               # tanh→(-1,1) | tanh01→(0,1) | sigmoid→(0,1) | none
     reward_scale: 1.0                      # tanh(x/scale)的scale，控制敏感度

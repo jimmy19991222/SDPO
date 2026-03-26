@@ -692,22 +692,30 @@ class RayPPOTrainer:
         dont_reprompt_on_self_success=False,
         remove_thinking_from_demonstration=False,
         fallback_to_self=False,
-        use_self_as_teacher_on_success=False,  # ← 新增
+        use_self_as_teacher_on_success=False,
+        shared_teacher_idx=None,  # 若指定，则直接用该索引的 rollout 作为 teacher
     ):
         uid = uids[idx]
         solution_idxs = success_by_uid[uid]
         is_self_success = idx in solution_idxs
-
-        # 成功rollout强制用自己的response作为teacher context
+    
+        # 成功 rollout 强制用自己的 response 作为 teacher context
         if use_self_as_teacher_on_success and is_self_success:
             solution = response_texts[idx]
             if remove_thinking_from_demonstration:
                 solution = self._remove_thinking_trace(solution)
             return solution
-
+    
+        # 全局固定 teacher：同一 uid 下所有 rollout 共用同一条成功 rollout
+        if shared_teacher_idx is not None:
+            solution = response_texts[shared_teacher_idx]
+            if remove_thinking_from_demonstration:
+                solution = self._remove_thinking_trace(solution)
+            return solution
+    
         if dont_reprompt_on_self_success:
             solution_idxs = [j for j in solution_idxs if j != idx]
-
+    
         if len(solution_idxs) == 0:
             if fallback_to_self and is_self_success:
                 solution_idx = idx
@@ -715,12 +723,12 @@ class RayPPOTrainer:
                 return None
         else:
             solution_idx = random.choice(solution_idxs)
-
+    
         solution = response_texts[solution_idx]
         if remove_thinking_from_demonstration:
             solution = self._remove_thinking_trace(solution)
         return solution
-
+    
 
     def _maybe_build_self_distillation_batch(
         self,
@@ -763,6 +771,15 @@ class RayPPOTrainer:
             success_reward_threshold=self_distillation_cfg.success_reward_threshold
         )
 
+        # 每个 uid 预先选定一条固定成功 rollout 作为 teacher
+        # 避免同一 prompt 下不同 rollout 用不同的 teacher，导致 token_reward 分布不同质
+        use_shared_teacher = is_tasd and tasd_cfg.get("use_shared_teacher_per_uid", False)
+        shared_teacher_by_uid: dict = {}
+        if use_shared_teacher:
+            for uid, idxs in success_by_uid.items():
+                if idxs:
+                    shared_teacher_by_uid[uid] = idxs[0]  # 取第一条成功 rollout
+
         solution_strs = [
             self._get_solution(
                 i,
@@ -771,8 +788,9 @@ class RayPPOTrainer:
                 response_texts,
                 self_distillation_cfg.dont_reprompt_on_self_success,
                 self_distillation_cfg.get("remove_thinking_from_demonstration", False),
-                fallback_to_self=False,                                    # ← 不再需要
-                use_self_as_teacher_on_success=use_self_as_teacher_on_success,  # ← 新增
+                fallback_to_self=False,
+                use_self_as_teacher_on_success=use_self_as_teacher_on_success,
+                shared_teacher_idx=shared_teacher_by_uid.get(batch.non_tensor_batch["uid"][i]) if use_shared_teacher else None,
             )
             for i in range(batch_size)
         ]
