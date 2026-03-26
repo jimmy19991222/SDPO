@@ -32,16 +32,19 @@ fi
 
 # =============================================================================
 # 超参配置
-# 尝试 teacher_log_prob（token-level log_prob），对比 teacher_seq_log_prob（seq-level）
+# 对比三种 reward type：teacher_log_prob / teacher_seq_log_prob / teacher_prob
 # =============================================================================
 REWARD_TYPES=(
-    "teacher_log_prob"              # token-level log_prob，新增类型
+    "teacher_log_prob"
+    "teacher_seq_log_prob"
+    "teacher_prob"
 )
 LRS=(
     "1e-5"
 )
 ENTROPY_COEFF_LIST=(
-    "0.05"   # 与 seqlp 实验保持一致，方便对比
+    "0.05"   # teacher_log_prob / teacher_prob 用 0.05
+    "1.0"    # teacher_seq_log_prob 用 1.0
 )
 TEACHER_REGULARIZATION_LIST=(
     "ema"
@@ -58,11 +61,8 @@ ROLLOUT_IS="token"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
 ROLLOUT_N="8"
-USE_SHARED_TEACHER_LIST=(
-    "False"  # isr1+sht0 是 teacher_prob 的最优配置
-)
 INCLUDE_SUCCESSFUL_ROLLOUTS_LIST=(
-    "True"   # isr1
+    "True"
 )
 
 # =============================================================================
@@ -77,15 +77,17 @@ for ENTROPY_COEFF in "${ENTROPY_COEFF_LIST[@]}"; do
 for TEACHER_REG in "${TEACHER_REGULARIZATION_LIST[@]}"; do
 for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
 for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
-for USE_SHARED_TEACHER in "${USE_SHARED_TEACHER_LIST[@]}"; do
 
     # teacher_regularization=none 时 update_rate 无意义，只跑一次
     if [ "$TEACHER_REG" = "none" ] && [ "$TEACHER_UPDATE_RATE" != "${TEACHER_UPDATE_RATE_LIST[0]}" ]; then
         continue
     fi
 
-    # isr=False（只用失败rollout）时，shared_teacher=False 无意义（失败rollout本身就要找成功rollout当teacher），只跑 sht=True
-    if [ "$INCLUDE_SUCCESSFUL_ROLLOUTS" = "False" ] && [ "$USE_SHARED_TEACHER" = "False" ]; then
+    # teacher_seq_log_prob 用 ent1.0，其他 reward type 用 ent0.05
+    if [ "$REWARD_TYPE" = "teacher_seq_log_prob" ] && [ "$ENTROPY_COEFF" != "1.0" ]; then
+        continue
+    fi
+    if [ "$REWARD_TYPE" != "teacher_seq_log_prob" ] && [ "$ENTROPY_COEFF" != "0.05" ]; then
         continue
     fi
 
@@ -111,13 +113,8 @@ for USE_SHARED_TEACHER in "${USE_SHARED_TEACHER_LIST[@]}"; do
         STD_TAG="-nostd"
     fi
 
-    SHT_TAG="-sht0"
-    if [ "$USE_SHARED_TEACHER" = "True" ]; then
-        SHT_TAG="-sht1"
-    fi
-
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
-    JOB_NAME="TASD-bio-lr${LR}-rt${REWARD_TYPE}${STD_TAG}-clip5.0${ENT_TAG}-rctoken${ISR_TAG}${SHT_TAG}${EMA_TAG}-Qwen3-8B-${CURRENT_TIME}"
+    JOB_NAME="TASD-bio-lr${LR}-rt${REWARD_TYPE}${STD_TAG}-clip5.0${ENT_TAG}-rctoken${ISR_TAG}${EMA_TAG}-Qwen3-8B-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
@@ -157,7 +154,6 @@ for USE_SHARED_TEACHER in "${USE_SHARED_TEACHER_LIST[@]}"; do
             --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} \
             --env=ROLLOUT_N=${ROLLOUT_N} \
             --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
-            --env=USE_SHARED_TEACHER=${USE_SHARED_TEACHER} \
             $([ -n "$CUSTOM_DOCKER_IMAGE" ] && echo "--custom_docker_image=${CUSTOM_DOCKER_IMAGE}" || echo "--algo_name=pytorch260") \
             --requirements_file_name=requirements_nebula.txt \
             --oss_access_id=${OSS_ACCESS_ID} \
@@ -175,7 +171,6 @@ for USE_SHARED_TEACHER in "${USE_SHARED_TEACHER_LIST[@]}"; do
         sleep 2    # 避免提交过快被限流
     fi
 
-done  # USE_SHARED_TEACHER
 done  # INCLUDE_SUCCESSFUL_ROLLOUTS
 done  # TEACHER_UPDATE_RATE
 done  # TEACHER_REG

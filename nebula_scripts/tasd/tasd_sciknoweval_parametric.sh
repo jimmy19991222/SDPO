@@ -72,7 +72,6 @@ python -m verl.trainer.main_ppo \
     algorithm.tasd.distill_topk=100 \
     algorithm.tasd.use_self_as_teacher_on_success=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
     algorithm.tasd.include_successful_rollouts=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
-    algorithm.tasd.use_shared_teacher_per_uid=${USE_SHARED_TEACHER:-False} \
     algorithm.tasd.success_reward_threshold=1.0 \
     algorithm.tasd.norm_adv_by_std=${NORM_ADV_BY_STD} \
     algorithm.tasd.clip_adv=${CLIP_ADV} \
