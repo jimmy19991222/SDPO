@@ -3,17 +3,18 @@
 # GRPO Baseline 参数化训练脚本（供 Nebula sweep 调用）
 # 所有超参通过 nebulactl --env 注入
 # =============================================================================
-set +xeuo pipefail
+set +xo pipefail
 
 OSS_ROOT="/data/oss_bucket_0/ad/loujieming.ljm"
 
 # ── 从环境变量读取超参 ────────────────────────────────────────────────
-DATASET="${DATASET:-sciknoweval/biology}"    # 相对名称，如 sciknoweval/biology
-LR="${LR:-1e-5}"
-MINI_BATCH_SIZE="${MINI_BATCH_SIZE:-32}"
-TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-32}"
-ROLLOUT_N="${ROLLOUT_N:-8}"
-MODEL_NAME="${MODEL_NAME:-Qwen3-8B}"         # OSS base_models 下的目录名
+check_env() { [ -n "${!1}" ] || { echo "ERROR: $1 is not set. Aborting."; exit 1; }; }
+check_env DATASET
+check_env LR
+check_env MINI_BATCH_SIZE
+check_env TRAIN_BATCH_SIZE
+check_env ROLLOUT_N
+check_env MODEL_NAME
 
 # 数据集列表（目前只跑第一个，扩展时直接往数组里加）
 DATA_PATHS=(

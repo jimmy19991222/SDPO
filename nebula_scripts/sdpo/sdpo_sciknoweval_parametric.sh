@@ -3,18 +3,19 @@
 # SDPO Baseline 参数化训练脚本（供 Nebula sweep 调用）
 # 所有超参通过 nebulactl --env 注入
 # =============================================================================
-set +xeuo pipefail
+set +xo pipefail
 
 OSS_ROOT="/data/oss_bucket_0/ad/loujieming.ljm"
 
 # ── 从环境变量读取超参 ────────────────────────────────────────────────
-DATASET="${DATASET:-sciknoweval/biology}"
-LR="${LR:-1e-5}"
-ALPHA="${ALPHA:-0.5}"                              # 0=forward KL, 0.5=JS, 1=reverse KL
-DONT_REPROMPT_ON_SELF_SUCCESS="${DONT_REPROMPT_ON_SELF_SUCCESS:-True}"
-TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-32}"
-ROLLOUT_N="${ROLLOUT_N:-8}"
-MODEL_NAME="${MODEL_NAME:-Qwen3-8B}"
+check_env() { [ -n "${!1}" ] || { echo "ERROR: $1 is not set. Aborting."; exit 1; }; }
+check_env DATASET
+check_env LR
+check_env ALPHA
+check_env DONT_REPROMPT_ON_SELF_SUCCESS
+check_env TRAIN_BATCH_SIZE
+check_env ROLLOUT_N
+check_env MODEL_NAME
 
 # 数据集列表（目前只跑第一个，扩展时直接往数组里加）
 DATA_PATHS=(

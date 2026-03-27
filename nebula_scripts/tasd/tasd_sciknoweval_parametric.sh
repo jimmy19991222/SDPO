@@ -4,24 +4,26 @@
 #
 # 所有超参通过 nebulactl --env 注入，由 submit_tasd_ema_sweep.sh 设置
 # =============================================================================
-set +xeuo pipefail
+set +xo pipefail
 
 OSS_ROOT="/data/oss_bucket_0/ad/loujieming.ljm"
 
 # ── 从环境变量读取超参（均有默认值）─────────────────────────────────────
-REWARD_TYPE="${REWARD_TYPE:-teacher_prob}"
-LR="${LR:-1e-5}"
-ENTROPY_COEFF="${ENTROPY_COEFF:-0.0}"
-TEACHER_REG="${TEACHER_REG:-none}"
-TEACHER_UPDATE_RATE="${TEACHER_UPDATE_RATE:-0.05}"
-NORM_ADV_BY_STD="${NORM_ADV_BY_STD:-False}"
-CLIP_ADV="${CLIP_ADV:-True}"
-CLIP_ADV_VALUE="${CLIP_ADV_VALUE:-5.0}"
-ROLLOUT_IS="${ROLLOUT_IS:-token}"
-TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-32}"
-MINI_BATCH_SIZE="${MINI_BATCH_SIZE:-32}"
-ROLLOUT_N="${ROLLOUT_N:-8}"
-INCLUDE_SUCCESSFUL_ROLLOUTS="${INCLUDE_SUCCESSFUL_ROLLOUTS:-False}"
+# ── 从环境变量读取超参（必传，未设置时立即报错退出）─────────────────
+check_env() { [ -n "${!1}" ] || { echo "ERROR: $1 is not set. Aborting."; exit 1; }; }
+check_env REWARD_TYPE
+check_env LR
+check_env ENTROPY_COEFF
+check_env TEACHER_REG
+check_env TEACHER_UPDATE_RATE
+check_env NORM_ADV_BY_STD
+check_env CLIP_ADV
+check_env CLIP_ADV_VALUE
+check_env ROLLOUT_IS
+check_env TRAIN_BATCH_SIZE
+check_env MINI_BATCH_SIZE
+check_env ROLLOUT_N
+check_env INCLUDE_SUCCESSFUL_ROLLOUTS
 
 # ── 路径 ────────────────────────────────────────────────────────────────
 # 数据集列表（目前只跑第一个，扩展时直接往数组里加）
