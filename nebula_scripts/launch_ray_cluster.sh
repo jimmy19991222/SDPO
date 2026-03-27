@@ -20,6 +20,22 @@ done
 export WORLD_SIZE=$WORLD_SIZE
 export JOB_NAME=$JOB_NAME
 
+# ── export 所有超参环境变量（Nebula通过--env注入，必须显式export才能被bash子进程继承）──
+export REWARD_TYPE="${REWARD_TYPE:-teacher_prob}"
+export LR="${LR:-1e-5}"
+export ENTROPY_COEFF="${ENTROPY_COEFF:-0.0}"
+export TEACHER_REG="${TEACHER_REG:-none}"
+export TEACHER_UPDATE_RATE="${TEACHER_UPDATE_RATE:-0.05}"
+export NORM_ADV_BY_STD="${NORM_ADV_BY_STD:-False}"
+export CLIP_ADV="${CLIP_ADV:-True}"
+export CLIP_ADV_VALUE="${CLIP_ADV_VALUE:-5.0}"
+export ROLLOUT_IS="${ROLLOUT_IS:-token}"
+export TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-32}"
+export MINI_BATCH_SIZE="${MINI_BATCH_SIZE:-32}"
+export ROLLOUT_N="${ROLLOUT_N:-8}"
+export INCLUDE_SUCCESSFUL_ROLLOUTS="${INCLUDE_SUCCESSFUL_ROLLOUTS:-False}"
+export PROJECT_NAME="${PROJECT_NAME:-TASD}"
+
 echo "SCRIPT_PATH = $SCRIPT_PATH"
 echo "WORLD_SIZE  = $WORLD_SIZE"
 echo "JOB_NAME    = $JOB_NAME"

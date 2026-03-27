@@ -43,8 +43,9 @@ LRS=(
     "1e-5"
 )
 ENTROPY_COEFF_LIST=(
-    "0.05"   # teacher_log_prob / teacher_prob 用 0.05
-    "1.0"    # teacher_seq_log_prob 用 1.0
+    "0.0"
+    # "0.05"   # teacher_log_prob / teacher_prob 用 0.05
+    # "1.0"    # teacher_seq_log_prob 用 1.0
 )
 TEACHER_REGULARIZATION_LIST=(
     "ema"
