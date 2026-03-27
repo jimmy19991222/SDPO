@@ -249,6 +249,19 @@ def compute_advantage(
             index=data.non_tensor_batch["uid"],
             norm_adv_by_std_in_grpo=norm_adv_by_std_in_grpo,
         )
+        # If TASD is using teacher_seq_log_prob (which routes through GRPO), apply clip_adv from tasd config
+        if config is not None:
+            tasd_cfg = config.get("tasd", {})
+            clip_adv = tasd_cfg.get("clip_adv", False) if isinstance(tasd_cfg, dict) else getattr(tasd_cfg, "clip_adv", False)
+            clip_adv_value = tasd_cfg.get("clip_adv_value", 5.0) if isinstance(tasd_cfg, dict) else getattr(tasd_cfg, "clip_adv_value", 5.0)
+            if clip_adv:
+                response_mask_bool = grpo_calculation_mask.bool()
+                adv_before = advantages[response_mask_bool]
+                print(f"[GRPO/TASD clip] before: min={adv_before.min():.4f}, max={adv_before.max():.4f}")
+                clipped = torch.clamp(advantages, min=-clip_adv_value, max=clip_adv_value)
+                advantages = torch.where(response_mask_bool, clipped, advantages)
+                adv_after = advantages[response_mask_bool]
+                print(f"[GRPO/TASD clip] after:  min={adv_after.min():.4f}, max={adv_after.max():.4f}")
         data.batch["advantages"] = advantages
         data.batch["returns"] = returns
         
