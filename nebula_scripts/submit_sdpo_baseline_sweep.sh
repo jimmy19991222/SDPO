@@ -78,7 +78,7 @@ for DONT_REPROMPT in "${DONT_REPROMPT_LIST[@]}"; do
             --engine=xdl \
             --queue=${QUEUE} \
             --entry=nebula_scripts/entry.py \
-            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME}" \
+            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL_NAME=${MODEL_NAME} --env=LR=${LR} --env=ALPHA=${ALPHA} --env=DONT_REPROMPT_ON_SELF_SUCCESS=${DONT_REPROMPT} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N}" \
             --worker_count=${WORLD_SIZE} \
             --file.cluster_file=${CLUSTER_FILE} \
             --job_name=${JOB_NAME} \
@@ -86,15 +86,6 @@ for DONT_REPROMPT in "${DONT_REPROMPT_LIST[@]}"; do
             --access_key=${access_key} \
             --env=OPENLM_TOKEN=${OPENLM_TOKEN} \
             --env=SWANLAB_API_KEY=${SWANLAB_API_KEY} \
-            --env=PROJECT_NAME=${PROJECT_NAME} \
-            --env=JOB_NAME=${JOB_NAME} \
-            --env=DATASET=${DATASET} \
-            --env=MODEL_NAME=${MODEL_NAME} \
-            --env=LR=${LR} \
-            --env=ALPHA=${ALPHA} \
-            --env=DONT_REPROMPT_ON_SELF_SUCCESS=${DONT_REPROMPT} \
-            --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} \
-            --env=ROLLOUT_N=${ROLLOUT_N} \
             $([ -n "$CUSTOM_DOCKER_IMAGE" ] && echo "--custom_docker_image=${CUSTOM_DOCKER_IMAGE}" || echo "--algo_name=pytorch260") \
             --requirements_file_name=requirements_nebula.txt \
             --oss_access_id=${OSS_ACCESS_ID} \
