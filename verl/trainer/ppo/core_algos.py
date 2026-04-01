@@ -2842,7 +2842,10 @@ def compute_tasd_advantage(
     
     可配置项（通过 config.tasd）：
     - norm_adv_by_std (bool, default=False): 是否除以 group std 归一化
-    - adv_std_floor (float, default=0.0): std 下界，防止 group_std 过小导致 adv 爆炸
+    - adv_std_floor (float or str, default=0.0): std 下界，防止 group_std 过小导致 adv 爆炸
+        - float: 直接使用该值作为 floor
+        - "auto": 根据 group_size 自动计算，公式 = 1/sqrt(group_size)，对应最坏情况（只有1个正确）
+        - "none" or 0.0: 不使用 floor
     - clip_adv (bool, default=True): 是否对 advantage 做 clipping
     - clip_adv_value (float, default=5.0): clipping 范围 [-v, v]
     - use_teacher_gae (bool, default=False): 是否用 Teacher-GAE 替代简单减 group_mean
@@ -2852,7 +2855,17 @@ def compute_tasd_advantage(
     # 读取配置
     tasd_cfg = config.get("tasd", {}) if config else {}
     norm_adv_by_std = tasd_cfg.get("norm_adv_by_std", False)
-    adv_std_floor = tasd_cfg.get("adv_std_floor", 0.0)  # std下界，防止爆炸
+    adv_std_floor_raw = tasd_cfg.get("adv_std_floor", 0.0)  # std下界，防止爆炸
+    # 解析 adv_std_floor: "auto" -> 自动计算, "none"/0.0 -> 不使用, float -> 直接使用
+    adv_std_floor_auto = isinstance(adv_std_floor_raw, str) and adv_std_floor_raw.lower() == "auto"
+    adv_std_floor_fixed = 0.0
+    if isinstance(adv_std_floor_raw, (int, float)):
+        adv_std_floor_fixed = float(adv_std_floor_raw)
+    elif isinstance(adv_std_floor_raw, str) and adv_std_floor_raw.lower() not in ("auto", "none"):
+        try:
+            adv_std_floor_fixed = float(adv_std_floor_raw)
+        except ValueError:
+            adv_std_floor_fixed = 0.0
     clip_adv = tasd_cfg.get("clip_adv", True)
     clip_adv_value = tasd_cfg.get("clip_adv_value", 5.0)
     use_teacher_gae = tasd_cfg.get("use_teacher_gae", False) and (teacher_value is not None)
@@ -2896,7 +2909,17 @@ def compute_tasd_advantage(
 
             all_rewards = torch.cat(group_token_rewards)
             group_mean = all_rewards.mean()
-            group_std = all_rewards.std(unbiased=False).clamp(min=max(epsilon, adv_std_floor)) if norm_adv_by_std else None
+            # 计算 std floor：auto 模式下根据 group_size 自动计算
+            if norm_adv_by_std:
+                if adv_std_floor_auto:
+                    # 自动计算：对应 group_size=n 只有1个正确的 std ≈ 1/sqrt(n)
+                    group_size = len(valid_indices)
+                    std_floor = 1.0 / (group_size ** 0.5) if group_size > 1 else 1.0
+                else:
+                    std_floor = max(epsilon, adv_std_floor_fixed)
+                group_std = all_rewards.std(unbiased=False).clamp(min=std_floor)
+            else:
+                group_std = None
 
             for i in valid_indices:
                 if use_teacher_gae:
@@ -2947,7 +2970,16 @@ def compute_tasd_advantage(
         # 打印汇总统计
         total_groups = len(uid_to_indices)
         adv_final = advantages[valid_mask]
-        std_floor_str = f", std_floor={adv_std_floor}" if norm_adv_by_std and adv_std_floor > 0 else ""
+        # 构建 std_floor 显示字符串
+        if norm_adv_by_std:
+            if adv_std_floor_auto:
+                std_floor_str = ", std_floor=auto(1/sqrt(n))"
+            elif adv_std_floor_fixed > 0:
+                std_floor_str = f", std_floor={adv_std_floor_fixed}"
+            else:
+                std_floor_str = ""
+        else:
+            std_floor_str = ""
         print(f"[TASD Debug] Summary: {processed_groups}/{total_groups} groups processed, "
               f"{skipped_groups}/{total_groups} groups skipped | "
               f"norm_adv_by_std={norm_adv_by_std}{std_floor_str}, clip_adv={clip_adv}({clip_adv_value})")

@@ -57,11 +57,11 @@ INCLUDE_SUCCESSFUL_ROLLOUTS_LIST=(True)
 
 # ── advantage 配置 ──────────────────────────────────────────
 # 新增 adv_std_floor：防止 group_std 过小导致 adv 爆炸
-# norm_adv_by_std=True + adv_std_floor=0.1 → adv 量级约 ±10
+# norm_adv_by_std=True + adv_std_floor=auto → std floor = 1/sqrt(group_size)
 NORM_ADV_BY_STD_LIST=(True)
-ADV_STD_FLOOR_LIST=(0.1)       # std 下界
-CLIP_ADV_LIST=(True)
-CLIP_ADV_VALUES=(5.0)          # 放宽作为防御性兜底
+ADV_STD_FLOOR_LIST=("auto")    # auto=1/sqrt(n), float=固定值, none=不使用
+CLIP_ADV_LIST=(False)
+CLIP_ADV_VALUES=(5.0)
 
 # ── entropy bonus ─────────────────────────────────────────
 ENTROPY_COEFF_LIST=(0.0 0.01)
@@ -164,7 +164,9 @@ for DATA_PATH in "${DATA_PATHS[@]}"; do
                                                 # 构建实验名：包含 advantage 配置
                                                 NORM_TAG="nostd"
                                                 if [ "$NORM_ADV_BY_STD" = "True" ]; then
-                                                    if [ "$ADV_STD_FLOOR" != "0.0" ] && [ "$ADV_STD_FLOOR" != "0" ]; then
+                                                    if [ "$ADV_STD_FLOOR" = "auto" ]; then
+                                                        NORM_TAG="std-auto"
+                                                    elif [ "$ADV_STD_FLOOR" != "0.0" ] && [ "$ADV_STD_FLOOR" != "0" ] && [ "$ADV_STD_FLOOR" != "none" ]; then
                                                         NORM_TAG="std-floor${ADV_STD_FLOOR}"
                                                     else
                                                         NORM_TAG="std"

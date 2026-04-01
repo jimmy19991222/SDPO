@@ -81,9 +81,9 @@ TEACHER_UPDATE_RATE_LIST=(
 
 # 固定参数（不扫描）
 NORM_ADV_BY_STD="True"   # 开启 std 归一化，对比之前的 nostd
-ADV_STD_FLOOR="0.1"      # std下界，防止group_std过小导致adv爆炸
-CLIP_ADV="True"
-CLIP_ADV_VALUE="5.0"     # 放宽到5.0作为防御性兜底（adv_std_floor已控制常规情况）
+ADV_STD_FLOOR="auto"     # std下界：auto=1/sqrt(n), float=固定值, none=不使用
+CLIP_ADV="False"
+CLIP_ADV_VALUE="None"
 ROLLOUT_IS="token"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
@@ -156,7 +156,9 @@ for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
 
     STD_TAG="-nostd"
     if [ "$NORM_ADV_BY_STD" = "True" ]; then
-        if [ "$ADV_STD_FLOOR" != "0.0" ] && [ "$ADV_STD_FLOOR" != "0" ]; then
+        if [ "$ADV_STD_FLOOR" = "auto" ]; then
+            STD_TAG="-std-auto"
+        elif [ "$ADV_STD_FLOOR" != "0.0" ] && [ "$ADV_STD_FLOOR" != "0" ] && [ "$ADV_STD_FLOOR" != "none" ]; then
             STD_TAG="-std-floor${ADV_STD_FLOOR}"
         else
             STD_TAG="-std"
