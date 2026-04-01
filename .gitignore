@@ -10,6 +10,7 @@
 **/datasets
 models/
 sdpo_env/
+nebula_env/
 models/
 
 # Byte-compiled / optimized / DLL files

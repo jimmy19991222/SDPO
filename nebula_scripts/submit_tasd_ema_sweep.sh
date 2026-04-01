@@ -46,8 +46,8 @@ fi
 REWARD_TYPES=(
     # "teacher_log_prob" x
     # "teacher_seq_log_prob" x
-    # "teacher_prob"
-    "teacher_sentence_prob"
+    "teacher_prob"
+    # "teacher_sentence_prob" x
     # "teacher_prob_binary" x
     # "top1_match" x
     # "teacher_prob_plus_verified"
@@ -72,6 +72,8 @@ TEACHER_REGULARIZATION_LIST=(
     # "none"
 )
 TEACHER_UPDATE_RATE_LIST=(
+    # "0.3"
+    # "0.2"
     "0.1"
     # "0.05"
     # "0.0"
@@ -90,6 +92,13 @@ INCLUDE_SUCCESSFUL_ROLLOUTS_LIST=(
     # "False"
 )
 
+# ── 模型配置 ──────────────────────────────────────────────────────
+MODELS=(
+    # "Qwen3-8B"
+    "Qwen3.5-4B"
+    # "Qwen3.5-9B"
+)
+
 # =============================================================================
 # 提交循环
 # =============================================================================
@@ -97,6 +106,7 @@ TOTAL=0
 SUBMITTED=0
 
 for DATASET in "${DATASETS[@]}"; do
+for MODEL in "${MODELS[@]}"; do
 for REWARD_TYPE in "${REWARD_TYPES[@]}"; do
 for LR in "${LRS[@]}"; do
 for ENTROPY_COEFF in "${ENTROPY_COEFF_LIST[@]}"; do
@@ -122,6 +132,12 @@ for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
     # 构建短数据集名（用于实验名）
     DATASET_SHORT=$(echo "$DATASET" | tr '/' '-')
 
+    # 构建模型短名（去掉点，用于实验名）
+    MODEL_SHORT=$(echo "$MODEL" | tr '.' '-')
+    # 构建模型路径（和 Qwen3-8B 同目录规范）
+    OSS_ROOT="/data/oss_bucket_0/ad/loujieming.ljm"
+    MODEL_PATH="${OSS_ROOT}/base_models/${MODEL}"
+
     # ── 构建实验名 ───────────────────────────────────────────────────
     ENT_TAG=""
     if [ "$(echo "$ENTROPY_COEFF > 0" | bc -l)" = "1" ]; then
@@ -143,7 +159,7 @@ for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
     fi
 
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
-    JOB_NAME="TASD-${DATASET_SHORT}-lr${LR}-rt${REWARD_TYPE}${STD_TAG}-clip${CLIP_ADV_VALUE}${ENT_TAG}-rctoken${ISR_TAG}${EMA_TAG}-Qwen3-8B-${CURRENT_TIME}"
+    JOB_NAME="TASD-${DATASET_SHORT}-lr${LR}-rt${REWARD_TYPE}${STD_TAG}-clip${CLIP_ADV_VALUE}${ENT_TAG}-rctoken${ISR_TAG}${EMA_TAG}-${MODEL_SHORT}-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
@@ -160,7 +176,7 @@ for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
             --engine=xdl \
             --queue=${QUEUE} \
             --entry=nebula_scripts/entry.py \
-            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=REWARD_TYPE=${REWARD_TYPE} --env=LR=${LR} --env=ENTROPY_COEFF=${ENTROPY_COEFF} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=NORM_ADV_BY_STD=${NORM_ADV_BY_STD} --env=CLIP_ADV=${CLIP_ADV} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=ROLLOUT_IS=${ROLLOUT_IS} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS}" \
+            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=LR=${LR} --env=ENTROPY_COEFF=${ENTROPY_COEFF} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=NORM_ADV_BY_STD=${NORM_ADV_BY_STD} --env=CLIP_ADV=${CLIP_ADV} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=ROLLOUT_IS=${ROLLOUT_IS} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS}" \
             --worker_count=${WORLD_SIZE} \
             --file.cluster_file=${CLUSTER_FILE} \
             --job_name=${JOB_NAME} \
@@ -191,6 +207,7 @@ done  # TEACHER_REG
 done  # ENTROPY_COEFF
 done  # LR
 done  # REWARD_TYPE
+done  # MODEL
 done  # DATASET
 
 echo ""

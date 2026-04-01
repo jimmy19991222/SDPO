@@ -23,6 +23,7 @@ OSS_ROOT="/data/oss_bucket_0/ad/loujieming.ljm"
 : "${MINI_BATCH_SIZE:?MINI_BATCH_SIZE is not set}"
 : "${ROLLOUT_N:?ROLLOUT_N is not set}"
 : "${INCLUDE_SUCCESSFUL_ROLLOUTS:?INCLUDE_SUCCESSFUL_ROLLOUTS is not set}"
+: "${MODEL_PATH:?MODEL_PATH is not set}"
 DISTILL_TOPK="${DISTILL_TOPK:-100}"
 DISTILL_TEMPERATURE="${DISTILL_TEMPERATURE:-1.0}"
 USE_TEACHER_GAE="${USE_TEACHER_GAE:-False}"
@@ -33,7 +34,7 @@ TEACHER_GAE_LAMBDA="${TEACHER_GAE_LAMBDA:-0.95}"
 # 从 DATASET 环境变量构建路径（如：sciknoweval/biology -> ${OSS_ROOT}/datasets/sciknoweval/biology）
 train_data_path="${OSS_ROOT}/datasets/${DATASET}/train.parquet"
 val_data_path="${OSS_ROOT}/datasets/${DATASET}/test.parquet"
-model_path="${OSS_ROOT}/base_models/Qwen3-8B"
+model_path="${MODEL_PATH}"
 save_path="${OSS_ROOT}/models/${JOB_NAME:-tasd_sweep}"
 
 # ── 环境 ────────────────────────────────────────────────────────────────
