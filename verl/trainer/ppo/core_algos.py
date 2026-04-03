@@ -311,6 +311,13 @@ def compute_grpo_outcome_advantage(
         bsz = scores.shape[0]
         for i in range(bsz):
             id2score[index[i]].append(scores[i])
+        # 解析 adv_std_floor（从 config.tasd 读取，支持 "auto"/float/"none"）
+        adv_std_floor_raw = None
+        if config is not None:
+            tasd_cfg = config.get("tasd", {}) if hasattr(config, "get") else getattr(config, "tasd", {})
+            if tasd_cfg:
+                adv_std_floor_raw = tasd_cfg.get("adv_std_floor", None) if hasattr(tasd_cfg, "get") else getattr(tasd_cfg, "adv_std_floor", None)
+
         for idx in id2score:
             if len(id2score[idx]) == 1:
                 id2mean[idx] = torch.tensor(0.0)
@@ -318,7 +325,21 @@ def compute_grpo_outcome_advantage(
             elif len(id2score[idx]) > 1:
                 scores_tensor = torch.stack(id2score[idx])
                 id2mean[idx] = torch.mean(scores_tensor)
-                id2std[idx] = torch.std(scores_tensor)
+                raw_std = torch.std(scores_tensor)
+                # 应用 adv_std_floor
+                if norm_adv_by_std_in_grpo and adv_std_floor_raw is not None:
+                    if isinstance(adv_std_floor_raw, str) and adv_std_floor_raw.lower() == "auto":
+                        floor = 1.0 / (len(id2score[idx]) ** 0.5)
+                    elif isinstance(adv_std_floor_raw, str) and adv_std_floor_raw.lower() == "none":
+                        floor = 0.0
+                    else:
+                        try:
+                            floor = float(adv_std_floor_raw)
+                        except (ValueError, TypeError):
+                            floor = 0.0
+                    id2std[idx] = raw_std.clamp(min=floor)
+                else:
+                    id2std[idx] = raw_std
             else:
                 raise ValueError(f"no score in prompt index: {idx}")
         for i in range(bsz):

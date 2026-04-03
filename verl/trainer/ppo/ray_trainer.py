@@ -243,11 +243,13 @@ def compute_advantage(
         grpo_calculation_mask = data.batch["response_mask"]
 
         # Call compute_grpo_outcome_advantage with parameters matching its definition
+        # 传入 config 以支持 adv_std_floor 配置
         advantages, returns = core_algos.compute_grpo_outcome_advantage(
             token_level_rewards=data.batch["token_level_rewards"],
             response_mask=grpo_calculation_mask,
             index=data.non_tensor_batch["uid"],
             norm_adv_by_std_in_grpo=norm_adv_by_std_in_grpo,
+            config=config,
         )
         # If TASD is using teacher_seq_log_prob (which routes through GRPO), apply clip_adv from tasd config
         if config is not None:
