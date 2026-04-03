@@ -81,7 +81,7 @@ TEACHER_UPDATE_RATE_LIST=(
 
 # 固定参数（不扫描）
 NORM_ADV_BY_STD="True"   # 开启 std 归一化，对比之前的 nostd
-ADV_STD_FLOOR="none"     # std下界：auto=1/sqrt(n), float=固定值, none=不使用
+ADV_STD_FLOOR="auto"     # std下界：auto=1/sqrt(n), float=固定值, none=不使用
 CLIP_ADV="False"
 CLIP_ADV_VALUE="None"
 REPETITION_PENALTY="1.05"   # 复读抑制，防止entropy崩溃时产生超长重复序列

@@ -312,11 +312,18 @@ def compute_grpo_outcome_advantage(
         for i in range(bsz):
             id2score[index[i]].append(scores[i])
         # 解析 adv_std_floor（从 config.tasd 读取，支持 "auto"/float/"none"）
+        # 同时检查 TASD 的 norm_adv_by_std 配置（优先级高于全局 norm_adv_by_std_in_grpo）
         adv_std_floor_raw = None
+        tasd_norm_adv_by_std = None
         if config is not None:
             tasd_cfg = config.get("tasd", {}) if hasattr(config, "get") else getattr(config, "tasd", {})
             if tasd_cfg:
                 adv_std_floor_raw = tasd_cfg.get("adv_std_floor", None) if hasattr(tasd_cfg, "get") else getattr(tasd_cfg, "adv_std_floor", None)
+                # TASD 的 norm_adv_by_std 配置（如果设置则覆盖全局配置）
+                tasd_norm_adv_by_std = tasd_cfg.get("norm_adv_by_std", None) if hasattr(tasd_cfg, "get") else getattr(tasd_cfg, "norm_adv_by_std", None)
+        
+        # 如果 TASD 配置了 norm_adv_by_std，使用它；否则使用全局配置
+        effective_norm_adv_by_std = tasd_norm_adv_by_std if tasd_norm_adv_by_std is not None else norm_adv_by_std_in_grpo
 
         for idx in id2score:
             if len(id2score[idx]) == 1:
@@ -327,7 +334,7 @@ def compute_grpo_outcome_advantage(
                 id2mean[idx] = torch.mean(scores_tensor)
                 raw_std = torch.std(scores_tensor)
                 # 应用 adv_std_floor
-                if norm_adv_by_std_in_grpo and adv_std_floor_raw is not None:
+                if effective_norm_adv_by_std and adv_std_floor_raw is not None:
                     if isinstance(adv_std_floor_raw, str) and adv_std_floor_raw.lower() == "auto":
                         floor = 1.0 / (len(id2score[idx]) ** 0.5)
                     elif isinstance(adv_std_floor_raw, str) and adv_std_floor_raw.lower() == "none":
@@ -343,7 +350,7 @@ def compute_grpo_outcome_advantage(
             else:
                 raise ValueError(f"no score in prompt index: {idx}")
         for i in range(bsz):
-            if norm_adv_by_std_in_grpo:
+            if effective_norm_adv_by_std:
                 scores[i] = (scores[i] - id2mean[index[i]]) / (id2std[index[i]] + epsilon)
             else:
                 scores[i] = scores[i] - id2mean[index[i]]

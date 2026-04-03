@@ -33,13 +33,11 @@ MODEL_NAMES=(
 )
 
 LRS=(
-    "1e-5"
     "1e-6"
 )
 
 MINI_BATCH_SIZES=(
     "8"
-    "32"
 )
 
 # 固定参数
