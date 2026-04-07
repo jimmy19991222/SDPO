@@ -20,12 +20,9 @@ check_env TRAIN_BATCH_SIZE
 check_env ROLLOUT_N
 check_env MODEL_NAME
 
-# 数据集列表（目前只跑第一个，扩展时直接往数组里加）
-DATA_PATHS=(
-    "${OSS_ROOT}/datasets/sciknoweval/biology"
-)
-train_data_path="${DATA_PATHS[0]}/train.parquet"
-val_data_path="${DATA_PATHS[0]}/test.parquet"
+# 数据集路径（使用 DATASET 环境变量）
+train_data_path="${OSS_ROOT}/datasets/${DATASET}/train.parquet"
+val_data_path="${OSS_ROOT}/datasets/${DATASET}/test.parquet"
 model_path="${OSS_ROOT}/base_models/${MODEL_NAME}"
 save_path="${OSS_ROOT}/models/${JOB_NAME:-sdpo_ew_sweep}"
 
