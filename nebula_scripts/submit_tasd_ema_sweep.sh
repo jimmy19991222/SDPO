@@ -21,7 +21,7 @@ CLUSTER_FILE="nebula_scripts/cluster_gpu_4.json"    # 4 GPU
 SCRIPT_PATH="nebula_scripts/tasd/tasd_sciknoweval_parametric.sh"
 # 自定义镜像（留空则使用 --algo_name=pytorch260 默认镜像）
 CUSTOM_DOCKER_IMAGE="${CUSTOM_DOCKER_IMAGE:-hub.docker.alibaba-inc.com/mdl/notebook_saved:loujieming.ljm_yueqiu_sdpo_env_torch260_20260324155942}"
-PROJECT_NAME="TASD_param_search"
+PROJECT_NAME="TASD_param_search_v2"
 
 # ── 数据集配置 ──────────────────────────────────────────────────────
 DATASETS=(
@@ -47,7 +47,7 @@ REWARD_TYPES=(
     # "teacher_log_prob" x
     # "teacher_seq_log_prob" x
     "teacher_prob"
-    # "teacher_sentence_prob"
+    "teacher_sentence_prob"
     # "teacher_prob_binary" x
     # "top1_match" x
     # "teacher_prob_plus_verified"
@@ -97,8 +97,15 @@ CLIP_ADV_VALUE_LIST=(
     # "5"
 )
 
+# ── 复读抑制参数（可扫描）─────────────────────────────────────────
+# REPETITION_PENALTY: 1.0=不加复读抑制，>1.0 启用复读抑制
+REPETITION_PENALTY_LIST=(
+    # "1.05"    # 轻微抑制，防止 entropy 崩溃时产生超长重复序列
+    "1.0"     # 不加复读抑制
+    # "1.1"     # 更强抑制
+)
+
 # 固定参数（不扫描）
-REPETITION_PENALTY="1.05"   # 复读抑制，防止entropy崩溃时产生超长重复序列
 ROLLOUT_IS="token"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
@@ -129,6 +136,7 @@ for ENTROPY_COEFF in "${ENTROPY_COEFF_LIST[@]}"; do
 for TEACHER_REG in "${TEACHER_REGULARIZATION_LIST[@]}"; do
 for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
 for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
+for REPETITION_PENALTY in "${REPETITION_PENALTY_LIST[@]}"; do
 for ADV_STD_FLOOR in "${ADV_STD_FLOOR_LIST[@]}"; do
 for CLIP_ADV in "${CLIP_ADV_LIST[@]}"; do
 for CLIP_ADV_VALUE in "${CLIP_ADV_VALUE_LIST[@]}"; do
@@ -243,6 +251,7 @@ for CLIP_ADV_VALUE in "${CLIP_ADV_VALUE_LIST[@]}"; do
 done  # CLIP_ADV_VALUE
 done  # CLIP_ADV
 done  # ADV_STD_FLOOR
+done  # REPETITION_PENALTY
 done  # INCLUDE_SUCCESSFUL_ROLLOUTS
 done  # TEACHER_UPDATE_RATE
 done  # TEACHER_REG

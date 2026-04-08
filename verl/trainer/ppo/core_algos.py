@@ -3025,10 +3025,12 @@ def compute_tasd_advantage(
         # 自动调整 safety_thresh：如果配置为正值但 reward 是 log_prob 域（全负）
         # 检测方式：如果 token_level_rewards 的均值 < 0，说明是 log_prob 域
         if safety_thresh_raw > 0 and token_level_rewards[valid_mask].mean() < 0:
-            # reward 是 log_prob 域（负值），自动转换为 log 域阈值
-            # 例如 0.1 表示 "底部 10% 的 reward"
-            valid_rewards = token_level_rewards[valid_mask]
-            safety_thresh_actual = valid_rewards.quantile(safety_thresh_raw).item()
+            # reward 是 log_prob 域（负值），不能用 quantile（会被 padding=0 或高概率token污染）
+            # 直接用固定阈值转换：safety_thresh_raw 作为惩罚强度系数
+            # 例如 safety_thresh=0.1 -> log_prob < -1.0（即 prob < 36.8%）
+            #      safety_thresh=0.5 -> log_prob < -5.0（即 prob < 0.7%）
+            # 转换公式：log_prob < -10 * safety_thresh_raw
+            safety_thresh_actual = -10.0 * safety_thresh_raw
             print(f"[TASD Safety] Auto-adjusted threshold for log-prob domain: {safety_thresh_raw} -> {safety_thresh_actual:.4f}")
         else:
             safety_thresh_actual = safety_thresh_raw

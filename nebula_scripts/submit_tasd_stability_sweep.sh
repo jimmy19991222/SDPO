@@ -44,7 +44,7 @@ fi
 # ── Reward Type ─────────────────────────────────────────────────────
 REWARD_TYPES=(
     "teacher_log_prob"         # token-level，走 TASD 路径，safety_thresh 生效
-    "teacher_seq_log_prob"     # sentence-level，走 GRPO 路径，天然有正有负
+    # "teacher_seq_log_prob"     # sentence-level，走 GRPO 路径，天然有正有负
     # "teacher_prob"           # 对比组
 )
 
@@ -72,21 +72,29 @@ CLIP_ADV_LIST=(
     "True"
 )
 CLIP_ADV_VALUE_LIST=(
-    # "3.0"      # 更严格
+    "3.0"      # 更严格
     "5.0"
 )
 
 # ── Std 归一化 ──────────────────────────────────────────────────────────
 NORM_ADV_BY_STD="True"
 ADV_STD_FLOOR_LIST=(
-    "auto"
+    # "auto"
+    "none"
+)
+
+# ── 复读抑制参数（可扫描）─────────────────────────────────────────
+# REPETITION_PENALTY: 1.0=不加复读抑制，>1.0 启用复读抑制
+REPETITION_PENALTY_LIST=(
+    "1.0"     # 不加复读抑制
+    "1.05"    # 轻微抑制
+    # "1.1"     # 更强抑制
 )
 
 # ── 固定参数 ────────────────────────────────────────────────────────────
 LR="1e-5"
 TEACHER_REG="ema"
 TEACHER_UPDATE_RATE="0.1"
-REPETITION_PENALTY="1.1"    # 增大复读抑制
 ROLLOUT_IS="token"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
@@ -107,6 +115,7 @@ for SAFETY_THRESH in "${SAFETY_THRESH_LIST[@]}"; do
 for SAFETY_CLIP_VALUE in "${SAFETY_CLIP_VALUE_LIST[@]}"; do
 for CLIP_ADV in "${CLIP_ADV_LIST[@]}"; do
 for CLIP_ADV_VALUE in "${CLIP_ADV_VALUE_LIST[@]}"; do
+for REPETITION_PENALTY in "${REPETITION_PENALTY_LIST[@]}"; do
 for ADV_STD_FLOOR in "${ADV_STD_FLOOR_LIST[@]}"; do
 
     TOTAL=$((TOTAL + 1))
@@ -136,9 +145,15 @@ for ADV_STD_FLOOR in "${ADV_STD_FLOOR_LIST[@]}"; do
         STD_TAG="-std_${ADV_STD_FLOOR}"
     fi
 
+    # Repetition penalty 标签
+    REP_TAG=""
+    if [ "$REPETITION_PENALTY" != "1.0" ] && [ "$REPETITION_PENALTY" != "1" ]; then
+        REP_TAG="-rep${REPETITION_PENALTY}"
+    fi
+
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
     LR_TAG=$(echo "$LR" | tr '-' '_')
-    JOB_NAME="TASD-stable-${DATASET_SHORT}-lr${LR_TAG}-rt${REWARD_TYPE}${STD_TAG}-clip${CLIP_ADV_VALUE}${ENT_TAG}${SAFETY_TAG}-${MODEL_SHORT}-${CURRENT_TIME}"
+    JOB_NAME="TASD-stable-${DATASET_SHORT}-lr${LR_TAG}-rt${REWARD_TYPE}${STD_TAG}-clip${CLIP_ADV_VALUE}${ENT_TAG}${SAFETY_TAG}${REP_TAG}-${MODEL_SHORT}-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
@@ -146,7 +161,7 @@ for ADV_STD_FLOOR in "${ADV_STD_FLOOR_LIST[@]}"; do
         echo "Job #${TOTAL}: ${JOB_NAME}"
         echo "  REWARD_TYPE=$REWARD_TYPE ENTROPY=$ENTROPY_COEFF"
         echo "  SAFETY_THRESH=$SAFETY_THRESH SAFETY_CLIP=$SAFETY_CLIP_VALUE"
-        echo "  CLIP_ADV=$CLIP_ADV CLIP_ADV_VALUE=$CLIP_ADV_VALUE"
+        echo "  CLIP_ADV=$CLIP_ADV CLIP_ADV_VALUE=$CLIP_ADV_VALUE REP=$REPETITION_PENALTY"
     else
         echo "提交 Job #${TOTAL}: ${JOB_NAME}"
 
@@ -181,6 +196,7 @@ for ADV_STD_FLOOR in "${ADV_STD_FLOOR_LIST[@]}"; do
     fi
 
 done  # ADV_STD_FLOOR
+done  # REPETITION_PENALTY
 done  # CLIP_ADV_VALUE
 done  # CLIP_ADV
 done  # SAFETY_CLIP_VALUE
