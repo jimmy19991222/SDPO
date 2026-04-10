@@ -43,9 +43,9 @@ fi
 
 # ── Reward Type ─────────────────────────────────────────────────────
 REWARD_TYPES=(
-    "teacher_log_prob"         # token-level，走 TASD 路径，safety_thresh 生效
+    # "teacher_log_prob"         # token-level，走 TASD 路径，safety_thresh 生效
     # "teacher_seq_log_prob"     # sentence-level，走 GRPO 路径，天然有正有负
-    # "teacher_prob"           # 对比组
+    "teacher_prob"           # 对比组
 )
 
 # ── Entropy Coefficient（防止 collapse）────────────────────────────────
@@ -58,12 +58,14 @@ ENTROPY_COEFF_LIST=(
 
 # ── Safety Threshold（借鉴 FIPO：负样本保护）──────────────────────────
 SAFETY_THRESH_LIST=(
-    "0.1"      # reward < 0.1 且 adv < 0 时触发保护
+    "0.0" #关闭负样本保护
+    # "0.1"      # reward < 0.1 且 adv < 0 时触发保护
     # "0.05"     # 更激进的阈值
     # "0.0"   # 对照组：禁用 safety threshold
 )
 SAFETY_CLIP_VALUE_LIST=(
-    "0.5"      # 限制 advantage 到 [-0.5, 0]
+    "none"
+    # "0.5"      # 限制 advantage 到 [-0.5, 0]
     # "1.0"      # 更宽松的限制
 )
 
@@ -86,7 +88,7 @@ ADV_STD_FLOOR_LIST=(
 # ── 复读抑制参数（可扫描）─────────────────────────────────────────
 # REPETITION_PENALTY: 1.0=不加复读抑制，>1.0 启用复读抑制
 REPETITION_PENALTY_LIST=(
-    "1.0"     # 不加复读抑制
+    # "1.0"     # 不加复读抑制
     "1.05"    # 轻微抑制
     # "1.1"     # 更强抑制
 )
