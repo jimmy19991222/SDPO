@@ -49,7 +49,7 @@ class Tracking:
         "file",
     ]
 
-    def __init__(self, project_name, experiment_name, default_backend: str | list[str] = "console", config=None, group_name=None):
+    def __init__(self, project_name, experiment_name, default_backend: str | list[str] = "console", config=None, group_name=None, tags=None):
         if isinstance(default_backend, str):
             default_backend = [default_backend]
         for backend in default_backend:
@@ -115,13 +115,21 @@ class Tracking:
 
             if config is None:
                 config = {}  # make sure config is not None, otherwise **config will raise error
-            swanlab.init(
-                project=project_name,
-                experiment_name=experiment_name,
-                config={"FRAMEWORK": "verl", **config},
-                logdir=SWANLAB_LOG_DIR,
-                mode=SWANLAB_MODE,
-            )
+
+            # 构建 swanlab.init 参数（用 kwargs 方式，避免老版 swanlab 不支持某些参数报错）
+            swanlab_init_kwargs = {
+                "project": project_name,
+                "experiment_name": experiment_name,
+                "config": {"FRAMEWORK": "verl", **config},
+                "logdir": SWANLAB_LOG_DIR,
+                "mode": SWANLAB_MODE,
+            }
+            if group_name:
+                swanlab_init_kwargs["group"] = group_name
+            if tags:
+                swanlab_init_kwargs["tags"] = tags if isinstance(tags, list) else [tags]
+
+            swanlab.init(**swanlab_init_kwargs)
             self.logger["swanlab"] = swanlab
 
         if "vemlp_wandb" in default_backend:
