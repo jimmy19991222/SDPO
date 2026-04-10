@@ -58,17 +58,26 @@ CLIP_ADV_VALUES=(
     "2.0"
 )
 
+# ── Distill Topk ──────────────────────────────────────────────────────
+DISTILL_TOPK_LIST=(
+    "100"
+)
+
+# ── Repetition Penalty ───────────────────────────────────────────────
+REPETITION_PENALTY_LIST=(
+    "1.0"
+    # "1.05"
+)
+
 # ── 固定参数 ────────────────────────────────────────────────────────────
 LR="1e-5"
 SEED="42"
 TEACHER_REG="ema"
 TEACHER_UPDATE_RATE="0.1"
-REPETITION_PENALTY="1.1"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
 ROLLOUT_N="8"
 INCLUDE_SUCCESSFUL_ROLLOUTS="True"
-DISTILL_TOPK="100"
 MODEL="Qwen3-8B"
 
 # =============================================================================
@@ -81,6 +90,8 @@ for DATASET in "${DATASETS[@]}"; do
 for REWARD_TYPE in "${REWARD_TYPES[@]}"; do
 for ENTROPY_GATE in "${ENTROPY_GATE_LIST[@]}"; do
 for CLIP_ADV_VALUE in "${CLIP_ADV_VALUES[@]}"; do
+for DISTILL_TOPK in "${DISTILL_TOPK_LIST[@]}"; do
+for REPETITION_PENALTY in "${REPETITION_PENALTY_LIST[@]}"; do
 
     TOTAL=$((TOTAL + 1))
 
@@ -100,15 +111,22 @@ for CLIP_ADV_VALUE in "${CLIP_ADV_VALUES[@]}"; do
         ENTROPY_TAG="-gate_${ENTROPY_GATE}"
     fi
 
+    # topk 标签
+    TOPK_TAG="-topk${DISTILL_TOPK}"
+
+    # repetition penalty 标签
+    REP_TAG="-rep${REPETITION_PENALTY}"
+
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
-    JOB_NAME="TASD-simple-${DATASET_SHORT}-rt${REWARD_TYPE}${ENTROPY_TAG}-clip${CLIP_ADV_VALUE}-${MODEL_SHORT}-${CURRENT_TIME}"
+    JOB_NAME="TASD-simple-${DATASET_SHORT}-rt${REWARD_TYPE}${ENTROPY_TAG}-clip${CLIP_ADV_VALUE}${TOPK_TAG}${REP_TAG}-${MODEL_SHORT}-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
         echo "------------------------------------------------------------"
         echo "Job #${TOTAL}: ${JOB_NAME}"
         echo "  REWARD_TYPE=$REWARD_TYPE ENTROPY_GATE=$ENTROPY_GATE"
-        echo "  CLIP_ADV_VALUE=$CLIP_ADV_VALUE"
+        echo "  CLIP_ADV_VALUE=$CLIP_ADV_VALUE DISTILL_TOPK=$DISTILL_TOPK"
+        echo "  REPETITION_PENALTY=$REPETITION_PENALTY"
     else
         echo "提交 Job #${TOTAL}: ${JOB_NAME}"
 
@@ -117,7 +135,7 @@ for CLIP_ADV_VALUE in "${CLIP_ADV_VALUES[@]}"; do
             --engine=xdl \
             --queue=${QUEUE} \
             --entry=nebula_scripts/entry.py \
-            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=ENTROPY_GATE=${ENTROPY_GATE} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=LR=${LR} --env=SEED=${SEED} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=REPETITION_PENALTY=${REPETITION_PENALTY} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} --env=DISTILL_TOPK=${DISTILL_TOPK}" \
+            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=ENTROPY_GATE=${ENTROPY_GATE} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=DISTILL_TOPK=${DISTILL_TOPK} --env=REPETITION_PENALTY=${REPETITION_PENALTY} --env=LR=${LR} --env=SEED=${SEED} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS}" \
             --worker_count=${WORLD_SIZE} \
             --file.cluster_file=${CLUSTER_FILE} \
             --job_name=${JOB_NAME} \
@@ -141,6 +159,9 @@ for CLIP_ADV_VALUE in "${CLIP_ADV_VALUES[@]}"; do
         sleep 2
     fi
 
+done
+done
+done
 done
 done
 done
