@@ -118,12 +118,11 @@ for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
     # entropy gate 标签
     if [ "$ENTROPY_GATE" = "none" ]; then
         ENTROPY_TAG="-noGate"
+        TOPK_TAG=""  # noGate 时 topk 无意义，不显示
     else
         ENTROPY_TAG="-gate_${ENTROPY_GATE}"
+        TOPK_TAG="-topk${DISTILL_TOPK}"
     fi
-
-    # topk 标签
-    TOPK_TAG="-topk${DISTILL_TOPK}"
 
     # repetition penalty 标签
     REP_TAG="-rep${REPETITION_PENALTY}"
