@@ -26,6 +26,7 @@ TEACHER_REG="${TEACHER_REG:-ema}"
 TEACHER_UPDATE_RATE="${TEACHER_UPDATE_RATE:-0.1}"
 CLIP_ADV="${CLIP_ADV:-true}"
 NORM_ADV_BY_STD="${NORM_ADV_BY_STD:-false}"
+ADV_STD_FLOOR="${ADV_STD_FLOOR:-0.0}"  # std下界：0 | auto | float
 DISTILL_TOPK="${DISTILL_TOPK:-100}"
 DISTILL_TEMPERATURE="${DISTILL_TEMPERATURE:-1.0}"
 REPETITION_PENALTY="${REPETITION_PENALTY:-1.05}"
@@ -99,6 +100,7 @@ python -m verl.trainer.main_ppo \
     algorithm.tasd.distill_topk=${DISTILL_TOPK} \
     algorithm.tasd.distill_temperature=${DISTILL_TEMPERATURE} \
     algorithm.tasd.norm_adv_by_std=${NORM_ADV_BY_STD} \
+    algorithm.tasd.adv_std_floor=${ADV_STD_FLOOR} \
     algorithm.tasd.clip_adv=${CLIP_ADV} \
     algorithm.tasd.clip_adv_value=${CLIP_ADV_VALUE} \
     algorithm.tasd.use_self_as_teacher_on_success=${INCLUDE_SUCCESSFUL_ROLLOUTS} \

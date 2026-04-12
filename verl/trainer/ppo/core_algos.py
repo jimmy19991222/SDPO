@@ -2412,6 +2412,10 @@ def compute_tasd_advantage(
     
     特点：
     - group_mean 归一化，可选 group_std 归一化（norm_adv_by_std）
+    - adv_std_floor：std 下界，防止 group_std 过小导致 adv 爆炸
+        - float: 直接使用该值作为 floor
+        - "auto": 根据 group_size 自动计算，公式 = 1/sqrt(group_size)
+        - "none" or 0.0: 不使用 floor
     - advantage clipping
     - gate_mask：被 entropy gate 掉的 token 不参与 group_mean，advantage 置 0，无梯度
     
@@ -2419,7 +2423,7 @@ def compute_tasd_advantage(
         token_level_rewards: (B, T) - token-level rewards
         response_mask: (B, T) - 有效 token mask
         index: uid for grouping responses
-        config: 配置对象，读取 tasd.clip_adv / clip_adv_value / norm_adv_by_std
+        config: 配置对象，读取 tasd.clip_adv / clip_adv_value / norm_adv_by_std / adv_std_floor
         self_distillation_mask: (B,) bool tensor，标识哪些样本有 teacher context
         gate_mask: (B, T) bool，entropy gate 后保留的 token（hard/soft 模式）
     
@@ -2432,6 +2436,18 @@ def compute_tasd_advantage(
     clip_adv = tasd_cfg.get("clip_adv", True)
     clip_adv_value = tasd_cfg.get("clip_adv_value", 2.0)
     norm_adv_by_std = tasd_cfg.get("norm_adv_by_std", False)
+    
+    # 解析 adv_std_floor：三态配置（0 / auto / 数字）
+    adv_std_floor_raw = tasd_cfg.get("adv_std_floor", 0.0)
+    adv_std_floor_auto = isinstance(adv_std_floor_raw, str) and adv_std_floor_raw.lower() == "auto"
+    adv_std_floor_fixed = 0.0
+    if isinstance(adv_std_floor_raw, (int, float)):
+        adv_std_floor_fixed = float(adv_std_floor_raw)
+    elif isinstance(adv_std_floor_raw, str) and adv_std_floor_raw.lower() not in ("auto", "none"):
+        try:
+            adv_std_floor_fixed = float(adv_std_floor_raw)
+        except ValueError:
+            adv_std_floor_fixed = 0.0
     
     with torch.no_grad():
         # ── 计算 effective_mask ───────────────────────────────────────────
@@ -2466,9 +2482,15 @@ def compute_tasd_advantage(
             all_rewards = torch.cat(valid_rewards)
             group_mean = all_rewards.mean()
             
-            # 可选：除以 group std
+            # 可选：除以 group std（带 adv_std_floor 保护）
             if norm_adv_by_std:
-                group_std = all_rewards.std(unbiased=False).clamp(min=1e-8)
+                # 计算 std floor：auto 模式下根据 group_size 自动计算
+                if adv_std_floor_auto:
+                    group_size = len(valid_rewards)
+                    std_floor = 1.0 / (group_size ** 0.5) if group_size > 1 else 1.0
+                else:
+                    std_floor = max(1e-8, adv_std_floor_fixed)
+                group_std = all_rewards.std(unbiased=False).clamp(min=std_floor)
             else:
                 group_std = None
             

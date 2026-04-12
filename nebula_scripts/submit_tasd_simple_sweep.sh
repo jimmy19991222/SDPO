@@ -26,11 +26,11 @@ PROJECT_NAME="TASD_simple"
 
 # ── 数据集配置 ──────────────────────────────────────────────────────
 DATASETS=(
-    "sciknoweval/biology"
-    # "sciknoweval/chemistry"
-    # "sciknoweval/material"
-    # "sciknoweval/physics"
-    # "tooluse"
+    # "sciknoweval/biology"
+    "sciknoweval/chemistry"
+    "sciknoweval/material"
+    "sciknoweval/physics"
+    "tooluse"
 )
 
 # ── dry-run 模式 ─────────────────────────────────────────────────────────
@@ -76,7 +76,15 @@ REPETITION_PENALTY_LIST=(
 # ── Norm Adv By Std ─────────────────────────────────────────────────
 NORM_ADV_BY_STD_LIST=(
     "true"
-    "false"
+    # "false"
+)
+
+# ── Adv Std Floor ───────────────────────────────────────────────────
+# std下界：0.0 | auto | float（仅在 norm_adv_by_std=true 时生效）
+ADV_STD_FLOOR_LIST=(
+    "auto"
+    # "0.0"
+    # "0.1"
 )
 
 # ── 固定参数 ────────────────────────────────────────────────────────────
@@ -103,6 +111,7 @@ for CLIP_ADV_VALUE in "${CLIP_ADV_VALUES[@]}"; do
 for DISTILL_TOPK in "${DISTILL_TOPK_LIST[@]}"; do
 for REPETITION_PENALTY in "${REPETITION_PENALTY_LIST[@]}"; do
 for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
+for ADV_STD_FLOOR in "${ADV_STD_FLOOR_LIST[@]}"; do
 
     TOTAL=$((TOTAL + 1))
 
@@ -127,9 +136,15 @@ for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
     # repetition penalty 标签
     REP_TAG="-rep${REPETITION_PENALTY}"
 
-    # norm_adv_by_std 标签
+    # norm_adv_by_std 标签（含 floor 信息）
     if [ "$NORM_ADV_BY_STD" = "true" ]; then
-        STD_TAG="-normStd"
+        if [ "$ADV_STD_FLOOR" = "auto" ]; then
+            STD_TAG="-std_auto"
+        elif [ "$ADV_STD_FLOOR" = "0.0" ] || [ "$ADV_STD_FLOOR" = "0" ]; then
+            STD_TAG="-normStd"
+        else
+            STD_TAG="-std_${ADV_STD_FLOOR}"
+        fi
     else
         STD_TAG=""
     fi
@@ -143,7 +158,7 @@ for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
         echo "Job #${TOTAL}: ${JOB_NAME}"
         echo "  REWARD_TYPE=$REWARD_TYPE ENTROPY_GATE=$ENTROPY_GATE"
         echo "  CLIP_ADV_VALUE=$CLIP_ADV_VALUE DISTILL_TOPK=$DISTILL_TOPK"
-        echo "  REPETITION_PENALTY=$REPETITION_PENALTY NORM_ADV_BY_STD=$NORM_ADV_BY_STD"
+        echo "  REPETITION_PENALTY=$REPETITION_PENALTY NORM_ADV_BY_STD=$NORM_ADV_BY_STD ADV_STD_FLOOR=$ADV_STD_FLOOR"
     else
         echo "提交 Job #${TOTAL}: ${JOB_NAME}"
 
@@ -152,7 +167,7 @@ for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
             --engine=xdl \
             --queue=${QUEUE} \
             --entry=nebula_scripts/entry.py \
-            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=ENTROPY_GATE=${ENTROPY_GATE} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=DISTILL_TOPK=${DISTILL_TOPK} --env=REPETITION_PENALTY=${REPETITION_PENALTY} --env=LR=${LR} --env=SEED=${SEED} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} --env=NORM_ADV_BY_STD=${NORM_ADV_BY_STD}" \
+            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=ENTROPY_GATE=${ENTROPY_GATE} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=DISTILL_TOPK=${DISTILL_TOPK} --env=REPETITION_PENALTY=${REPETITION_PENALTY} --env=LR=${LR} --env=SEED=${SEED} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} --env=NORM_ADV_BY_STD=${NORM_ADV_BY_STD} --env=ADV_STD_FLOOR=${ADV_STD_FLOOR}" \
             --worker_count=${WORLD_SIZE} \
             --file.cluster_file=${CLUSTER_FILE} \
             --job_name=${JOB_NAME} \
@@ -176,6 +191,7 @@ for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
         sleep 2
     fi
 
+done
 done
 done
 done
