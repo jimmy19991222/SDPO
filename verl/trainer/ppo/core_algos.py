@@ -2459,7 +2459,7 @@ def compute_tasd_advantage(
             
             # 可选：除以 group std
             if norm_adv_by_std:
-                group_std = all_rewards.std().clamp(min=1e-8)
+                group_std = all_rewards.std(unbiased=False).clamp(min=1e-8)
             else:
                 group_std = None
             

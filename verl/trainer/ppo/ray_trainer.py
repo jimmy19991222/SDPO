@@ -20,6 +20,7 @@ This trainer supports model-agonistic model initialization with huggingface
 
 import json
 import os
+import random
 import re
 import time
 import uuid
@@ -693,7 +694,7 @@ class RayPPOTrainer:
                 return response_texts[idx]
             return None
 
-        solution_idx = solution_idxs[0]  # taking the first successful demonstration effectively selects a random one
+        solution_idx = random.choice(solution_idxs)  # randomly select from successful demonstrations
         solution_str = response_texts[solution_idx]
         if remove_thinking_from_demonstration:
             solution_str = self._remove_thinking_trace(solution_str)
@@ -1663,7 +1664,6 @@ class RayPPOTrainer:
 
         # 设置全局随机种子（可复现性）
         seed = self.config.trainer.get("seed", 42)
-        import random
         random.seed(seed)
         np.random.seed(seed)
         torch.manual_seed(seed)
