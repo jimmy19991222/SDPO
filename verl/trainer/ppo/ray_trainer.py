@@ -257,13 +257,18 @@ def compute_advantage(
         sdist_mask = None
         if "self_distillation_mask" in data.batch:
             sdist_mask = data.batch["self_distillation_mask"]
-        
+
+        # tasd_gate_mask: entropy gate 后有效的 token 位置（hard/soft 模式下存在）
+        # 被 gate 掉的 token 不参与 group_mean 计算，advantage 直接置 0
+        gate_mask = data.batch.get("tasd_gate_mask", None)
+
         advantages, returns = core_algos.compute_tasd_advantage(
             token_level_rewards=data.batch["token_level_rewards"],
             response_mask=data.batch["response_mask"],
             index=data.non_tensor_batch["uid"],
             config=config,
             self_distillation_mask=sdist_mask,
+            gate_mask=gate_mask,
         )
         data.batch["advantages"] = advantages
         data.batch["returns"] = returns
@@ -2013,6 +2018,11 @@ class RayPPOTrainer:
 
                             # 覆盖 token_level_rewards
                             batch.batch["token_level_rewards"] = token_rewards
+
+                            # 保存 gate_mask，供 compute_tasd_advantage 排除 gate 掉的 token
+                            # gate_mask=None 表示无熵门控（noGate），gate_mask!=None 表示 hard/soft 门控
+                            if gate_mask is not None:
+                                batch.batch["tasd_gate_mask"] = (gate_mask * response_mask_float).bool()
 
                             # ── 记录 TASD token reward 指标 ─────────────────────────────
                             response_mask_bool = batch.batch["response_mask"].bool()

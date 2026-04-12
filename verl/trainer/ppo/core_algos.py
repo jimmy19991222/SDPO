@@ -2404,6 +2404,7 @@ def compute_tasd_advantage(
     index,  # uid for grouping
     config: Optional[Any] = None,
     self_distillation_mask: Optional[torch.Tensor] = None,  # (B,) bool tensor
+    gate_mask: Optional[torch.Tensor] = None,  # (B, T) bool，entropy gate 后有效位置
     **kwargs,
 ) -> tuple[torch.Tensor, torch.Tensor]:
     """
@@ -2412,6 +2413,7 @@ def compute_tasd_advantage(
     特点：
     - group_mean 归一化，可选 group_std 归一化（norm_adv_by_std）
     - advantage clipping
+    - gate_mask：被 entropy gate 掉的 token 不参与 group_mean，advantage 置 0，无梯度
     
     Args:
         token_level_rewards: (B, T) - token-level rewards
@@ -2419,6 +2421,7 @@ def compute_tasd_advantage(
         index: uid for grouping responses
         config: 配置对象，读取 tasd.clip_adv / clip_adv_value / norm_adv_by_std
         self_distillation_mask: (B,) bool tensor，标识哪些样本有 teacher context
+        gate_mask: (B, T) bool，entropy gate 后保留的 token（hard/soft 模式）
     
     Returns:
         advantages: (B, T)
@@ -2432,9 +2435,15 @@ def compute_tasd_advantage(
     
     with torch.no_grad():
         # ── 计算 effective_mask ───────────────────────────────────────────
+        # effective_mask 决定哪些 token 参与 group_mean 计算并产生梯度：
+        #   1. response_mask：padding 位置排除
+        #   2. self_distillation_mask：无 teacher context 的 response 排除
+        #   3. gate_mask：entropy gate 掉的 token 排除（reward=0 但不应产生负梯度）
         effective_mask = response_mask.float()
         if self_distillation_mask is not None:
             effective_mask = effective_mask * self_distillation_mask.unsqueeze(1).float()
+        if gate_mask is not None:
+            effective_mask = effective_mask * gate_mask.float()
         
         advantages = torch.zeros_like(token_level_rewards)
         
