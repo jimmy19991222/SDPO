@@ -10,7 +10,8 @@
 #   - entropy_gate: none | hard | soft
 #   - clip_ratio_high: 10000 | 0.28 (DAPO Clip-Higher)
 #   - filter_groups: true | false (动态采样)
-#   - clip_adv_value: 2.0
+#   - clip_adv: true | false
+#   - clip_adv_value: 2.0 (clip_adv=true 时生效)
 #
 # 使用方式：
 #   bash nebula_scripts/submit_tasd_simple_sweep.sh [--dry-run]
@@ -62,10 +63,13 @@ ENTROPY_GATE_LIST=(
     "soft"
 )
 
-# ── Clip Adv Value ───────────────────────────────────────────────────
-CLIP_ADV_VALUES=(
-    "2.0"
+# ── Clip Adv ─────────────────────────────────────────────────────────
+# clip_adv: 是否 clip advantage 到 [-clip_adv_value, +clip_adv_value]
+CLIP_ADV_LIST=(
+    "true"
+    "false"
 )
+CLIP_ADV_VALUE="2.0"   # clip 范围（仅 clip_adv=true 时生效）
 
 # ── Distill Topk ──────────────────────────────────────────────────────
 DISTILL_TOPK_LIST=(
@@ -132,7 +136,7 @@ SUBMITTED=0
 for DATASET in "${DATASETS[@]}"; do
 for REWARD_TYPE in "${REWARD_TYPES[@]}"; do
 for ENTROPY_GATE in "${ENTROPY_GATE_LIST[@]}"; do
-for CLIP_ADV_VALUE in "${CLIP_ADV_VALUES[@]}"; do
+for CLIP_ADV in "${CLIP_ADV_LIST[@]}"; do
 for DISTILL_TOPK in "${DISTILL_TOPK_LIST[@]}"; do
 for REPETITION_PENALTY in "${REPETITION_PENALTY_LIST[@]}"; do
 for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
@@ -192,14 +196,21 @@ for FILTER_GROUPS_ENABLE in "${FILTER_GROUPS_ENABLE_LIST[@]}"; do
     fi
 
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
-    JOB_NAME="TASD-DAPO-${DATASET_SHORT}-rt_${REWARD_TYPE}${ENTROPY_TAG}-clip${CLIP_ADV_VALUE}${TOPK_TAG}${REP_TAG}${STD_TAG}${CLIP_TAG}${FG_TAG}-${MODEL_SHORT}-${CURRENT_TIME}"
+    # clip_adv 标签
+    if [ "$CLIP_ADV" = "false" ]; then
+        CLIP_ADV_TAG="-noClipAdv"
+    else
+        CLIP_ADV_TAG=""
+    fi
+
+    JOB_NAME="TASD-DAPO-${DATASET_SHORT}-rt_${REWARD_TYPE}${ENTROPY_TAG}${TOPK_TAG}${REP_TAG}${STD_TAG}${CLIP_TAG}${FG_TAG}${CLIP_ADV_TAG}-${MODEL_SHORT}-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
         echo "------------------------------------------------------------"
         echo "Job #${TOTAL}: ${JOB_NAME}"
         echo "  REWARD_TYPE=$REWARD_TYPE ENTROPY_GATE=$ENTROPY_GATE"
-        echo "  CLIP_ADV_VALUE=$CLIP_ADV_VALUE DISTILL_TOPK=$DISTILL_TOPK"
+        echo "  CLIP_ADV=$CLIP_ADV CLIP_ADV_VALUE=$CLIP_ADV_VALUE DISTILL_TOPK=$DISTILL_TOPK"
         echo "  REPETITION_PENALTY=$REPETITION_PENALTY NORM_ADV_BY_STD=$NORM_ADV_BY_STD ADV_STD_FLOOR=$ADV_STD_FLOOR"
         echo "  CLIP_RATIO_HIGH=$CLIP_RATIO_HIGH FILTER_GROUPS=$FILTER_GROUPS_ENABLE"
     else
@@ -210,7 +221,7 @@ for FILTER_GROUPS_ENABLE in "${FILTER_GROUPS_ENABLE_LIST[@]}"; do
             --engine=xdl \
             --queue=${QUEUE} \
             --entry=nebula_scripts/entry.py \
-            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=ENTROPY_GATE=${ENTROPY_GATE} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=DISTILL_TOPK=${DISTILL_TOPK} --env=REPETITION_PENALTY=${REPETITION_PENALTY} --env=LR=${LR} --env=SEED=${SEED} --env=ENTROPY_COEFF=${ENTROPY_COEFF} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} --env=NORM_ADV_BY_STD=${NORM_ADV_BY_STD} --env=ADV_STD_FLOOR=${ADV_STD_FLOOR} --env=CLIP_RATIO_HIGH=${CLIP_RATIO_HIGH} --env=FILTER_GROUPS_ENABLE=${FILTER_GROUPS_ENABLE} --env=FILTER_GROUPS_METRIC=${FILTER_GROUPS_METRIC} --env=FILTER_GROUPS_MAX_GEN=${FILTER_GROUPS_MAX_GEN}" \
+            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=ENTROPY_GATE=${ENTROPY_GATE} --env=CLIP_ADV=${CLIP_ADV} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=DISTILL_TOPK=${DISTILL_TOPK} --env=REPETITION_PENALTY=${REPETITION_PENALTY} --env=LR=${LR} --env=SEED=${SEED} --env=ENTROPY_COEFF=${ENTROPY_COEFF} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} --env=NORM_ADV_BY_STD=${NORM_ADV_BY_STD} --env=ADV_STD_FLOOR=${ADV_STD_FLOOR} --env=CLIP_RATIO_HIGH=${CLIP_RATIO_HIGH} --env=FILTER_GROUPS_ENABLE=${FILTER_GROUPS_ENABLE} --env=FILTER_GROUPS_METRIC=${FILTER_GROUPS_METRIC} --env=FILTER_GROUPS_MAX_GEN=${FILTER_GROUPS_MAX_GEN}" \
             --worker_count=${WORLD_SIZE} \
             --file.cluster_file=${CLUSTER_FILE} \
             --job_name=${JOB_NAME} \
