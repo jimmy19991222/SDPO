@@ -73,6 +73,90 @@ from verl.workers.config import FSDPEngineConfig
 from verl.workers.utils.padding import left_right_2_no_padding, no_padding_2_padding
 
 
+def concat_dataproto_with_padding(data_list: list["DataProto"]) -> "DataProto":
+    """Concat DataProto list with padding to handle different seq lengths.
+    
+    Different batches may have different response lengths, so we need to pad
+    shorter sequences before concatenating.
+    
+    Args:
+        data_list: List of DataProto with potentially different seq_len (dim=1)
+        
+    Returns:
+        Single DataProto with all batches concatenated along dim=0
+    """
+    if len(data_list) == 1:
+        return data_list[0]
+    
+    # Find max seq_len across all batches
+    max_seq_len = 0
+    for data in data_list:
+        if data.batch is not None:
+            # Get seq_len from first tensor (assume all have same seq_len within a batch)
+            first_key = next(iter(data.batch.keys()))
+            seq_len = data.batch[first_key].shape[1] if len(data.batch[first_key].shape) > 1 else 1
+            max_seq_len = max(max_seq_len, seq_len)
+    
+    # Pad each batch to max_seq_len
+    padded_batches = []
+    for data in data_list:
+        if data.batch is None:
+            continue
+        padded_batch = {}
+        first_key = next(iter(data.batch.keys()))
+        curr_seq_len = data.batch[first_key].shape[1] if len(data.batch[first_key].shape) > 1 else max_seq_len
+        
+        if curr_seq_len < max_seq_len:
+            # Need padding
+            pad_len = max_seq_len - curr_seq_len
+            for key, tensor in data.batch.items():
+                if len(tensor.shape) == 2:
+                    # Right pad with zeros (for attention_mask, response_mask, etc.)
+                    # For input_ids, we'll use pad_token_id later
+                    padded_batch[key] = torch.nn.functional.pad(tensor, (0, pad_len), value=0)
+                else:
+                    padded_batch[key] = tensor
+        else:
+            padded_batch = dict(data.batch)
+        padded_batches.append(padded_batch)
+    
+    # Now concat all padded batches
+    from tensordict import TensorDict
+    all_keys = set()
+    for pb in padded_batches:
+        all_keys.update(pb.keys())
+    
+    concatenated = {}
+    for key in all_keys:
+        tensors = [pb[key] for pb in padded_batches if key in pb]
+        if tensors:
+            concatenated[key] = torch.cat(tensors, dim=0)
+    
+    # Handle non_tensor_batch
+    non_tensor_batch = {}
+    all_non_tensor_keys = set()
+    for data in data_list:
+        if data.non_tensor_batch:
+            all_non_tensor_keys.update(data.non_tensor_batch.keys())
+    
+    for key in all_non_tensor_keys:
+        arrays = [data.non_tensor_batch[key] for data in data_list if data.non_tensor_batch and key in data.non_tensor_batch]
+        if arrays:
+            non_tensor_batch[key] = np.concatenate(arrays, axis=0)
+    
+    # Merge meta_info (take from first, they should be consistent)
+    merged_meta_info = {}
+    for data in data_list:
+        if data.meta_info:
+            merged_meta_info.update(data.meta_info)
+    
+    return DataProto(
+        batch=TensorDict(concatenated, batch_size=[concatenated[next(iter(concatenated.keys()))].shape[0]]),
+        non_tensor_batch=non_tensor_batch,
+        meta_info=merged_meta_info
+    )
+
+
 @dataclass
 class ResourcePoolManager:
     """
@@ -2153,7 +2237,7 @@ class RayPPOTrainer:
                             filtered_batch = batch[kept_idxs]
                             _fg_accumulated_batch = (
                                 filtered_batch if _fg_accumulated_batch is None
-                                else DataProto.concat([_fg_accumulated_batch, filtered_batch])
+                                else concat_dataproto_with_padding([_fg_accumulated_batch, filtered_batch])
                             )
 
                             metrics["filter_groups/n_prompts_before"] = len(uid_to_metric_vals)
