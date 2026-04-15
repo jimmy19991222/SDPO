@@ -52,8 +52,8 @@ fi
 
 # ── Reward Type ─────────────────────────────────────────────────────
 REWARD_TYPES=(
-    "teacher_prob"
-    # "teacher_log_prob"
+    # "teacher_prob"
+    "teacher_log_prob"
 )
 
 # ── Entropy Gate ─────────────────────────────────────────────────────
@@ -66,7 +66,7 @@ ENTROPY_GATE_LIST=(
 # ── Clip Adv ─────────────────────────────────────────────────────────
 # clip_adv: 是否 clip advantage 到 [-clip_adv_value, +clip_adv_value]
 CLIP_ADV_LIST=(
-    "true"
+    # "true"
     "false"
 )
 CLIP_ADV_VALUE="2.0"   # clip 范围（仅 clip_adv=true 时生效）
@@ -93,8 +93,8 @@ NORM_ADV_BY_STD_LIST=(
 # ── Adv Std Floor ───────────────────────────────────────────────────
 # std下界：none | auto | float（仅在 norm_adv_by_std=true 时生效）
 ADV_STD_FLOOR_LIST=(
-    # "none"
-    "auto"
+    "none"
+    # "auto"
     # "0.1"
 )
 
@@ -109,7 +109,14 @@ CLIP_RATIO_HIGH_LIST=(
 # Filter Groups: 动态采样，过滤全对/全错的 group
 FILTER_GROUPS_ENABLE_LIST=(
     "true"
-    "false"
+    # "false"
+)
+
+# ── Teacher Update Rate ─────────────────────────────────────────────
+# EMA 更新率：1.0 = 完全跟随 student，0.1 = 缓慢跟踪
+TEACHER_UPDATE_RATE_LIST=(
+    # "0.1"
+    "1.0"
 )
 
 # ── 固定参数 ────────────────────────────────────────────────────────────
@@ -120,7 +127,6 @@ GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
 GIT_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')"
 ENTROPY_COEFF="0.001"       # DAPO: 保持探索
 TEACHER_REG="ema"
-TEACHER_UPDATE_RATE="0.1"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
 ROLLOUT_N="8"
@@ -146,6 +152,7 @@ for NORM_ADV_BY_STD in "${NORM_ADV_BY_STD_LIST[@]}"; do
 for ADV_STD_FLOOR in "${ADV_STD_FLOOR_LIST[@]}"; do
 for CLIP_RATIO_HIGH in "${CLIP_RATIO_HIGH_LIST[@]}"; do
 for FILTER_GROUPS_ENABLE in "${FILTER_GROUPS_ENABLE_LIST[@]}"; do
+for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
 
     TOTAL=$((TOTAL + 1))
 
@@ -198,6 +205,15 @@ for FILTER_GROUPS_ENABLE in "${FILTER_GROUPS_ENABLE_LIST[@]}"; do
         FG_TAG=""
     fi
 
+    # EMA update rate 标签
+    if [ "$TEACHER_UPDATE_RATE" = "0.1" ]; then
+        EMA_TAG="-ema0.1"
+    elif [ "$TEACHER_UPDATE_RATE" = "1.0" ]; then
+        EMA_TAG="-ema1.0"
+    else
+        EMA_TAG="-ema${TEACHER_UPDATE_RATE}"
+    fi
+
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
     # clip_adv 标签
     if [ "$CLIP_ADV" = "false" ]; then
@@ -206,7 +222,7 @@ for FILTER_GROUPS_ENABLE in "${FILTER_GROUPS_ENABLE_LIST[@]}"; do
         CLIP_ADV_TAG="-clipAdv${CLIP_ADV_VALUE}"
     fi
 
-    JOB_NAME="TASD-DAPO-${DATASET_SHORT}-rt_${REWARD_TYPE}${ENTROPY_TAG}${TOPK_TAG}${REP_TAG}${STD_TAG}${CLIP_TAG}${FG_TAG}${CLIP_ADV_TAG}-${MODEL_SHORT}-${CURRENT_TIME}"
+    JOB_NAME="TASD-DAPO-${DATASET_SHORT}-rt_${REWARD_TYPE}${ENTROPY_TAG}${TOPK_TAG}${REP_TAG}${STD_TAG}${CLIP_TAG}${FG_TAG}${CLIP_ADV_TAG}${EMA_TAG}-${MODEL_SHORT}-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
@@ -248,6 +264,7 @@ for FILTER_GROUPS_ENABLE in "${FILTER_GROUPS_ENABLE_LIST[@]}"; do
         sleep 2
     fi
 
+done
 done
 done
 done
