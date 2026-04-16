@@ -114,6 +114,10 @@ def concat_dataproto_with_padding(data_list: list["DataProto"]) -> "DataProto":
                     # Right pad with zeros (for attention_mask, response_mask, etc.)
                     # For input_ids, we'll use pad_token_id later
                     padded_batch[key] = torch.nn.functional.pad(tensor, (0, pad_len), value=0)
+                elif len(tensor.shape) == 3:
+                    # 3D tensor (e.g., teacher_topk_log_probs: B, T, K)
+                    # Pad along seq_len dimension (dim=1)
+                    padded_batch[key] = torch.nn.functional.pad(tensor, (0, 0, 0, pad_len), value=0)
                 else:
                     padded_batch[key] = tensor
         else:
