@@ -2317,7 +2317,7 @@ def compute_policy_loss_bypass_mode(
 # TASD (Test-time Self-Distillation) - 清爽版
 # 核心功能：
 #   - reward_type: teacher_prob | teacher_log_prob
-#   - entropy_gate: none | hard | soft（筛选有效训练信号）
+#   - entropy_gate: none | hard | soft | soft_v2（筛选有效训练信号）
 #   - clip_adv: advantage clipping
 # ═══════════════════════════════════════════════════════════════════════════════
 
@@ -2338,7 +2338,11 @@ def compute_tasd_token_rewards(
         student_topk_log_probs: (B, T, K) - student topk log_probs（熵门控需要）
         teacher_topk_log_probs: (B, T, K) - teacher topk log_probs（熵门控需要）
         reward_type: "teacher_prob" | "teacher_log_prob"
-        entropy_gate: "none" | "hard" | "soft" - 熵门控模式
+        entropy_gate: "none" | "hard" | "soft" | "soft_v2" - 熵门控模式
+            - none: 无门控
+            - hard: 二值 mask，teacher 更确定时保留
+            - soft: 连续权重，基于熵差
+            - soft_v2: 两阶段策略，mask + teacher 确定性权重
     
     Returns:
         reward: (B, T) - token-level reward
@@ -2399,6 +2403,16 @@ def compute_tasd_token_rewards(
                 entropy_weight = entropy_weight / max_weight
             # soft 模式下 gate_mask 是连续值（权重），表示保留程度
             gate_mask = entropy_weight
+            reward = reward * gate_mask
+        
+        elif entropy_gate == "soft_v2":
+            # 软门控 V2：两阶段策略
+            # 1. Mask：只有 teacher 更确定（低熵）的位置才参与训练
+            # 2. Weight：teacher 越确定，权重越高
+            mask = (teacher_entropy_norm < student_entropy_norm).float()
+            # teacher 确定性权重：熵越低，权重越高
+            teacher_confidence = 1.0 - teacher_entropy_norm
+            gate_mask = mask * teacher_confidence
             reward = reward * gate_mask
     
     
