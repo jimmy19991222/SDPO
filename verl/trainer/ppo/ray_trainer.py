@@ -88,31 +88,36 @@ def concat_dataproto_with_padding(data_list: list["DataProto"]) -> "DataProto":
     if len(data_list) == 1:
         return data_list[0]
     
-    # Find max seq_len across all batches
-    max_seq_len = 0
+    # Collect all keys and find max seq_len for each key separately
+    all_keys = set()
     for data in data_list:
         if data.batch is not None:
-            # Get seq_len from first tensor (assume all have same seq_len within a batch)
-            first_key = next(iter(data.batch.keys()))
-            seq_len = data.batch[first_key].shape[1] if len(data.batch[first_key].shape) > 1 else 1
-            max_seq_len = max(max_seq_len, seq_len)
+            all_keys.update(data.batch.keys())
     
-    # Pad each batch to max_seq_len
+    # Find max seq_len for each key separately (different keys may have different shapes)
+    key_to_max_len = {}
+    for key in all_keys:
+        max_len = 0
+        for data in data_list:
+            if data.batch is not None and key in data.batch:
+                tensor = data.batch[key]
+                if len(tensor.shape) >= 2:
+                    max_len = max(max_len, tensor.shape[1])
+        if max_len > 0:
+            key_to_max_len[key] = max_len
+    
+    # Pad each batch's tensors to their respective max lengths
     padded_batches = []
     for data in data_list:
         if data.batch is None:
             continue
         padded_batch = {}
-        first_key = next(iter(data.batch.keys()))
-        curr_seq_len = data.batch[first_key].shape[1] if len(data.batch[first_key].shape) > 1 else max_seq_len
-        
-        if curr_seq_len < max_seq_len:
-            # Need padding
-            pad_len = max_seq_len - curr_seq_len
-            for key, tensor in data.batch.items():
-                if len(tensor.shape) == 2:
-                    # Right pad with zeros (for attention_mask, response_mask, etc.)
-                    # For input_ids, we'll use pad_token_id later
+        for key, tensor in data.batch.items():
+            if key in key_to_max_len and len(tensor.shape) >= 2:
+                target_len = key_to_max_len[key]
+                curr_len = tensor.shape[1]
+                if curr_len < target_len:
+                    pad_len = target_len - curr_len
                     padded_batch[key] = torch.nn.functional.pad(tensor, (0, pad_len), value=0)
                 elif len(tensor.shape) == 3:
                     # 3D tensor (e.g., teacher_topk_log_probs: B, T, K)
@@ -120,16 +125,12 @@ def concat_dataproto_with_padding(data_list: list["DataProto"]) -> "DataProto":
                     padded_batch[key] = torch.nn.functional.pad(tensor, (0, 0, 0, pad_len), value=0)
                 else:
                     padded_batch[key] = tensor
-        else:
-            padded_batch = dict(data.batch)
+            else:
+                padded_batch[key] = tensor
         padded_batches.append(padded_batch)
     
     # Now concat all padded batches
     from tensordict import TensorDict
-    all_keys = set()
-    for pb in padded_batches:
-        all_keys.update(pb.keys())
-    
     concatenated = {}
     for key in all_keys:
         tensors = [pb[key] for pb in padded_batches if key in pb]
