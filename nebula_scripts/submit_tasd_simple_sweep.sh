@@ -52,24 +52,25 @@ fi
 
 # ── Reward Type ─────────────────────────────────────────────────────
 REWARD_TYPES=(
-    # "teacher_prob"
-    "teacher_log_prob"
+    "teacher_prob"
+    # "teacher_log_prob"
 )
 
 # ── Entropy Gate ─────────────────────────────────────────────────────
 ENTROPY_GATE_LIST=(
     "none"
     "hard"
-    "soft"
+    # "soft"
+    "soft_v2"
 )
 
 # ── Clip Adv ─────────────────────────────────────────────────────────
 # clip_adv: 是否 clip advantage 到 [-clip_adv_value, +clip_adv_value]
 CLIP_ADV_LIST=(
-    # "true"
-    "false"
+    "true"
+    # "false"
 )
-CLIP_ADV_VALUE="2.0"   # clip 范围（仅 clip_adv=true 时生效）
+CLIP_ADV_VALUE="1.0"   # clip 范围（仅 clip_adv=true 时生效）
 
 # ── Distill Topk ──────────────────────────────────────────────────────
 DISTILL_TOPK_LIST=(
@@ -80,8 +81,8 @@ DISTILL_TOPK_LIST=(
 
 # ── Repetition Penalty ───────────────────────────────────────────────
 REPETITION_PENALTY_LIST=(
-    "1.0"
-    # "1.05"
+    # "1.0"
+    "1.05"
 )
 
 # ── Norm Adv By Std ─────────────────────────────────────────────────
@@ -93,8 +94,8 @@ NORM_ADV_BY_STD_LIST=(
 # ── Adv Std Floor ───────────────────────────────────────────────────
 # std下界：none | auto | float（仅在 norm_adv_by_std=true 时生效）
 ADV_STD_FLOOR_LIST=(
-    "none"
-    # "auto"
+    # "none"
+    "auto"
     # "0.1"
 )
 
@@ -115,7 +116,7 @@ FILTER_GROUPS_ENABLE_LIST=(
 # ── Teacher Update Rate ─────────────────────────────────────────────
 # EMA 更新率：1.0 = 完全跟随 student，0.1 = 缓慢跟踪
 TEACHER_UPDATE_RATE_LIST=(
-    # "0.1"
+    "0.1"
     "1.0"
 )
 
