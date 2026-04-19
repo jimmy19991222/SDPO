@@ -2476,3 +2476,24 @@ class RayPPOTrainer:
                 if hasattr(self.train_dataset, "on_batch_end"):
                     # The dataset may be changed after each training batch
                     self.train_dataset.on_batch_end(batch=batch)
+
+        # Fallback: training ended by epoch exhaustion (not is_last_step path)
+        # Send DingTalk notification here so we never miss a completion
+        from verl.utils.tracking import send_dingtalk_alert
+        _exp_name = self.config.trainer.get("experiment_name", "")
+        _fb_msg_lines = [
+            f"✅ Training completed (epoch end)!",
+            f"  experiment: {_exp_name}",
+            f"  total_steps: {self.global_steps - 1}",
+        ]
+        if last_val_metrics:
+            _fb_msg_lines.append("  ── Last val metrics ──")
+            for _k in sorted(last_val_metrics.keys()):
+                if "val-core" in _k or "val-aux/sciknoweval/acc/mean" in _k:
+                    _v = last_val_metrics[_k]
+                    _fb_msg_lines.append(f"  {_k}: {_v:.4f}" if isinstance(_v, float) else f"  {_k}: {_v}")
+        if self._best_val_metric is not None:
+            _best_metric_key = self.config.trainer.get("save_best_metric", "val-core/acc/mean@16")
+            _fb_msg_lines.append(f"  ── Best historical ──")
+            _fb_msg_lines.append(f"  {_best_metric_key}: {self._best_val_metric:.4f} (step {self._best_val_step})")
+        send_dingtalk_alert("\n".join(_fb_msg_lines))
