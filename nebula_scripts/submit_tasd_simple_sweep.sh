@@ -205,9 +205,16 @@ for GROUP_MEAN_MODE in "${GROUP_MEAN_MODE_LIST[@]}"; do
     if [ "$ENTROPY_GATE" = "none" ]; then
         ENTROPY_TAG="-noGate"
         TOPK_TAG=""  # noGate 时 topk 无意义，不显示
+        RATIO_TAG=""
     else
         ENTROPY_TAG="-gate_${ENTROPY_GATE}"
         TOPK_TAG="-topk${DISTILL_TOPK}"
+        # ratio 标签：1.0 为原始 hard gate，不加标记；其他值显示比例
+        if [ "$ENTROPY_GATE_RATIO" = "1.0" ]; then
+            RATIO_TAG=""
+        else
+            RATIO_TAG="-r${ENTROPY_GATE_RATIO}"
+        fi
     fi
 
     # repetition penalty 标签
@@ -267,13 +274,13 @@ for GROUP_MEAN_MODE in "${GROUP_MEAN_MODE_LIST[@]}"; do
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
     EC_TAG="-ec${ENTROPY_COEFF}"
     # v2: clip_adv 移到 adv_entropy_weight 之后，修复归一化放大突破 clip 上界的问题
-    JOB_NAME="TASD-${DATASET_SHORT}-rt_${REWARD_TYPE}${ENTROPY_TAG}${TOPK_TAG}${REP_TAG}${STD_TAG}${CLIP_TAG}${CLIP_ADV_TAG}${EMA_TAG}${ISR_TAG}${AEW_TAG}${GMM_TAG}${EC_TAG}-v2-${MODEL_SHORT}-${CURRENT_TIME}"
+    JOB_NAME="TASD-${DATASET_SHORT}-rt_${REWARD_TYPE}${ENTROPY_TAG}${RATIO_TAG}${TOPK_TAG}${REP_TAG}${STD_TAG}${CLIP_TAG}${CLIP_ADV_TAG}${EMA_TAG}${ISR_TAG}${AEW_TAG}${GMM_TAG}${EC_TAG}-v2-${MODEL_SHORT}-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
         echo "------------------------------------------------------------"
         echo "Job #${TOTAL}: ${JOB_NAME}"
-        echo "  REWARD_TYPE=$REWARD_TYPE ENTROPY_GATE=$ENTROPY_GATE"
+        echo "  REWARD_TYPE=$REWARD_TYPE ENTROPY_GATE=$ENTROPY_GATE ENTROPY_GATE_RATIO=$ENTROPY_GATE_RATIO"
         echo "  CLIP_ADV_VALUE=$CLIP_ADV_VALUE DISTILL_TOPK=$DISTILL_TOPK"
         echo "  REPETITION_PENALTY=$REPETITION_PENALTY NORM_ADV_BY_STD=$NORM_ADV_BY_STD ADV_STD_FLOOR=$ADV_STD_FLOOR"
         echo "  ADV_ENTROPY_WEIGHT=$ADV_ENTROPY_WEIGHT"
@@ -310,6 +317,7 @@ for GROUP_MEAN_MODE in "${GROUP_MEAN_MODE_LIST[@]}"; do
         sleep 2
     fi
 
+done
 done
 done
 done
