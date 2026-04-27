@@ -2422,9 +2422,11 @@ def compute_tasd_token_rewards(
             # Debug: gate_mask 统计
             gate_total = gate_mask.sum().item()
             gate_possible = positive_mask.sum().item()
+            all_tokens = student_log_probs.shape[0] * student_log_probs.shape[1]
             print(f"[TASD Debug] entropy_gate={entropy_gate}, ratio={entropy_gate_ratio}, "
-                  f"positive_tokens={gate_possible}, kept_tokens={gate_total}, "
-                  f"keep_rate={gate_total/max(gate_mask.numel(), 1):.3f}")
+                  f"positive_tokens={gate_possible}/{all_tokens}({gate_possible/max(all_tokens,1):.1%}), "
+                  f"kept_tokens={gate_total}, "
+                  f"ratio_keep={gate_total/max(gate_possible, 1):.3f}")
             
             # hard: 过滤同时影响 reward（置零）和 advantage（effective_mask）
             # hard_keep_reward: 只影响 advantage，reward 保持不变
