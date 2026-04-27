@@ -67,7 +67,7 @@ ENTROPY_GATE_LIST=(
 )
 ENTROPY_GATE_RATIO_LIST=(
     "1.0"
-    "0.8"
+    # "0.8"
     # "0.5"
 )
 
@@ -114,8 +114,8 @@ ADV_STD_FLOOR_LIST=(
 # certainty_diff: 按 teacher-student 熵差加权 w = norm(H_s - H_t)，关注 teacher 和 student 熵差较大的token
 ADV_ENTROPY_WEIGHT_LIST=(
     "none"
-    "teacher_conf"
-    "certainty_diff"
+    # "teacher_conf"
+    # "certainty_diff"
 )
 
 # ── Group Mean Mode ───────────────────────────────────────────────────
@@ -160,7 +160,23 @@ SEED="42"
 # Git 信息（在本地获取，传递给 Nebula）
 GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
 GIT_COMMIT="$(git rev-parse --short HEAD 2>/dev/null || echo 'unknown')"
-ENTROPY_COEFF="0.001"
+# ── Entropy Coeff ───────────────────────────────────────────────────
+# entropy loss 系数：0.001=标准PPO | 0.01 | 0.05（TASD建议更高）
+ENTROPY_COEFF_LIST=(
+    "0.001"
+    # "0.01"
+    "0.05"
+)
+
+# ── Rollout Temperature ─────────────────────────────────────────────
+# vLLM 采样温度：1.0=标准 | 1.3 | 1.5（提高可增加多样性）
+TEMPERATURE_LIST=(
+    "1.0"
+    # "1.3"
+    "1.5"
+)
+
+# ── 固定参数 ────────────────────────────────────────────────────────────
 TEACHER_REG="ema"
 TRAIN_BATCH_SIZE="32"
 MINI_BATCH_SIZE="32"
@@ -187,6 +203,8 @@ for ADV_ENTROPY_WEIGHT in "${ADV_ENTROPY_WEIGHT_LIST[@]}"; do
 for CLIP_RATIO_HIGH in "${CLIP_RATIO_HIGH_LIST[@]}"; do
 for TEACHER_UPDATE_RATE in "${TEACHER_UPDATE_RATE_LIST[@]}"; do
 for INCLUDE_SUCCESSFUL_ROLLOUTS in "${INCLUDE_SUCCESSFUL_ROLLOUTS_LIST[@]}"; do
+for ENTROPY_COEFF in "${ENTROPY_COEFF_LIST[@]}"; do
+for TEMPERATURE in "${TEMPERATURE_LIST[@]}"; do
 for GROUP_MEAN_MODE in "${GROUP_MEAN_MODE_LIST[@]}"; do
     # 当 gate=none 时，跳过非 1.0 的 ratio（ratio 仅在 hard 时生效）
     if [ "$ENTROPY_GATE" = "none" ] && [ "$ENTROPY_GATE_RATIO" != "1.0" ]; then
@@ -276,8 +294,14 @@ for GROUP_MEAN_MODE in "${GROUP_MEAN_MODE_LIST[@]}"; do
 
     CURRENT_TIME=$(date +%Y%m%d_%H%M%S)
     EC_TAG="-ec${ENTROPY_COEFF}"
+    # temperature 标签：1.0 为默认值，不加标签
+    if [ "$TEMPERATURE" = "1.0" ]; then
+        TEMP_TAG=""
+    else
+        TEMP_TAG="-temp${TEMPERATURE}"
+    fi
     # v2: clip_adv 移到 adv_entropy_weight 之后，修复归一化放大突破 clip 上界的问题
-    JOB_NAME="TASD-${DATASET_SHORT}-rt_${REWARD_TYPE}${ENTROPY_TAG}${RATIO_TAG}${TOPK_TAG}${REP_TAG}${STD_TAG}${CLIP_TAG}${CLIP_ADV_TAG}${EMA_TAG}${ISR_TAG}${AEW_TAG}${GMM_TAG}${EC_TAG}-v2-${MODEL_SHORT}-${CURRENT_TIME}"
+    JOB_NAME="TASD-${DATASET_SHORT}-rt_${REWARD_TYPE}${ENTROPY_TAG}${RATIO_TAG}${TOPK_TAG}${REP_TAG}${STD_TAG}${CLIP_TAG}${CLIP_ADV_TAG}${EMA_TAG}${ISR_TAG}${AEW_TAG}${GMM_TAG}${EC_TAG}${TEMP_TAG}-v2-${MODEL_SHORT}-${CURRENT_TIME}"
 
     # ── 提交 ────────────────────────────────────────────────────────
     if [ "$DRY_RUN" = true ]; then
@@ -287,7 +311,7 @@ for GROUP_MEAN_MODE in "${GROUP_MEAN_MODE_LIST[@]}"; do
         echo "  CLIP_ADV_VALUE=$CLIP_ADV_VALUE DISTILL_TOPK=$DISTILL_TOPK"
         echo "  REPETITION_PENALTY=$REPETITION_PENALTY NORM_ADV_BY_STD=$NORM_ADV_BY_STD ADV_STD_FLOOR=$ADV_STD_FLOOR"
         echo "  ADV_ENTROPY_WEIGHT=$ADV_ENTROPY_WEIGHT"
-        echo "  TEACHER_UPDATE_RATE=$TEACHER_UPDATE_RATE"
+        echo "  TEACHER_UPDATE_RATE=$TEACHER_UPDATE_RATE ENTROPY_COEFF=$ENTROPY_COEFF TEMPERATURE=$TEMPERATURE"
     else
         echo "提交 Job #${TOTAL}: ${JOB_NAME}"
 
@@ -296,7 +320,7 @@ for GROUP_MEAN_MODE in "${GROUP_MEAN_MODE_LIST[@]}"; do
             --engine=xdl \
             --queue=${QUEUE} \
             --entry=nebula_scripts/entry.py \
-            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=ENTROPY_GATE=${ENTROPY_GATE} --env=ENTROPY_GATE_RATIO=${ENTROPY_GATE_RATIO} --env=CLIP_ADV=${CLIP_ADV} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=DISTILL_TOPK=${DISTILL_TOPK} --env=REPETITION_PENALTY=${REPETITION_PENALTY} --env=LR=${LR} --env=SEED=${SEED} --env=ENTROPY_COEFF=${ENTROPY_COEFF} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} --env=NORM_ADV_BY_STD=${NORM_ADV_BY_STD} --env=ADV_STD_FLOOR=${ADV_STD_FLOOR} --env=ADV_ENTROPY_WEIGHT=${ADV_ENTROPY_WEIGHT} --env=GROUP_MEAN_MODE=${GROUP_MEAN_MODE} --env=CLIP_RATIO_HIGH=${CLIP_RATIO_HIGH} --env=FILTER_GROUPS_ENABLE=${FILTER_GROUPS_ENABLE} --env=FILTER_GROUPS_METRIC=${FILTER_GROUPS_METRIC} --env=FILTER_GROUPS_MAX_GEN=${FILTER_GROUPS_MAX_GEN} --env=GIT_BRANCH=${GIT_BRANCH} --env=GIT_COMMIT=${GIT_COMMIT} --env=DINGTALK_WEBHOOK=https://oapi.dingtalk.com/robot/send?access_token=f598ad33b071751bf79d2484d8e1acefe8df9d879e129cae40340a158854f9cb --env=DINGTALK_SECRET=SECc5b9e4f61f56b32b46abf1ecedc11bdcba10dc35fbba8fa0ff62c084a1cc6ad3" \
+            --user_params="--script_path=${SCRIPT_PATH} --world_size=${WORLD_SIZE} --job_name=${JOB_NAME} --env=PROJECT_NAME=${PROJECT_NAME} --env=JOB_NAME=${JOB_NAME} --env=DATASET=${DATASET} --env=MODEL=${MODEL} --env=MODEL_PATH=${MODEL_PATH} --env=REWARD_TYPE=${REWARD_TYPE} --env=ENTROPY_GATE=${ENTROPY_GATE} --env=ENTROPY_GATE_RATIO=${ENTROPY_GATE_RATIO} --env=CLIP_ADV=${CLIP_ADV} --env=CLIP_ADV_VALUE=${CLIP_ADV_VALUE} --env=DISTILL_TOPK=${DISTILL_TOPK} --env=REPETITION_PENALTY=${REPETITION_PENALTY} --env=LR=${LR} --env=SEED=${SEED} --env=ENTROPY_COEFF=${ENTROPY_COEFF} --env=ROLLOUT_TEMPERATURE=${TEMPERATURE} --env=TEACHER_REG=${TEACHER_REG} --env=TEACHER_UPDATE_RATE=${TEACHER_UPDATE_RATE} --env=TRAIN_BATCH_SIZE=${TRAIN_BATCH_SIZE} --env=MINI_BATCH_SIZE=${MINI_BATCH_SIZE} --env=ROLLOUT_N=${ROLLOUT_N} --env=INCLUDE_SUCCESSFUL_ROLLOUTS=${INCLUDE_SUCCESSFUL_ROLLOUTS} --env=NORM_ADV_BY_STD=${NORM_ADV_BY_STD} --env=ADV_STD_FLOOR=${ADV_STD_FLOOR} --env=ADV_ENTROPY_WEIGHT=${ADV_ENTROPY_WEIGHT} --env=GROUP_MEAN_MODE=${GROUP_MEAN_MODE} --env=CLIP_RATIO_HIGH=${CLIP_RATIO_HIGH} --env=FILTER_GROUPS_ENABLE=${FILTER_GROUPS_ENABLE} --env=FILTER_GROUPS_METRIC=${FILTER_GROUPS_METRIC} --env=FILTER_GROUPS_MAX_GEN=${FILTER_GROUPS_MAX_GEN} --env=GIT_BRANCH=${GIT_BRANCH} --env=GIT_COMMIT=${GIT_COMMIT} --env=DINGTALK_WEBHOOK=https://oapi.dingtalk.com/robot/send?access_token=f598ad33b071751bf79d2484d8e1acefe8df9d879e129cae40340a158854f9cb --env=DINGTALK_SECRET=SECc5b9e4f61f56b32b46abf1ecedc11bdcba10dc35fbba8fa0ff62c084a1cc6ad3" \
             --worker_count=${WORLD_SIZE} \
             --file.cluster_file=${CLUSTER_FILE} \
             --job_name=${JOB_NAME} \
@@ -320,6 +344,8 @@ for GROUP_MEAN_MODE in "${GROUP_MEAN_MODE_LIST[@]}"; do
         sleep 2
     fi
 
+done
+done
 done
 done
 done

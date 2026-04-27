@@ -33,6 +33,7 @@ GROUP_MEAN_MODE="${GROUP_MEAN_MODE:-token}"  # group mean/std 统计粒度：tok
 CLIP_RATIO_HIGH="${CLIP_RATIO_HIGH:-10000}"  # DAPO 风格：不 clip 上界；用 0.2 可退回标准 PPO
 DISTILL_TOPK="${DISTILL_TOPK:-100}"
 DISTILL_TEMPERATURE="${DISTILL_TEMPERATURE:-1.0}"
+ROLLOUT_TEMPERATURE="${ROLLOUT_TEMPERATURE:-1.0}"   # vLLM rollout 采样温度
 REPETITION_PENALTY="${REPETITION_PENALTY:-1.0}"   # 1.0=不启用重复惩罚（等效禁用），与tasd_v2保持一致
 TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-32}"
 GEN_BATCH_SIZE="${GEN_BATCH_SIZE:-32}"   # 不用 filter_groups 时应等于 train_batch_size；用 filter_groups 时可设更大值（如64）
@@ -104,6 +105,7 @@ echo "  REWARD_TYPE: ${REWARD_TYPE}"
 echo "  ENTROPY_GATE: ${ENTROPY_GATE}"
 echo "  CLIP_ADV: ${CLIP_ADV}, VALUE: ${CLIP_ADV_VALUE}, NORM_BY_STD: ${NORM_ADV_BY_STD}"
 echo "  CLIP_RATIO_HIGH: ${CLIP_RATIO_HIGH}, ENTROPY_COEFF: ${ENTROPY_COEFF}"
+echo "  ROLLOUT_TEMPERATURE: ${ROLLOUT_TEMPERATURE}, DISTILL_TEMPERATURE: ${DISTILL_TEMPERATURE}"
 echo "  ADV_ENTROPY_WEIGHT: ${ADV_ENTROPY_WEIGHT}"
 echo "  FILTER_GROUPS: enable=${FILTER_GROUPS_ENABLE}, metric=${FILTER_GROUPS_METRIC}, max_gen=${FILTER_GROUPS_MAX_GEN}"
 echo "  DISTILL_TOPK: ${DISTILL_TOPK}"
@@ -134,6 +136,7 @@ python -m verl.trainer.main_ppo \
     actor_rollout_ref.rollout.tensor_model_parallel_size=1 \
     actor_rollout_ref.rollout.gpu_memory_utilization=0.85 \
     actor_rollout_ref.rollout.repetition_penalty=${REPETITION_PENALTY} \
+    actor_rollout_ref.rollout.temperature=${ROLLOUT_TEMPERATURE} \
     actor_rollout_ref.rollout.seed=${SEED} \
     algorithm.tasd.reward_type=${REWARD_TYPE} \
     algorithm.tasd.entropy_gate=${ENTROPY_GATE} \
