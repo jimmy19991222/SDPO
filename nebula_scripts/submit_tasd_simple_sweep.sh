@@ -61,7 +61,7 @@ REWARD_TYPES=(
 # hard: 过滤影响 reward（置零）和 advantage
 # hard_keep_reward: 过滤只影响 advantage，reward 保持不变（group_mean/std 基于所有token）
 ENTROPY_GATE_LIST=(
-    # "none"
+    "none"
     # "hard"
     "hard_keep_reward"
 )

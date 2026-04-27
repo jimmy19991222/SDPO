@@ -2417,6 +2417,13 @@ def compute_tasd_token_rewards(
             else:
                 gate_mask = positive_mask.float()
             
+            # Debug: gate_mask 统计
+            gate_total = gate_mask.sum().item()
+            gate_possible = positive_mask.sum().item()
+            print(f"[TASD Debug] entropy_gate={entropy_gate}, ratio={entropy_gate_ratio}, "
+                  f"positive_tokens={gate_possible}, kept_tokens={gate_total}, "
+                  f"keep_rate={gate_total/max(gate_mask.numel(), 1):.3f}")
+            
             # hard: 过滤同时影响 reward（置零）和 advantage（effective_mask）
             # hard_keep_reward: 只影响 advantage，reward 保持不变
             #   → group_mean/std 基于所有 token 计算，过滤只控制哪些 token 产生梯度
@@ -2530,6 +2537,14 @@ def compute_tasd_advantage(
             effective_mask = effective_mask * self_distillation_mask.unsqueeze(1).float()
         if gate_mask is not None:
             effective_mask = effective_mask * gate_mask.float()
+        
+        # Debug: effective_mask 统计
+        eff_total = effective_mask.sum().item()
+        resp_total = response_mask.sum().item()
+        sd_sum = self_distillation_mask.sum().item() if self_distillation_mask is not None else -1
+        gate_sum = gate_mask.sum().item() if gate_mask is not None else -1
+        print(f"[TASD Debug] effective_mask: {eff_total}/{resp_total} tokens, "
+              f"self_distillation_mask_sum={sd_sum}, gate_mask_sum={gate_sum}")
         
         advantages = torch.zeros_like(token_level_rewards)
         

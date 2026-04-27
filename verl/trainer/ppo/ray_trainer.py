@@ -925,6 +925,12 @@ class RayPPOTrainer:
             dtype=torch.float32,
             device=device
         )
+        
+        # Debug: self_distillation_mask 统计
+        num_with_solution = sum(1 for s in solution_strs if s is not None)
+        num_with_feedback = sum(feedback_used)
+        print(f"[TASD Debug] self_distillation_mask: {self_distillation_mask.sum().item()}/{batch_size} samples, "
+              f"with_solution={num_with_solution}, with_feedback={num_with_feedback}")
 
         uids = set(batch.non_tensor_batch["uid"])
         num_with_feedback_available = sum(1 for f in feedback_list if f is not None)
