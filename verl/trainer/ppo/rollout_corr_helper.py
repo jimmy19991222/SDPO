@@ -397,8 +397,9 @@ def compute_rs_metrics(
         rollout_rs_threshold_lower: Lower threshold (ignored if ``apply_lower_threshold`` is False).
         apply_lower_threshold: Whether to mask/log metrics for values below the lower threshold.
     """
+    # 如果 response_mask 全为 False，返回空 metrics，避免 entropy gate 过滤后 crash
     if not response_mask.any():
-        raise ValueError("response_mask must contain at least one valid token (1).")
+        return {}
 
     metrics: dict[str, float] = {}
     prefix = f"rollout_rs_{option_name}"
@@ -623,8 +624,9 @@ def compute_is_metrics(
     Returns:
         Dictionary of IS weight metrics (all scalars).
     """
+    # 如果 response_mask 全为 False，返回空 metrics，避免 entropy gate 过滤后 crash
     if not response_mask.any():
-        raise ValueError("response_mask must contain at least one valid token (1).")
+        return {}
 
     metrics: dict[str, float] = {}
     device: torch.device = rollout_is_weights.device
@@ -764,8 +766,10 @@ def compute_rollout_correction_and_rejection_mask(
                 - Policy mismatch metrics (KL, PPL, etc.)
     """
     # Validate input masks
+    # 如果 response_mask 全为 False（例如 entropy gate 过滤掉了所有 token），
+    # 返回原始 mask 和空 metrics，避免 crash
     if not response_mask.any():
-        raise ValueError("response_mask must contain at least one valid token (1).")
+        return None, response_mask, {}
     if old_log_prob.shape != rollout_log_prob.shape:
         raise ValueError(
             f"old_log_prob shape {old_log_prob.shape} does not match rollout_log_prob shape {rollout_log_prob.shape}."
@@ -808,12 +812,14 @@ def compute_rollout_correction_and_rejection_mask(
         metrics.update(rs_metrics)
 
     # Step 4: Compute off-policy metrics (KL, PPL, χ², etc.)
-    offpolicy_metrics: dict[str, float] = compute_offpolicy_metrics(
-        old_log_prob=old_log_prob,
-        rollout_log_prob=rollout_log_prob,
-        response_mask=response_mask,
-    )
-    metrics.update(offpolicy_metrics)
+    # 只有当 response_mask 有有效 token 时才计算，避免 entropy gate 过滤后 crash
+    if response_mask.any():
+        offpolicy_metrics: dict[str, float] = compute_offpolicy_metrics(
+            old_log_prob=old_log_prob,
+            rollout_log_prob=rollout_log_prob,
+            response_mask=response_mask,
+        )
+        metrics.update(offpolicy_metrics)
 
     # Step 6: Add "rollout_corr/" prefix to all metrics for logging consistency
     metrics_scalar: dict[str, float] = {}
@@ -866,8 +872,9 @@ def compute_offpolicy_metrics(
     Returns:
         Dictionary of off-policy metrics (without prefix)
     """
-    # Validate that we have at least one valid token
-    assert response_mask.any(), "Expected at least one valid token in response_mask"
+    # 如果 response_mask 全为 False，返回空 metrics，避免 entropy gate 过滤后 crash
+    if not response_mask.any():
+        return {}
 
     metrics = {}
 
@@ -1018,6 +1025,11 @@ def compute_rollout_corr_metrics_from_logprobs(
     Returns:
         Dictionary of metrics with "rollout_corr/" prefix
     """
+    # 如果 response_mask 全为 False（例如 entropy gate 过滤掉了所有 token），
+    # 跳过 metrics 计算，返回空 dict 避免 crash
+    if not response_mask.any():
+        return {}
+    
     # Compute off-policy diagnostic metrics
     offpolicy_metrics = compute_offpolicy_metrics(
         old_log_prob=log_prob,
