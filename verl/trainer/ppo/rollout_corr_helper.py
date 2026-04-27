@@ -74,6 +74,31 @@ from verl.workers.config.actor import PolicyLossConfig
 # exp(20) ≈ 485 million (upper limit for stable weights), exp(-20) ≈ 2e-9 (lower limit)
 SAFETY_BOUND = 20.0
 
+# 当 response_mask 全为 0（如 entropy gate 过滤掉所有 token）时，
+# 返回带默认值的完整 metrics dict 而非空 dict {}。
+# 这确保所有 micro_batch / GPU 的 metrics key 集合一致，
+# 避免 reduce_metrics 中 np.mean 遇到 inhomogeneous shape 报错。
+_OFFPOLICY_DEFAULT_METRICS: dict[str, float] = {
+    "training_ppl": 0.0,
+    "training_log_ppl": 0.0,
+    "kl": 0.0,
+    "k3_kl": 0.0,
+    "rollout_ppl": 0.0,
+    "rollout_log_ppl": 0.0,
+    "log_ppl_diff": 0.0,
+    "log_ppl_abs_diff": 0.0,
+    "log_ppl_diff_max": 0.0,
+    "log_ppl_diff_min": 0.0,
+    "ppl_ratio": 0.0,
+    "chi2_token": 0.0,
+    "chi2_seq": 0.0,
+}
+
+# rollout_corr/ 前缀版本，用于 compute_rollout_corr_metrics_from_logprobs
+_ROLLOUT_CORR_DEFAULT_METRICS: dict[str, float] = {
+    f"rollout_corr/{k}": v for k, v in _OFFPOLICY_DEFAULT_METRICS.items()
+}
+
 SUPPORTED_ROLLOUT_RS_OPTIONS: set[str] = {
     "token_k1",
     "token_k2",
@@ -767,9 +792,9 @@ def compute_rollout_correction_and_rejection_mask(
     """
     # Validate input masks
     # 如果 response_mask 全为 False（例如 entropy gate 过滤掉了所有 token），
-    # 返回原始 mask 和空 metrics，避免 crash
+    # 返回原始 mask 和带默认值的 metrics dict（加 rollout_corr/ 前缀）
     if not response_mask.any():
-        return None, response_mask, {}
+        return None, response_mask, _ROLLOUT_CORR_DEFAULT_METRICS.copy()
     if old_log_prob.shape != rollout_log_prob.shape:
         raise ValueError(
             f"old_log_prob shape {old_log_prob.shape} does not match rollout_log_prob shape {rollout_log_prob.shape}."
@@ -872,9 +897,10 @@ def compute_offpolicy_metrics(
     Returns:
         Dictionary of off-policy metrics (without prefix)
     """
-    # 如果 response_mask 全为 False，返回空 metrics，避免 entropy gate 过滤后 crash
+    # 如果 response_mask 全为 False，返回带默认值的完整 metrics dict，
+    # 确保所有 micro_batch/GPU 的 key 集合一致，避免 reduce_metrics inhomogeneous shape 报错
     if not response_mask.any():
-        return {}
+        return _OFFPOLICY_DEFAULT_METRICS.copy()
 
     metrics = {}
 
@@ -1026,9 +1052,10 @@ def compute_rollout_corr_metrics_from_logprobs(
         Dictionary of metrics with "rollout_corr/" prefix
     """
     # 如果 response_mask 全为 False（例如 entropy gate 过滤掉了所有 token），
-    # 跳过 metrics 计算，返回空 dict 避免 crash
+    # 返回带默认值的完整 dict，确保所有 micro_batch/GPU 的 metrics key 集合一致，
+    # 避免 reduce_metrics 时 np.mean 遇到 inhomogeneous shape 报错
     if not response_mask.any():
-        return {}
+        return _ROLLOUT_CORR_DEFAULT_METRICS.copy()
     
     # Compute off-policy diagnostic metrics
     offpolicy_metrics = compute_offpolicy_metrics(

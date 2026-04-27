@@ -2672,9 +2672,19 @@ def compute_tasd_advantage(
             # 乘到 advantage 上（量级不变）
             advantages = advantages * entropy_w_normalized
         
-        # filtered_response_mask 使用 effective_mask，确保 gate_mask 和 self_distillation_mask
-        # 的过滤都体现在 loss 聚合中（被过滤的 token 不计入分母）
-        filtered_response_mask = effective_mask
+        # filtered_response_mask 决定 loss 聚合的分母范围
+        # - 正常情况：使用 effective_mask（排除 gate/distillation 过滤的 token）
+        # - 退化情况（effective_mask 全为 0，即没有 good case）：
+        #   保留原始 response_mask，因为 advantages 已经全为 0，
+        #   PPO loss = ratio * 0 = 0（梯度自然为 0，无需靠 mask 屏蔽）
+        #   而保留 response_mask 使得：
+        #     1. 下游 metrics 正常计算（避免 inhomogeneous shape 报错）
+        #     2. entropy 正则化仍生效（即使无学习信号也能防过拟合）
+        if effective_mask.any():
+            filtered_response_mask = effective_mask
+        else:
+            filtered_response_mask = response_mask.float()
+            print(f"[TASD Warning] effective_mask 全为 0（无 good case），保留原始 response_mask")
         
         # ── Advantage clipping（在 adv_entropy_weight 之后）──────────────────
         # 必须在加权之后再 clip：归一化 entropy_w 均值=1，但局部 w 可能 > 1
