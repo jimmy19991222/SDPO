@@ -2330,6 +2330,8 @@ def compute_tasd_token_rewards(
     entropy_gate: str = "none",
     entropy_gate_ratio: float = 1.0,
     adv_entropy_weight: str = "none",
+    diversity_target_entropy: float = 0.0,  # 0.0 = 不启用 diversity penalty
+    diversity_beta: float = 0.0,             # 惩罚强度
 ) -> tuple[torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
     """
     TASD token-level reward 计算（清爽版）.
@@ -2452,6 +2454,14 @@ def compute_tasd_token_rewards(
             gate_mask = mask * teacher_confidence
             reward = reward * gate_mask
     
+    
+    # ── diversity penalty：惩罚 student entropy 过低 ───────────────────────
+    # 原理：当 student 某个位置的归一化熵低于目标值时，给予负向 reward
+    # 阻止模型过度向确定性收敛，缓解 entropy collapse
+    if diversity_target_entropy > 0.0 and student_entropy_norm is not None:
+        entropy_deficit = (diversity_target_entropy - student_entropy_norm).clamp(min=0.0)
+        diversity_penalty = -diversity_beta * entropy_deficit
+        reward = reward + diversity_penalty
     
     return reward, gate_mask, teacher_entropy_norm, student_entropy_norm
 

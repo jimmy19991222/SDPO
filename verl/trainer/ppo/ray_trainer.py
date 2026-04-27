@@ -1894,6 +1894,8 @@ class RayPPOTrainer:
             tasd_entropy_gate = _tasd_cfg.get("entropy_gate", "none")
             tasd_entropy_gate_ratio = _tasd_cfg.get("entropy_gate_ratio", 1.0)
             tasd_adv_entropy_weight = _tasd_cfg.get("adv_entropy_weight", "none")
+            tasd_diversity_target_entropy = _tasd_cfg.get("diversity_target_entropy", 0.0)
+            tasd_diversity_beta = _tasd_cfg.get("diversity_beta", 0.0)
             tasd_temperature = _tasd_cfg.get("distill_temperature", None) or self.config.actor_rollout_ref.rollout.temperature
             tasd_micro_batch_size = self.config.actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu
             # entropy_gate 或 adv_entropy_weight 需要 topk 信息
@@ -2136,6 +2138,8 @@ class RayPPOTrainer:
                                 entropy_gate=tasd_entropy_gate,
                                 entropy_gate_ratio=tasd_entropy_gate_ratio,
                                 adv_entropy_weight=tasd_adv_entropy_weight,
+                                diversity_target_entropy=tasd_diversity_target_entropy,
+                                diversity_beta=tasd_diversity_beta,
                             )
 
                             # Mask out padding positions

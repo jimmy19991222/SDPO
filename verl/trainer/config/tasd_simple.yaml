@@ -76,6 +76,13 @@ algorithm:
     # "none" | "teacher_conf" | "certainty_diff"
     adv_entropy_weight: "none"
     
+    # ── diversity penalty：惩罚 student entropy 过低 ──────────────
+    # 原理：当 student 某个位置的归一化熵低于 target 时，给予负向 reward
+    # 阻止模型过度向确定性收敛，缓解 entropy collapse
+    # target=0.0 表示不启用（默认关闭）
+    diversity_target_entropy: 0.0   # 建议值：0.2（低于此值开始惩罚）
+    diversity_beta: 0.0             # 惩罚强度，建议值：0.1 ~ 0.5
+    
     # ── 成功 rollout 配置 ─────────────────────────────────────
     include_successful_rollouts: true
     use_self_as_teacher_on_success: true
