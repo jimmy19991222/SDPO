@@ -2330,8 +2330,8 @@ def compute_tasd_token_rewards(
     entropy_gate: str = "none",
     entropy_gate_ratio: float = 1.0,
     adv_entropy_weight: str = "none",
-    diversity_target_entropy: float = 0.0,  # 0.0 = 不启用 diversity penalty
-    diversity_beta: float = 0.0,             # 惩罚强度
+    entropy_floor: float = 0.0,              # 归一化熵下界，0.0=不启用；低于此值的 token 位置被扣分
+    entropy_penalty_coeff: float = 0.0,     # 惩罚强度
 ) -> tuple[torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
     """
     TASD token-level reward 计算（清爽版）.
@@ -2385,8 +2385,8 @@ def compute_tasd_token_rewards(
     teacher_entropy_norm = None  # teacher 归一化熵（adv_entropy_weight 需要）
     student_entropy_norm = None  # student 归一化熵（adv_entropy_weight 需要）
     
-    # 当有 entropy_gate 或 adv_entropy_weight 时，都需要计算熵
-    need_entropy = entropy_gate != "none" or adv_entropy_weight != "none"
+    # 当有 entropy_gate、adv_entropy_weight 或 entropy_floor 时，都需要计算熵
+    need_entropy = entropy_gate != "none" or adv_entropy_weight != "none" or entropy_floor > 0.0
     
     if need_entropy:
         assert student_topk_log_probs is not None and teacher_topk_log_probs is not None, \
@@ -2457,13 +2457,16 @@ def compute_tasd_token_rewards(
             reward = reward * gate_mask
     
     
-    # ── diversity penalty：惩罚 student entropy 过低 ───────────────────────
-    # 原理：当 student 某个位置的归一化熵低于目标值时，给予负向 reward
-    # 阻止模型过度向确定性收敛，缓解 entropy collapse
-    if diversity_target_entropy > 0.0 and student_entropy_norm is not None:
-        entropy_deficit = (diversity_target_entropy - student_entropy_norm).clamp(min=0.0)
-        diversity_penalty = -diversity_beta * entropy_deficit
-        reward = reward + diversity_penalty
+    # ── entropy floor penalty：惩罚 student entropy 过低的 token 位置 ─────────
+    # 原理：student 归一化熵低于 entropy_floor 的位置给予负向 reward
+    #   entropy_floor=0.0  → 不启用（默认）
+    #   entropy_floor=0.1  → 只有熵低于 0.1 的 token 被惩罚（非常低熵时才触发）
+    #   entropy_floor=0.2  → 熵低于 0.2 的 token 被惩罚（更激进）
+    # 惩罚强度与熵差成正比：熵越低于阈值，惩罚越大
+    if entropy_floor > 0.0 and student_entropy_norm is not None:
+        entropy_deficit = (entropy_floor - student_entropy_norm).clamp(min=0.0)
+        entropy_penalty = -entropy_penalty_coeff * entropy_deficit
+        reward = reward + entropy_penalty
     
     return reward, gate_mask, teacher_entropy_norm, student_entropy_norm
 

@@ -30,8 +30,8 @@ NORM_ADV_BY_STD="${NORM_ADV_BY_STD:-false}"
 ADV_STD_FLOOR="${ADV_STD_FLOOR:-0.0}"  # std下界：0 | auto | float
 ADV_ENTROPY_WEIGHT="${ADV_ENTROPY_WEIGHT:-none}"  # advantage 熵加权：none | teacher_conf | certainty_diff（纯加权，过滤由 ENTROPY_GATE 控制）
 GROUP_MEAN_MODE="${GROUP_MEAN_MODE:-token}"  # group mean/std 统计粒度：token（原有，存在length bias）| seq（per-seq均值后统计，消除length bias）
-DIVERSITY_TARGET_ENTROPY="${DIVERSITY_TARGET_ENTROPY:-0.0}"  # diversity penalty 目标熵：0.0=不启用，建议 0.2
-DIVERSITY_BETA="${DIVERSITY_BETA:-0.0}"  # diversity penalty 强度：建议 0.1~0.5
+ENTROPY_FLOOR="${ENTROPY_FLOOR:-0.0}"  # student 归一化熵下界：0.0=不启用；低于此值的 token 被惩罚（建议 0.1~0.2）
+ENTROPY_PENALTY_COEFF="${ENTROPY_PENALTY_COEFF:-0.0}"  # 惩罚强度（建议 0.1~1.0）
 CLIP_RATIO_HIGH="${CLIP_RATIO_HIGH:-10000}"  # DAPO 风格：不 clip 上界；用 0.2 可退回标准 PPO
 DISTILL_TOPK="${DISTILL_TOPK:-100}"
 DISTILL_TEMPERATURE="${DISTILL_TEMPERATURE:-1.0}"
@@ -108,7 +108,7 @@ echo "  ENTROPY_GATE: ${ENTROPY_GATE}"
 echo "  CLIP_ADV: ${CLIP_ADV}, VALUE: ${CLIP_ADV_VALUE}, NORM_BY_STD: ${NORM_ADV_BY_STD}"
 echo "  CLIP_RATIO_HIGH: ${CLIP_RATIO_HIGH}, ENTROPY_COEFF: ${ENTROPY_COEFF}"
 echo "  ROLLOUT_TEMPERATURE: ${ROLLOUT_TEMPERATURE}, DISTILL_TEMPERATURE: ${DISTILL_TEMPERATURE}"
-echo "  DIVERSITY_TARGET_ENTROPY: ${DIVERSITY_TARGET_ENTROPY}, DIVERSITY_BETA: ${DIVERSITY_BETA}"
+echo "  ENTROPY_FLOOR: ${ENTROPY_FLOOR}, ENTROPY_PENALTY_COEFF: ${ENTROPY_PENALTY_COEFF}"
 echo "  ADV_ENTROPY_WEIGHT: ${ADV_ENTROPY_WEIGHT}"
 echo "  FILTER_GROUPS: enable=${FILTER_GROUPS_ENABLE}, metric=${FILTER_GROUPS_METRIC}, max_gen=${FILTER_GROUPS_MAX_GEN}"
 echo "  DISTILL_TOPK: ${DISTILL_TOPK}"
@@ -152,8 +152,8 @@ python -m verl.trainer.main_ppo \
     algorithm.tasd.clip_adv_value=${CLIP_ADV_VALUE} \
     algorithm.tasd.adv_entropy_weight=${ADV_ENTROPY_WEIGHT} \
     algorithm.tasd.group_mean_mode=${GROUP_MEAN_MODE} \
-    algorithm.tasd.diversity_target_entropy=${DIVERSITY_TARGET_ENTROPY} \
-    algorithm.tasd.diversity_beta=${DIVERSITY_BETA} \
+    algorithm.tasd.entropy_floor=${ENTROPY_FLOOR} \
+    algorithm.tasd.entropy_penalty_coeff=${ENTROPY_PENALTY_COEFF} \
     algorithm.tasd.use_self_as_teacher_on_success=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
     algorithm.tasd.include_successful_rollouts=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
     algorithm.tasd.success_reward_threshold=1.0 \
