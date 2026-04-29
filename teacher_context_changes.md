@@ -334,3 +334,115 @@ ENVIRONMENT_FEEDBACK_ONLY_WITHOUT_SOLUTION="False"      # 闸门 2：False = fee
 **建议后续方向**:
 - 或在数据预处理阶段把标准答案注入 teacher 的 system prompt
 - 配置健康度：在启动日志中硬检查 `include_environment_feedback` 与 `environment_feedback_only_without_solution` 组合，避免再次出现 v6 这种"开关开了但被另一侧默认值静默抵消"的失效实验
+
+---
+
+## 七、v7: Group-shared Teacher Context + 错例池 + GT 泄漏修复
+
+v6 fbEnhanced 暴露了两个隐蔽缺陷，v7 针对性修复：
+
+1. **per-rollout teacher prompt 破坏 group_mean 无偏性**：v6 每个 rollout 拼一段独立 teacher prompt（含自己的 failed_attempt + feedback），同 group 内 teacher 对不同 rollout 的评估尺度不一致，group_mean 不再是无偏估计（v5 group_mean 成立的前提是 teacher 对同 group 用同一套 prompt 评估）。
+2. **feedback 泄漏 GT**：v6 feedback 直接把 `gt_actions` / `gt_action_inputs[key]` 的具体值写进 teacher context，teacher 同时收到 `Correct solution` 段落（solution 路径）和 feedback 文本（feedback 路径）的同一信息，形成双重锚定。
+
+### 7.1 三处核心改造
+
+| 改造 | 文件 | 要点 |
+|---|---|---|
+| **Teacher context 组装模式** | `ray_trainer.py::_build_group_assets / _build_teacher_message` | 新增 `teacher_context_mode=group_shared` 分支：同 uid 共享同一段 teacher prompt = 问题 + 聚合错例池(去重) + 单条 reference answer |
+| **tooluse feedback 去 GT 泄漏** | `verl/utils/reward_score/feedback/tooluse.py` | 只报错误**类别**与**位置**（`wrong_value_keys` / `missing_keys` / `extra_keys`），不再写入 GT 的 value |
+| **train_on_success 开关** | `ray_trainer.py` + `tasd_simple.yaml` + `tasd_simple_parametric.sh` | False 时 success rollout mask=0（仅作 reference answer 源），隔离 "group shift" 与 "on-success 伪蒸馏" 两种效应 |
+
+### 7.2 Group-shared Teacher Context 结构
+
+```
+system: You are a helpful assistant.
+
+user: {原始问题}
+
+3 previous attempt(s) failed, showing 2 unique error pattern(s):
+
+[Error pattern 1, observed in 2 attempt(s), tag=wrong_semantics]:
+Action: calculator
+Action Input: {"expression": "1+1"}
+
+[Error pattern 2, observed in 1 attempt(s), tag=missing_action_input]:
+Action: search
+
+Reference answer (from a successful attempt):
+Action: search
+Action Input: {"query": "quantum computing"}
+
+Correctly solve the original question.
+
+assistant: {当前 rollout 的 response}
+```
+
+**关键性质**：同一个 uid 下所有 rollout 看到的 `user` 消息**完全一致**（错例池已聚合全组错误、reference answer 共用），不随 `i` 变化。这恢复了 v5 group_mean 的无偏性。
+
+### 7.3 四档诚实 bad case 构建（tooluse）
+
+`_build_error_display` 绝不伪造结构，按 reward 函数返回的 `format_error_type` 分档展示：
+
+| 档 | 触发 | 展示形式 | tag |
+|---|---|---|---|
+| 1 | `fmt==none` 且 action 在 GT 白名单 | minimal `Action:/Action Input:` | `wrong_semantics` |
+| 1.5 | `fmt==none` 但 action 不在 GT 白名单（如 `Action: the` prompt 泄漏假匹配） | `[Invalid action name: 'the']\nExcerpt: ...` | `invalid_action_name` |
+| 2 | `missing_action_input` / `empty_json` / `json_parse_error` | 提取的部分结构 + tag | 同 fmt |
+| 3 | `missing_both` / `missing_action` / `other_format`（真正无 tool call） | `[No valid Action call]\nExcerpt: ...tail` + tag | 同 fmt |
+
+错例池按 `dedup_key = f"{tag}::{normalize(answer)}"` 去重聚合，渲染为 `observed in N attempt(s)` 形式。
+
+### 7.4 答案提取按 data_source 分发
+
+`_remove_thinking_trace` 只识别 `<think>` 标签，对 sciknoweval(`<reasoning>`) / tooluse(ReAct) / math(`\boxed{}`) 等格式完全失效。v7 新增 `_extract_final_answer(text, data_source)`：
+
+| data_source | 提取策略 |
+|---|---|
+| `tooluse` | 最后一组 `Action:/Action Input:` |
+| `sciknoweval` / `mcq` | `<answer>X</answer>`；fallback 剥 `<reasoning>` + tail 截断 |
+| `gpqa` / `math` | `\boxed{X}` |
+| `mmlu_pro` | `the answer is (X)` 或 `\boxed{}` |
+| unknown | 剥 `<think>` / `<reasoning>` 后 tail 截断 |
+
+### 7.5 train_on_success 开关
+
+| train_on_success | success rollout 行为 | 用途 |
+|---|---|---|
+| True（默认） | 正常进入 batch 并计 loss | 兼容 legacy（v4~v6 等价） |
+| False | mask=0，不计 loss；response_text 仍作为 reference answer 源 | 隔离 "group shift" 与 "on-success 伪蒸馏" 两种效应 |
+
+**mask 全 0 兜底**：group_shared 且 group 无 reference / 无错例时，逐级回退：per_rollout mask → 全 1 mask，避免 group_mean NaN 或梯度死亡。
+
+### 7.6 新增配置项
+
+`verl/trainer/config/tasd_simple.yaml` → `algorithm.tasd:`
+
+```yaml
+teacher_context_mode: "per_rollout"   # "per_rollout" | "group_shared"
+max_errors_in_pool: 8                 # 每 group 错例池去重后上限
+error_answer_max_chars: 1024          # 每条错例答案字符上限
+train_on_success: True                # False → success rollout mask=0
+```
+
+对应环境变量透传见 `nebula_scripts/tasd_simple/tasd_simple_parametric.sh`。
+
+### 7.7 新增 metrics（group_shared 模式生效）
+
+- `self_distillation/errors_total_per_group`：平均每 group 错例数
+- `self_distillation/errors_unique_per_group`：平均每 group 去重后错例模式数
+- `self_distillation/error_diversity`：unique / total，衡量错误多样性（低 → 崩溃到单一错误模式）
+- `self_distillation/group_has_reference_frac`：含 reference 的 group 占比
+- `self_distillation/err_tag_{tag}`：按 tag 的错误分布（`wrong_semantics` / `invalid_action_name` / `missing_action_input` / ...）
+
+### 7.8 v7 sweep 矩阵
+
+脚本：`nebula_scripts/submit_tasd_v7_group_shared_sweep.sh`（`PROJECT_NAME=TASD-v7`）
+
+| Run | ctx_mode | fb | trSucc | tag | 目的 |
+|---|---|---|---|---|---|
+| R1 | per_rollout | off | True | `-ctxPer-fbOff-trSuccT` | v5 对照（纯 solution-only） |
+| R2 | **group_shared** | **on** | **True** | `-ctxGrp-fbOn-trSuccT` | **v7 主力** |
+| R3 | group_shared | on | False | `-ctxGrp-fbOn-trSuccF` | 消融：剥离 on-success 伪蒸馏 |
+| R4 | per_rollout | on | True | `-ctxPer-fbOn-trSuccT` | v6 行为 + GT 泄漏修复 |
+
+R2 vs R4 分离 "prompt invariance" 与 "feedback 注入"；R2 vs R3 分离 "错例池" 与 "on-success 蒸馏"。

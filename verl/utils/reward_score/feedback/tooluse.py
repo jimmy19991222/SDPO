@@ -142,70 +142,72 @@ def compute_score(solution: str, ground_truth: str) -> dict:
     # 2. Action error feedback
     if not actions_correct:
         if not pred_actions:
-            feedback_parts.append(f"Action error: no action detected, expected {gt_actions}")
+            feedback_parts.append("Action error: no action detected")
         else:
-            # Identify specific action mismatches
+            # Identify specific action mismatches.
+            # NOTE: Ground-truth action names are intentionally NOT included
+            # to avoid leaking GT into the teacher context (teacher prompt
+            # already receives the GT via the 'solution' section).
             pred_set = set(pred_actions)
             gt_set = set(gt_actions)
             extra_actions = list(pred_set - gt_set)
             missing_actions = list(gt_set - pred_set)
-            
+
             if extra_actions and missing_actions:
                 feedback_parts.append(
-                    f"Action error: should call {gt_actions}, but called {pred_actions} "
-                    f"(wrong action: used {extra_actions} instead of {missing_actions})"
+                    f"Action error: wrong action selected "
+                    f"(called {pred_actions}, unexpected tool {extra_actions})"
                 )
             elif extra_actions:
                 feedback_parts.append(
-                    f"Action error: should call {gt_actions}, but called {pred_actions} "
-                    f"(extra action: {extra_actions})"
+                    f"Action error: unexpected action called "
+                    f"(called {pred_actions}, extra {extra_actions})"
                 )
             elif missing_actions:
                 feedback_parts.append(
-                    f"Action error: should call {gt_actions}, but called {pred_actions} "
-                    f"(missing action: {missing_actions})"
+                    f"Action error: missing required action "
+                    f"(called {pred_actions})"
                 )
             else:
-                # Same actions but different counts (multiset mismatch)
                 feedback_parts.append(
-                    f"Action error: should call {gt_actions}, but called {pred_actions} "
-                    f"(action count mismatch)"
+                    f"Action error: action count mismatch "
+                    f"(called {pred_actions})"
                 )
-    
+
     # 3. Action Input error feedback
     if not action_inputs_correct and pred_actions:
         # Only report input errors if actions are present (otherwise it's covered above)
         if not pred_action_inputs:
-            feedback_parts.append(f"Input error: no action input detected, expected {gt_action_inputs}")
+            feedback_parts.append("Input error: no action input detected")
         else:
-            # Identify specific key/value mismatches
+            # Identify specific key/value mismatch locations.
+            # NOTE: Ground-truth values are intentionally NOT included; we only
+            # report WHICH argument is wrong, not what the correct value is.
             pred_keys = set(pred_action_inputs.keys())
             gt_keys = set(gt_action_inputs.keys())
             extra_keys = list(pred_keys - gt_keys)
             missing_keys = list(gt_keys - pred_keys)
-            wrong_values = []
+            wrong_value_keys = []
             for key in pred_keys & gt_keys:
                 if pred_action_inputs[key] != gt_action_inputs[key]:
-                    wrong_values.append(
-                        f"{key} should be {gt_action_inputs[key]}, got {pred_action_inputs[key]}"
-                    )
-            
+                    wrong_value_keys.append(key)
+
             parts = []
             if missing_keys:
-                parts.append(f"missing keys: {missing_keys}")
+                parts.append(f"missing required argument(s): {missing_keys}")
             if extra_keys:
-                parts.append(f"extra keys: {extra_keys}")
-            if wrong_values:
-                parts.append("; ".join(wrong_values))
-            
+                parts.append(f"unexpected argument(s): {extra_keys}")
+            if wrong_value_keys:
+                parts.append(f"wrong value for argument(s): {wrong_value_keys}")
+
             if parts:
                 feedback_parts.append(
-                    f"Input error: expected {gt_action_inputs}, but got {pred_action_inputs} "
+                    f"Input error: called {pred_action_inputs} "
                     f"({'; '.join(parts)})"
                 )
             else:
                 feedback_parts.append(
-                    f"Input error: expected {gt_action_inputs}, but got {pred_action_inputs}"
+                    f"Input error: called {pred_action_inputs} (value mismatch)"
                 )
 
     if len(feedback_parts) == 0:

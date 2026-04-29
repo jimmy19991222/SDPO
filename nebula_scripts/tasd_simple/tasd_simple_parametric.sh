@@ -46,6 +46,11 @@ INCLUDE_SUCCESSFUL_ROLLOUTS="${INCLUDE_SUCCESSFUL_ROLLOUTS:-True}"
 REMOVE_THINKING_FROM_DEMONSTRATION="${REMOVE_THINKING_FROM_DEMONSTRATION:-True}"
 INCLUDE_ENVIRONMENT_FEEDBACK="${INCLUDE_ENVIRONMENT_FEEDBACK:-False}"  # 是否把环境反馈（错误答案+细粒度feedback）注入teacher context
 ENVIRONMENT_FEEDBACK_ONLY_WITHOUT_SOLUTION="${ENVIRONMENT_FEEDBACK_ONLY_WITHOUT_SOLUTION:-True}"  # True=feedback仅在无solution时兜底；False=feedback与solution并存（真正的fbEnhanced）
+# ── v7: group-shared teacher context + 错例池 + train_on_success 开关 ────
+TEACHER_CONTEXT_MODE="${TEACHER_CONTEXT_MODE:-per_rollout}"  # per_rollout | group_shared
+MAX_ERRORS_IN_POOL="${MAX_ERRORS_IN_POOL:-8}"                # 每个 group 错例池去重后上限
+ERROR_ANSWER_MAX_CHARS="${ERROR_ANSWER_MAX_CHARS:-1024}"     # 每条错例答案字符上限
+TRAIN_ON_SUCCESS="${TRAIN_ON_SUCCESS:-True}"                 # True=success 参与 loss；False=success mask=0（仅作 reference）
 # ── DAPO 动态采样配置 ────────────────────────────────────────────────
 FILTER_GROUPS_ENABLE="${FILTER_GROUPS_ENABLE:-false}"  # 是否启用 filter_groups
 FILTER_GROUPS_METRIC="${FILTER_GROUPS_METRIC:-acc}"    # 过滤指标：acc / seq_reward / seq_final_reward
@@ -115,6 +120,8 @@ echo "  ROLLOUT_TEMPERATURE: ${ROLLOUT_TEMPERATURE}, DISTILL_TEMPERATURE: ${DIST
 echo "  ENTROPY_FLOOR: ${ENTROPY_FLOOR}, ENTROPY_PENALTY_COEFF: ${ENTROPY_PENALTY_COEFF}"
 echo "  ADV_ENTROPY_WEIGHT: ${ADV_ENTROPY_WEIGHT}"
 echo "  FILTER_GROUPS: enable=${FILTER_GROUPS_ENABLE}, metric=${FILTER_GROUPS_METRIC}, max_gen=${FILTER_GROUPS_MAX_GEN}"
+echo "  TEACHER_CONTEXT_MODE: ${TEACHER_CONTEXT_MODE}, MAX_ERRORS: ${MAX_ERRORS_IN_POOL}, ERR_CHARS: ${ERROR_ANSWER_MAX_CHARS}, TRAIN_ON_SUCCESS: ${TRAIN_ON_SUCCESS}"
+echo "  INCLUDE_ENV_FEEDBACK: ${INCLUDE_ENVIRONMENT_FEEDBACK}, FB_ONLY_WITHOUT_SOLUTION: ${ENVIRONMENT_FEEDBACK_ONLY_WITHOUT_SOLUTION}"
 echo "  DISTILL_TOPK: ${DISTILL_TOPK}"
 echo "  SEED: ${SEED}"
 echo "============================================"
@@ -164,6 +171,10 @@ python -m verl.trainer.main_ppo \
     algorithm.tasd.use_self_as_teacher_on_success=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
     algorithm.tasd.include_successful_rollouts=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
     algorithm.tasd.success_reward_threshold=1.0 \
+    algorithm.tasd.teacher_context_mode=${TEACHER_CONTEXT_MODE} \
+    algorithm.tasd.max_errors_in_pool=${MAX_ERRORS_IN_POOL} \
+    algorithm.tasd.error_answer_max_chars=${ERROR_ANSWER_MAX_CHARS} \
+    algorithm.tasd.train_on_success=${TRAIN_ON_SUCCESS} \
     algorithm.filter_groups.enable=${FILTER_GROUPS_ENABLE} \
     algorithm.filter_groups.metric=${FILTER_GROUPS_METRIC} \
     algorithm.filter_groups.max_num_gen_batches=${FILTER_GROUPS_MAX_GEN} \

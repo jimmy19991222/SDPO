@@ -767,6 +767,310 @@ class RayPPOTrainer:
         """Remove <think>...</think> tags and their content from text."""
         return re.sub(r'<think>.*?</think>\s*', '', text, flags=re.DOTALL)
 
+    # ==========================================================================
+    # Group-shared teacher context helpers (v7)
+    # ==========================================================================
+    # These utilities support the "group_shared" teacher_context_mode, where all
+    # rollouts sharing the same uid receive the *identical* teacher prompt,
+    # composed of a deduplicated error pool + one reference answer. This restores
+    # the v5 invariant that teacher grades every rollout in a group with the same
+    # evaluator, eliminating the per-rollout prompt drift that biased group mean.
+
+    @staticmethod
+    def _extract_valid_action_names_from_gt(ground_truth: Optional[str]) -> set:
+        """Parse ground-truth JSON and return the set of legal Action names
+        for this sample (used to detect prompt-leak pseudo actions like
+        `Action: the` that pass the format check but are not real tool calls)."""
+        if not ground_truth:
+            return set()
+        try:
+            gt_list = json.loads(ground_truth)
+            if not isinstance(gt_list, list):
+                gt_list = [gt_list]
+            names = set()
+            for item in gt_list:
+                if isinstance(item, dict) and "Action" in item:
+                    names.add(item["Action"])
+            return names
+        except (json.JSONDecodeError, TypeError):
+            return set()
+
+    @staticmethod
+    def _extract_final_answer(text: str, data_source: str, tail_max_chars: int = 400) -> str:
+        """Extract the minimal answer span for teacher context.
+
+        Per-dataset regexes with honest tail-truncation fallback. This replaces
+        `_remove_thinking_trace` for group_shared mode because `_remove_thinking_trace`
+        only strips <think>...</think> and misses <reasoning>, boxed, ReAct etc.
+        """
+        if not text:
+            return ""
+        if data_source == "tooluse":
+            actions = re.findall(r'Action:\s*(\S+)', text)
+            json_blocks = re.findall(r'Action Input:\s*(\{.*?\})', text, flags=re.DOTALL)
+            if actions and json_blocks:
+                return f"Action: {actions[-1]}\nAction Input: {json_blocks[-1]}"
+            if actions:
+                return f"Action: {actions[-1]}"
+            stripped = re.sub(
+                r'<think>.*?</think>\s*|<reasoning>.*?</reasoning>\s*',
+                '', text, flags=re.DOTALL,
+            )
+            return stripped.strip()[-tail_max_chars:]
+
+        if data_source in ("sciknoweval", "mcq"):
+            m = re.findall(r'<answer>\s*([^<]+?)\s*</answer>', text, flags=re.DOTALL)
+            if m:
+                return f"<answer>{m[-1].strip()}</answer>"
+            stripped = re.sub(r'<reasoning>.*?</reasoning>\s*', '', text, flags=re.DOTALL)
+            return stripped.strip()[-tail_max_chars:]
+
+        if data_source == "gpqa":
+            m = re.findall(r'\\boxed\{([^}]*)\}', text)
+            if m:
+                return f"\\boxed{{{m[-1]}}}"
+            return text.strip()[-tail_max_chars:]
+
+        if data_source == "mmlu_pro":
+            m = re.search(r'answer is \(?([A-J])\)?', text, flags=re.IGNORECASE)
+            if m:
+                return f"the answer is ({m.group(1).upper()})"
+            m2 = re.findall(r'\\boxed\{([^}]*)\}', text)
+            if m2:
+                return f"\\boxed{{{m2[-1]}}}"
+            return text.strip()[-tail_max_chars:]
+
+        if data_source == "math":
+            m = re.findall(r'\\boxed\{([^}]*)\}', text)
+            if m:
+                return f"\\boxed{{{m[-1]}}}"
+            return text.strip()[-tail_max_chars:]
+
+        # Unknown data source: strip known reasoning wrappers + tail truncate
+        stripped = re.sub(
+            r'<think>.*?</think>\s*|<reasoning>.*?</reasoning>\s*',
+            '', text, flags=re.DOTALL,
+        )
+        return stripped.strip()[-tail_max_chars:]
+
+    @staticmethod
+    def _normalize_answer_for_dedup(text: str) -> str:
+        """Normalize for dedup: compress whitespace, lowercase, strip."""
+        return re.sub(r'\s+', ' ', text).strip().lower()
+
+    def _build_error_display(
+        self,
+        response: str,
+        data_source: str,
+        reward_info: dict,
+        gt_actions: Optional[set] = None,
+        tail_max_chars: int = 400,
+    ) -> dict:
+        """Build one failed-rollout display entry (answer + tag + dedup_key).
+
+        Four-tier strategy for tooluse (honest, never fabricates structure):
+          - Tier 1   : format_error_type == "none" AND valid action name
+                       -> wrong_semantics (minimal Action+Input)
+          - Tier 1.5 : format_error_type == "none" BUT action name not in GT whitelist
+                       -> invalid_action_name (prompt-leak pseudo action like
+                          `Action: the`; show tail excerpt)
+          - Tier 2   : partial format (missing_action_input / empty_json /
+                       json_parse_error) -> show extracted partial + tag
+          - Tier 3   : no valid Action call (missing_both / missing_action /
+                       other_format) -> tail excerpt with explicit tag
+        """
+        if data_source == "tooluse":
+            fmt = reward_info.get("format_error_type", "unknown") if reward_info else "unknown"
+
+            # Tier 1.5: detect prompt-leak pseudo-actions before trusting fmt=="none"
+            pred_act_names = re.findall(r'Action:\s*(\w+)', response)
+            last_pred_action = pred_act_names[-1] if pred_act_names else None
+            is_invalid_action = (
+                last_pred_action is not None
+                and gt_actions is not None
+                and len(gt_actions) > 0
+                and last_pred_action not in gt_actions
+                and fmt == "none"
+            )
+            if is_invalid_action:
+                tail = response.strip()[-tail_max_chars:]
+                return {
+                    "answer": f"[Invalid action name: '{last_pred_action}']\nExcerpt: ...{tail}",
+                    "tag": "invalid_action_name",
+                    "dedup_key": f"invalid_action::{last_pred_action}",
+                }
+
+            if fmt == "none":
+                answer = self._extract_final_answer(response, "tooluse", tail_max_chars)
+                return {
+                    "answer": answer,
+                    "tag": "wrong_semantics",
+                    "dedup_key": f"semantic::{self._normalize_answer_for_dedup(answer)}",
+                }
+
+            if fmt in ("missing_action_input", "empty_json", "json_parse_error"):
+                partial = self._extract_final_answer(response, "tooluse", tail_max_chars)
+                return {
+                    "answer": partial,
+                    "tag": fmt,
+                    "dedup_key": f"{fmt}::{self._normalize_answer_for_dedup(partial)[:80]}",
+                }
+
+            # Tier 3: truly no tool call
+            tail = response.strip()[-tail_max_chars:]
+            dedup_sig = self._normalize_answer_for_dedup(tail[:80])
+            return {
+                "answer": f"[No valid Action call]\nExcerpt: ...{tail}",
+                "tag": fmt if fmt != "unknown" else "other_format",
+                "dedup_key": f"{fmt}::{dedup_sig}",
+            }
+
+        # Non-tooluse datasets: single tier, rely on _extract_final_answer
+        answer = self._extract_final_answer(response, data_source, tail_max_chars)
+        return {
+            "answer": answer,
+            "tag": "generic_error",
+            "dedup_key": f"generic::{self._normalize_answer_for_dedup(answer)}",
+        }
+
+    @staticmethod
+    def _dedup_and_aggregate_errors(displays: list, max_unique: int = 8) -> list:
+        """Aggregate by dedup_key, preserve insertion order for tie-breaking.
+
+        Returns list of {"answer", "tag", "count"} sorted by count desc, capped.
+        """
+        grouped = {}
+        order = []
+        for d in displays:
+            k = d["dedup_key"]
+            if k not in grouped:
+                grouped[k] = {"answer": d["answer"], "tag": d["tag"], "count": 0}
+                order.append(k)
+            grouped[k]["count"] += 1
+        items = [grouped[k] for k in order]
+        items.sort(key=lambda x: -x["count"])
+        return items[:max_unique]
+
+    @staticmethod
+    def _render_error_pool_text(aggregated: list, n_total_errors: int) -> str:
+        """Render deduplicated errors as a teacher-friendly text block."""
+        if not aggregated:
+            return ""
+        n_unique = len(aggregated)
+        header = (
+            f"{n_total_errors} previous attempt(s) failed, "
+            f"showing {n_unique} unique error pattern(s):"
+        )
+        blocks = []
+        for i, item in enumerate(aggregated, start=1):
+            blocks.append(
+                f"[Error pattern {i}, observed in {item['count']} attempt(s), "
+                f"tag={item['tag']}]:\n{item['answer']}"
+            )
+        return header + "\n\n" + "\n\n".join(blocks)
+
+    def _build_group_assets(
+        self,
+        batch: "DataProto",
+        reward_tensor: torch.Tensor,
+        reward_extra_infos_dict: Optional[dict],
+        success_by_uid: dict,
+        response_texts: list,
+        success_threshold: float,
+        max_errors_in_pool: int,
+        error_answer_max_chars: int,
+        remove_thinking_from_demonstration: bool,
+    ) -> dict:
+        """Pre-compute per-uid teacher-context assets shared by all rollouts in a group.
+
+        Returns:
+            dict uid -> {
+                reference_answer: Optional[str]   # minimal-answer span from a success rollout (or GT fallback)
+                error_pool_text : str             # deduplicated + counted error block
+                n_errors        : int
+                n_unique_errors : int
+                format_error_counts: dict[tag, int]
+                data_source     : str
+            }
+        """
+        uids = batch.non_tensor_batch["uid"]
+        batch_size = batch.batch.batch_size[0]
+        data_sources = batch.non_tensor_batch.get("data_source", ["unknown"] * batch_size)
+        ground_truths = [
+            item.non_tensor_batch.get("reward_model", {}).get("ground_truth", None)
+            for item in batch
+        ]
+        seq_scores = reward_tensor.sum(dim=-1).detach().cpu().numpy()
+
+        uid_to_indices = defaultdict(list)
+        for i in range(batch_size):
+            uid_to_indices[uids[i]].append(i)
+
+        assets = {}
+        for uid, indices in uid_to_indices.items():
+            if not indices:
+                continue
+            data_source = data_sources[indices[0]]
+            gt_raw = ground_truths[indices[0]]
+
+            gt_actions_set = None
+            if data_source == "tooluse":
+                gt_actions_set = self._extract_valid_action_names_from_gt(gt_raw)
+
+            # 1. Reference answer: prefer first successful rollout; else GT fallback
+            reference_answer = None
+            success_idxs = success_by_uid.get(uid, [])
+            if success_idxs:
+                ref_idx = success_idxs[0]  # deterministic (v5 used random; we pick first)
+                ref_text = response_texts[ref_idx]
+                if remove_thinking_from_demonstration:
+                    ref_text = self._remove_thinking_trace(ref_text)
+                reference_answer = self._extract_final_answer(
+                    ref_text, data_source, error_answer_max_chars
+                )
+            elif gt_raw:
+                gt_solution = self._format_ground_truth(gt_raw, data_source)
+                if gt_solution:
+                    reference_answer = self._extract_final_answer(
+                        gt_solution, data_source, error_answer_max_chars
+                    )
+
+            # 2. Error displays for failed rollouts
+            failed_indices = [i for i in indices if seq_scores[i] < success_threshold]
+            displays = []
+            format_error_counts = defaultdict(int)
+            for i in failed_indices:
+                reward_info = {}
+                if reward_extra_infos_dict is not None:
+                    for key in ("format_error_type", "pred"):
+                        vals = reward_extra_infos_dict.get(key, None)
+                        if vals is not None and i < len(vals):
+                            reward_info[key] = vals[i]
+                d = self._build_error_display(
+                    response=response_texts[i],
+                    data_source=data_source,
+                    reward_info=reward_info,
+                    gt_actions=gt_actions_set,
+                    tail_max_chars=error_answer_max_chars,
+                )
+                displays.append(d)
+                format_error_counts[d["tag"]] += 1
+
+            aggregated = self._dedup_and_aggregate_errors(displays, max_unique=max_errors_in_pool)
+            error_pool_text = self._render_error_pool_text(
+                aggregated, n_total_errors=len(failed_indices)
+            )
+
+            assets[uid] = {
+                "reference_answer": reference_answer,
+                "error_pool_text": error_pool_text,
+                "n_errors": len(failed_indices),
+                "n_unique_errors": len(aggregated),
+                "format_error_counts": dict(format_error_counts),
+                "data_source": data_source,
+            }
+        return assets
+
     def _format_ground_truth(self, ground_truth: Optional[str], data_source: str) -> Optional[str]:
         """
         Format ground truth into solution text for teacher context.
@@ -856,6 +1160,25 @@ class RayPPOTrainer:
             and tasd_cfg.get("use_self_as_teacher_on_success", False)
         )
 
+        # ─── v7 group-shared teacher context knobs ────────────────────────
+        # teacher_context_mode:
+        #   "per_rollout" : legacy, per-rollout feedback injection (v6 fbEnhanced behavior)
+        #   "group_shared": all rollouts in the same uid receive the IDENTICAL
+        #                   teacher prompt = (original question + deduplicated
+        #                   error pool + single reference answer). This restores
+        #                   the v5 invariant that all rollouts in a group share
+        #                   the same evaluator, eliminating per-rollout prompt
+        #                   drift that biases group_mean-based advantage.
+        teacher_context_mode = tasd_cfg.get("teacher_context_mode", "per_rollout")
+        max_errors_in_pool = int(tasd_cfg.get("max_errors_in_pool", 8))
+        error_answer_max_chars = int(tasd_cfg.get("error_answer_max_chars", 1024))
+        # train_on_success: if False, success rollouts are excluded from the
+        # training signal (mask=0). Motivated by v6 analysis showing success
+        # samples acquire inflated advantage when group_mean is biased by
+        # per-rollout feedback drift.
+        train_on_success = bool(tasd_cfg.get("train_on_success", True))
+        is_group_shared = (teacher_context_mode == "group_shared")
+
         device = batch.batch["input_ids"].device
         response_mask = batch.batch["response_mask"]
         responses = batch.batch["responses"]
@@ -899,8 +1222,51 @@ class RayPPOTrainer:
                 if gt_solution is not None:
                     solution_strs[i] = gt_solution
 
+        # ─── v7 group_shared: pre-compute per-uid shared assets ────────────
+        group_assets = None
+        if is_group_shared:
+            group_assets = self._build_group_assets(
+                batch=batch,
+                reward_tensor=reward_tensor,
+                reward_extra_infos_dict=reward_extra_infos_dict,
+                success_by_uid=success_by_uid,
+                response_texts=response_texts,
+                success_threshold=self_distillation_cfg.success_reward_threshold,
+                max_errors_in_pool=max_errors_in_pool,
+                error_answer_max_chars=error_answer_max_chars,
+                remove_thinking_from_demonstration=self_distillation_cfg.get(
+                    "remove_thinking_from_demonstration", False
+                ),
+            )
+
         def _build_teacher_message(i: int) -> list[dict]:
             system_messages = batch.non_tensor_batch["raw_prompt"][i][:-1]
+
+            # ─── v7 group_shared branch ────────────────────────────────
+            # Same uid → same teacher prompt. Prompt invariance preserves
+            # unbiased group_mean in advantage computation.
+            if is_group_shared and group_assets is not None:
+                uid = batch.non_tensor_batch["uid"][i]
+                assets = group_assets.get(uid)
+                if assets is None:
+                    return system_messages + [
+                        {"role": "user", "content": prompt_texts[i]},
+                    ]
+                ref = assets["reference_answer"]
+                err_pool = assets["error_pool_text"]
+                sections = [prompt_texts[i]]
+                if err_pool:
+                    sections.append("\n\n" + err_pool)
+                if ref:
+                    sections.append(
+                        "\n\nReference answer (from a successful attempt):\n" + ref
+                    )
+                sections.append("\n\nCorrectly solve the original question.")
+                return system_messages + [
+                    {"role": "user", "content": "".join(sections)},
+                ]
+
+            # ─── per_rollout branch (legacy) ───────────────────────────
             has_solution = solution_strs[i] is not None
             has_feedback = feedback_list[i] is not None
             feedback_only_without_solution = self_distillation_cfg.get("environment_feedback_only_without_solution", False)
@@ -963,18 +1329,114 @@ class RayPPOTrainer:
             for i in range(batch_size)
         ]
 
-        # self_distillation_mask is True if sample has a solution OR feedback is used (i.e., will get a reprompted message)
-        self_distillation_mask = torch.tensor(
-            [solution_strs[i] is not None or feedback_used[i] for i in range(batch_size)],
-            dtype=torch.float32,
-            device=device
-        )
-        
+        # self_distillation_mask
+        if is_group_shared and group_assets is not None:
+            # group_shared: mask=1 iff group has a usable shared asset
+            uids_arr = batch.non_tensor_batch["uid"]
+            mask_vals = []
+            for i in range(batch_size):
+                a = group_assets.get(uids_arr[i])
+                if a is None:
+                    mask_vals.append(False)
+                    continue
+                has_ref = a["reference_answer"] is not None
+                has_err = bool(a["error_pool_text"])
+                mask_vals.append(has_ref or has_err)
+            self_distillation_mask = torch.tensor(
+                mask_vals, dtype=torch.float32, device=device
+            )
+        else:
+            # per_rollout (legacy): True if sample has a solution OR feedback is used
+            self_distillation_mask = torch.tensor(
+                [solution_strs[i] is not None or feedback_used[i] for i in range(batch_size)],
+                dtype=torch.float32,
+                device=device
+            )
+
+        # train_on_success=False: exclude success rollouts from the training signal
+        if not train_on_success:
+            reward_seq = reward_tensor.sum(dim=-1).detach().cpu().numpy()
+            threshold = self_distillation_cfg.success_reward_threshold
+            for i in range(batch_size):
+                if reward_seq[i] >= threshold:
+                    self_distillation_mask[i] = 0.0
+
+        # Safety fallback: all-zero mask would kill gradient and risk NaN in
+        # downstream group-mean normalization. Fall back progressively:
+        # per_rollout mask → all-ones.
+        if self_distillation_mask.sum().item() == 0:
+            print("[TASD Debug] WARNING: self_distillation_mask all-zero; "
+                  "falling back to per_rollout mask")
+            self_distillation_mask = torch.tensor(
+                [solution_strs[i] is not None or feedback_used[i] for i in range(batch_size)],
+                dtype=torch.float32,
+                device=device
+            )
+            if self_distillation_mask.sum().item() == 0:
+                print("[TASD Debug] WARNING: still all-zero; unmasking all samples")
+                self_distillation_mask = torch.ones(
+                    batch_size, dtype=torch.float32, device=device
+                )
+
         # Debug: self_distillation_mask 统计
         num_with_solution = sum(1 for s in solution_strs if s is not None)
         num_with_feedback = sum(feedback_used)
         print(f"[TASD Debug] self_distillation_mask: {self_distillation_mask.sum().item()}/{batch_size} samples, "
-              f"with_solution={num_with_solution}, with_feedback={num_with_feedback}")
+              f"with_solution={num_with_solution}, with_feedback={num_with_feedback}, "
+              f"ctx_mode={teacher_context_mode}, train_on_success={train_on_success}")
+
+        # Debug: print teacher prompts for representative samples (every 10 steps)
+        if hasattr(self, 'global_step') and self.global_step % 10 == 0:
+            # Categorize samples by type
+            sample_types = {
+                'success_positive': [],      # 成功 rollout + 正 reward (acc=1.0)
+                'success_negative': [],      # 有成功 rollout 但当前样本失败 (acc<1.0)
+                'fail_no_success': [],       # group 无成功 rollout + GT fallback
+                'fail_with_feedback': [],    # 失败 + feedback 注入
+            }
+            
+            reward_np = reward_tensor.squeeze(-1).cpu().numpy()
+            for i in range(batch_size):
+                uid = batch.non_tensor_batch["uid"][i]
+                has_solution = solution_strs[i] is not None
+                has_feedback = feedback_used[i]
+                score = reward_np[i]
+                is_success = score >= self_distillation_cfg.success_reward_threshold
+                
+                # Classify
+                if is_success:
+                    sample_types['success_positive'].append(i)
+                elif has_solution and has_feedback:
+                    sample_types['fail_with_feedback'].append(i)
+                elif has_solution and not has_feedback:
+                    sample_types['success_negative'].append(i)
+                elif not has_solution:
+                    sample_types['fail_no_success'].append(i)
+            
+            # Print one sample from each type (if available)
+            printed_types = []
+            for sample_type, indices in sample_types.items():
+                if indices:
+                    idx = indices[0]  # print first sample of this type
+                    printed_types.append(sample_type)
+                    print(f"\n{'='*80}")
+                    print(f"[TASD Teacher Prompt] step={self.global_step}, type={sample_type}, sample_idx={idx}")
+                    print(f"  score={reward_np[idx]:.2f}, has_solution={solution_strs[idx] is not None}, "
+                          f"has_feedback={feedback_used[idx]}")
+                    print(f"{'='*80}")
+                    
+                    for msg in messages[idx]:
+                        role = msg.get("role", "unknown")
+                        content = msg.get("content", "")
+                        # Truncate long content
+                        if len(content) > 600:
+                            content = content[:300] + "\n...[truncated]...\n" + content[-250:]
+                        print(f"\n[{role}]:")
+                        print(content)
+                    print(f"{'='*80}\n")
+            
+            if printed_types:
+                print(f"[TASD Teacher Prompt] Printed types: {', '.join(printed_types)}\n")
 
         uids = set(batch.non_tensor_batch["uid"])
         num_with_feedback_available = sum(1 for f in feedback_list if f is not None)
@@ -998,6 +1460,28 @@ class RayPPOTrainer:
             "self_distillation/feedback_used_fraction": num_with_feedback_used / batch_size,
             "self_distillation/reprompt_sample_fraction": self_distillation_mask.float().mean().item(),
         }
+        # v7 group_shared metrics (only populated in group_shared mode)
+        if is_group_shared and group_assets is not None:
+            n_groups = len(group_assets)
+            if n_groups > 0:
+                total_errors = sum(a["n_errors"] for a in group_assets.values())
+                total_unique = sum(a["n_unique_errors"] for a in group_assets.values())
+                n_with_ref = sum(1 for a in group_assets.values() if a["reference_answer"] is not None)
+                metrics["self_distillation/errors_total_per_group"] = total_errors / n_groups
+                metrics["self_distillation/errors_unique_per_group"] = total_unique / n_groups
+                metrics["self_distillation/error_diversity"] = (
+                    total_unique / total_errors if total_errors > 0 else 0.0
+                )
+                metrics["self_distillation/group_has_reference_frac"] = n_with_ref / n_groups
+                # Per-tag error distribution aggregated over groups
+                tag_counts = defaultdict(int)
+                for a in group_assets.values():
+                    for tag, c in a["format_error_counts"].items():
+                        tag_counts[tag] += c
+                total_tag = sum(tag_counts.values())
+                if total_tag > 0:
+                    for tag, c in tag_counts.items():
+                        metrics[f"self_distillation/err_tag_{tag}"] = c / total_tag
         # Add format error type distribution metrics
         for error_type, count in format_error_counts.items():
             metrics[f"self_distillation/format_error_{error_type}"] = count / batch_size

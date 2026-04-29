@@ -90,6 +90,21 @@ algorithm:
     include_successful_rollouts: true
     use_self_as_teacher_on_success: true
     success_reward_threshold: 1.0
+
+    # ── v7: 错例池 + group-shared teacher context 配置 ─────────
+    # teacher_context_mode:
+    #   "per_rollout"  ：每个 rollout 各自拼 teacher prompt（legacy v4~v6）
+    #   "group_shared" ：同一个 uid 的所有 rollout 共享一段 teacher prompt
+    #                    = 问题 + 聚合错例池(去重) + 单条 reference answer
+    #                    恢复 v5 group_mean 无偏；错例池由 bad rollout 聚合而来
+    teacher_context_mode: "per_rollout"
+    max_errors_in_pool: 8           # 每个 group 错例池中保留的去重后错例上限
+    error_answer_max_chars: 1024    # 每条错例展示的答案字符上限（避免超长）
+    # train_on_success:
+    #   True  ：成功 rollout 仍参与 loss（legacy 行为）
+    #   False ：成功 rollout mask=0，仅作为 reference answer 源，不计 loss
+    #           用于隔离 "group shift" 与 "on-success teacher 伪蒸馏" 两种效应
+    train_on_success: True
   # ── DAPO 动态采样（Dynamic Sampling / Group Filtering）──────────────
   # 过滤全对/全错的 group，只保留有区分度的 group 参与训练
   filter_groups:
