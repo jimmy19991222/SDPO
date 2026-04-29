@@ -45,6 +45,7 @@ ROLLOUT_N="${ROLLOUT_N:-8}"
 INCLUDE_SUCCESSFUL_ROLLOUTS="${INCLUDE_SUCCESSFUL_ROLLOUTS:-True}"
 REMOVE_THINKING_FROM_DEMONSTRATION="${REMOVE_THINKING_FROM_DEMONSTRATION:-True}"
 INCLUDE_ENVIRONMENT_FEEDBACK="${INCLUDE_ENVIRONMENT_FEEDBACK:-False}"  # 是否把环境反馈（错误答案+细粒度feedback）注入teacher context
+ENVIRONMENT_FEEDBACK_ONLY_WITHOUT_SOLUTION="${ENVIRONMENT_FEEDBACK_ONLY_WITHOUT_SOLUTION:-True}"  # True=feedback仅在无solution时兜底；False=feedback与solution并存（真正的fbEnhanced）
 # ── DAPO 动态采样配置 ────────────────────────────────────────────────
 FILTER_GROUPS_ENABLE="${FILTER_GROUPS_ENABLE:-false}"  # 是否启用 filter_groups
 FILTER_GROUPS_METRIC="${FILTER_GROUPS_METRIC:-acc}"    # 过滤指标：acc / seq_reward / seq_final_reward
@@ -137,6 +138,7 @@ python -m verl.trainer.main_ppo \
     actor_rollout_ref.actor.self_distillation.teacher_update_rate=${TEACHER_UPDATE_RATE} \
     actor_rollout_ref.actor.self_distillation.remove_thinking_from_demonstration=${REMOVE_THINKING_FROM_DEMONSTRATION} \
     actor_rollout_ref.actor.self_distillation.include_environment_feedback=${INCLUDE_ENVIRONMENT_FEEDBACK} \
+    actor_rollout_ref.actor.self_distillation.environment_feedback_only_without_solution=${ENVIRONMENT_FEEDBACK_ONLY_WITHOUT_SOLUTION} \
     actor_rollout_ref.actor.fsdp_config.model_dtype=bfloat16 \
     actor_rollout_ref.rollout.n=${ROLLOUT_N} \
     actor_rollout_ref.rollout.val_kwargs.n=16 \
