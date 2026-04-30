@@ -33,6 +33,8 @@ GROUP_MEAN_MODE="${GROUP_MEAN_MODE:-token}"  # group mean/std 统计粒度：tok
 ENTROPY_FLOOR="${ENTROPY_FLOOR:-0.0}"  # student 归一化熵下界：0.0=不启用；低于此值的 token 被惩罚（建议 0.1~0.2）
 ENTROPY_PENALTY_COEFF="${ENTROPY_PENALTY_COEFF:-0.0}"  # 惩罚强度（建议 0.1~1.0）
 ENTROPY_GATE_TOLERANCE="${ENTROPY_GATE_TOLERANCE:-0.0}"  # hard gate 豁免阈值：0.0=原 hard gate；0.1=teacher 最多比 student 高 0.1 仍保留
+TEACHER_ABS_ENTROPY_GATE="${TEACHER_ABS_ENTROPY_GATE:-1.0}"  # Level-1 teacher 归一化熵上界；1.0=关闭；0.5 推荐起点
+TEACHER_PROB_FLOOR="${TEACHER_PROB_FLOOR:-0.0}"              # Level-1 teacher 对 y_t 概率下界；0.0=关闭；0.05 标准
 CLIP_RATIO_HIGH="${CLIP_RATIO_HIGH:-10000}"  # DAPO 风格：不 clip 上界；用 0.2 可退回标准 PPO
 DISTILL_TOPK="${DISTILL_TOPK:-100}"
 DISTILL_TEMPERATURE="${DISTILL_TEMPERATURE:-1.0}"
@@ -118,6 +120,7 @@ echo "  CLIP_ADV: ${CLIP_ADV}, VALUE: ${CLIP_ADV_VALUE}, NORM_BY_STD: ${NORM_ADV
 echo "  CLIP_RATIO_HIGH: ${CLIP_RATIO_HIGH}, ENTROPY_COEFF: ${ENTROPY_COEFF}"
 echo "  ROLLOUT_TEMPERATURE: ${ROLLOUT_TEMPERATURE}, DISTILL_TEMPERATURE: ${DISTILL_TEMPERATURE}"
 echo "  ENTROPY_FLOOR: ${ENTROPY_FLOOR}, ENTROPY_PENALTY_COEFF: ${ENTROPY_PENALTY_COEFF}"
+echo "  TEACHER_ABS_ENTROPY_GATE: ${TEACHER_ABS_ENTROPY_GATE}, TEACHER_PROB_FLOOR: ${TEACHER_PROB_FLOOR}"
 echo "  ADV_ENTROPY_WEIGHT: ${ADV_ENTROPY_WEIGHT}"
 echo "  FILTER_GROUPS: enable=${FILTER_GROUPS_ENABLE}, metric=${FILTER_GROUPS_METRIC}, max_gen=${FILTER_GROUPS_MAX_GEN}"
 echo "  TEACHER_CONTEXT_MODE: ${TEACHER_CONTEXT_MODE}, MAX_ERRORS: ${MAX_ERRORS_IN_POOL}, ERR_CHARS: ${ERROR_ANSWER_MAX_CHARS}, TRAIN_ON_SUCCESS: ${TRAIN_ON_SUCCESS}"
@@ -168,6 +171,8 @@ python -m verl.trainer.main_ppo \
     algorithm.tasd.group_mean_mode=${GROUP_MEAN_MODE} \
     algorithm.tasd.entropy_floor=${ENTROPY_FLOOR} \
     algorithm.tasd.entropy_penalty_coeff=${ENTROPY_PENALTY_COEFF} \
+    algorithm.tasd.teacher_abs_entropy_gate=${TEACHER_ABS_ENTROPY_GATE} \
+    algorithm.tasd.teacher_prob_floor=${TEACHER_PROB_FLOOR} \
     algorithm.tasd.use_self_as_teacher_on_success=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
     algorithm.tasd.include_successful_rollouts=${INCLUDE_SUCCESSFUL_ROLLOUTS} \
     algorithm.tasd.success_reward_threshold=1.0 \

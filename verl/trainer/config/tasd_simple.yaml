@@ -85,6 +85,20 @@ algorithm:
     # entropy_floor=0.0 表示不启用（默认关闭）
     entropy_floor: 0.0              # 熵下界：0.0=不启用；低于此值的 token 被惩罚
     entropy_penalty_coeff: 0.0      # 惩罚强度，建议值：1.0 ~ 3.0
+
+    # ── Level-1 teacher 可靠性绝对筛选 ──────────────────────
+    # 两个绝对判据与 entropy_gate（相对判据）正交，重点解决 v7 teacher/student 同步崩塌：
+    #   teacher_abs_entropy_gate: teacher 归一化熵上界，<该值 的 token 才算 teacher 可靠
+    #     - 1.0 = 不启用（默认）
+    #     - 0.3 = 激进：only teacher 非常确定的 token 可靠
+    #     - 0.5 = 温和：teacher 中等确定即可靠（推荐起点）
+    #   teacher_prob_floor: teacher 对 student 采样 y_t 的概率下界，>该值 才可靠
+    #     - 0.0 = 不启用（默认）
+    #     - 0.01 = 内部测试起点
+    #     - 0.05 = 标准设置
+    # 两者 AND；只要其中一个非默认，会自动开启 topk 统计。
+    teacher_abs_entropy_gate: 1.0
+    teacher_prob_floor: 0.0
     
     # ── 成功 rollout 配置 ─────────────────────────────────────
     include_successful_rollouts: true

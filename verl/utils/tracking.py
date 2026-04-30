@@ -75,45 +75,148 @@ def send_dingtalk_alert(content: str):
 def check_training_anomalies(metrics: dict, step: int, experiment_name: str = "", warmup_steps: int = 10):
     """Check training metrics for anomalies and send DingTalk alerts.
 
-    Alert conditions (skip warmup_steps to avoid false alarms at training start):
-    1. Entropy collapse: actor/entropy < 0.005 (model too deterministic)
-    2. Gate retention too low: tasd/gate_retention_ratio_mean < 0.1 (almost all tokens filtered)
-    3. Gradient explosion: actor/grad_norm > 100
-    4. Repetition /复读机: response_length/clip_ratio > 0.3
-    5. High abort ratio: response/aborted_ratio > 0.3
+    Returns:
+        (critical_alerts, warning_alerts): tuple of two lists.
+        critical_alerts: severe conditions suitable for triggering early-stop.
+        warning_alerts: early-warning conditions (log+ding only, never early-stop).
+
+    Critical (early-stop eligible):
+      C1. actor/entropy < 0.03 — confirmed entropy collapse
+      C2. tasd/teacher_entropy_norm_mean > 0.90 — teacher near-uniform
+      C3. tasd/entropy_gap_pos_rate < 0.20 — teacher less certain than student on >80% tokens
+      C4. tasd/gate_retention_ratio_mean < 0.10 — gate filters almost everything
+      C5. actor/grad_norm > 100 — gradient explosion
+
+    Warning (observability only):
+      W1. tasd/student_entropy_norm_mean < 0.10 — early collapse signal
+      W2. response_length/clip_ratio > 0.30 — repetition/复读机
+      W3. response/aborted_ratio > 0.30 — failed generation
     """
-    alerts = []
+    critical_alerts = []
+    warning_alerts = []
     prefix = f"[TASD Alert] step={step}" + (f" exp={experiment_name}" if experiment_name else "")
 
-    # 1. Entropy collapse
+    # ── Critical ────────────────────────────────────────────────────
     entropy = metrics.get("actor/entropy")
-    if entropy is not None and entropy < 0.005:
-        alerts.append(f"🔴 Entropy collapse: {entropy:.6f} < 0.005 — model is too deterministic")
+    if entropy is not None and entropy < 0.03:
+        critical_alerts.append(("entropy_collapse", f"🔴 Entropy collapse: actor/entropy={entropy:.6f} < 0.03"))
 
-    # 2. Gate retention too low (entropy gate filtering almost everything)
+    teacher_ent_norm = metrics.get("tasd/teacher_entropy_norm_mean")
+    if teacher_ent_norm is not None and teacher_ent_norm > 0.90:
+        critical_alerts.append(("teacher_signal_collapse", f"🔴 Teacher signal collapse: teacher_entropy_norm_mean={teacher_ent_norm:.4f} > 0.90"))
+
+    gap_pos_rate = metrics.get("tasd/entropy_gap_pos_rate")
+    if gap_pos_rate is not None and gap_pos_rate < 0.20:
+        critical_alerts.append(("entropy_gap_inversion", f"🔴 Entropy gap inversion: entropy_gap_pos_rate={gap_pos_rate:.4f} < 0.20"))
+
     gate_ret = metrics.get("tasd/gate_retention_ratio_mean")
-    if gate_ret is not None and gate_ret < 0.1:
-        alerts.append(f"🔴 Gate retention too low: {gate_ret:.4f} < 0.1 — almost all tokens filtered by entropy gate")
+    if gate_ret is not None and gate_ret < 0.10:
+        critical_alerts.append(("gate_retention_low", f"🔴 Gate retention too low: {gate_ret:.4f} < 0.10"))
 
-    # 4. Gradient explosion
     grad_norm = metrics.get("actor/grad_norm")
     if grad_norm is not None and grad_norm > 100:
-        alerts.append(f"🔴 Gradient explosion: grad_norm={grad_norm:.1f} > 100")
+        critical_alerts.append(("grad_explosion", f"🔴 Gradient explosion: grad_norm={grad_norm:.1f} > 100"))
 
-    # 5. Repetition /复读机: high clip_ratio means responses hitting max length
+    # ── Warning ─────────────────────────────────────────────────────
+    student_ent_norm = metrics.get("tasd/student_entropy_norm_mean")
+    if student_ent_norm is not None and student_ent_norm < 0.10:
+        warning_alerts.append(("student_entropy_low", f"🟠 Student entropy warning: student_entropy_norm_mean={student_ent_norm:.4f} < 0.10"))
+
     clip_ratio = metrics.get("response_length/clip_ratio")
-    if clip_ratio is not None and clip_ratio > 0.3:
-        alerts.append(f"🔴 Repetition detected: clip_ratio={clip_ratio:.2f} > 0.3 — responses hitting max length (复读机)")
+    if clip_ratio is not None and clip_ratio > 0.30:
+        warning_alerts.append(("repetition", f"🟠 Repetition detected: clip_ratio={clip_ratio:.2f} > 0.30 (复读机)"))
 
-    # 6. High abort ratio: model failing to generate valid responses
     aborted_ratio = metrics.get("response/aborted_ratio")
-    if aborted_ratio is not None and aborted_ratio > 0.3:
-        alerts.append(f"🔴 High abort ratio: {aborted_ratio:.2f} > 0.3 — model failing to generate valid responses")
+    if aborted_ratio is not None and aborted_ratio > 0.30:
+        warning_alerts.append(("high_abort", f"🟠 High abort ratio: {aborted_ratio:.2f} > 0.30"))
 
-    if alerts:
-        msg = prefix + "\n" + "\n".join(alerts)
+    all_msgs = [m for _, m in critical_alerts] + [m for _, m in warning_alerts]
+    if all_msgs:
+        msg = prefix + "\n" + "\n".join(all_msgs)
         print(msg)
         send_dingtalk_alert(msg)
+
+    return critical_alerts, warning_alerts
+
+
+def send_training_report(
+    experiment_name: str,
+    total_steps: int,
+    status: str = "completed",  # "completed" | "early_stopped" | "epoch_exhausted"
+    last_val_metrics: "Optional[dict]" = None,
+    best_val_metric: "Optional[float]" = None,
+    best_val_step: "Optional[int]" = None,
+    best_val_metric_key: str = "val-core/acc/mean@16",
+    final_train_metrics: "Optional[dict]" = None,
+    alert_counter: "Optional[dict]" = None,
+    total_time_h: "Optional[float]" = None,
+    early_stop_reason: str = "",
+):
+    """Send a structured training report via DingTalk.
+
+    Covers: run status, best/last val, final train health, alert histogram,
+    and (if early-stopped) the reason.
+    """
+    # Determine status emoji & title
+    if status == "early_stopped":
+        title = "🚨 Training EARLY STOPPED!"
+    elif status == "epoch_exhausted":
+        title = "✅ Training completed (epoch end)!"
+    else:
+        title = "✅ Training completed!"
+
+    lines = [title, f"  experiment: {experiment_name}", f"  total_steps: {total_steps}"]
+    if total_time_h is not None:
+        lines.append(f"  total_time: ~{total_time_h:.1f}h")
+
+    # Early-stop reason
+    if status == "early_stopped" and early_stop_reason:
+        lines.append("  ── Early-stop reason ──")
+        for r in early_stop_reason.split("\n"):
+            lines.append(f"  {r}")
+
+    # Last val metrics
+    if last_val_metrics:
+        lines.append("  ── Last val metrics ──")
+        for _k in sorted(last_val_metrics.keys()):
+            if "val-core" in _k or "val-aux/sciknoweval/acc/mean" in _k:
+                _v = last_val_metrics[_k]
+                lines.append(f"  {_k}: {_v:.4f}" if isinstance(_v, float) else f"  {_k}: {_v}")
+
+    # Best historical
+    if best_val_metric is not None:
+        lines.append("  ── Best historical ──")
+        lines.append(f"  {best_val_metric_key}: {best_val_metric:.4f} (step {best_val_step})")
+
+    # Final train-side health snapshot
+    if final_train_metrics:
+        _health_keys = [
+            "actor/entropy",
+            "tasd/student_entropy_norm_mean",
+            "tasd/teacher_entropy_norm_mean",
+            "tasd/entropy_gap_pos_rate",
+            "tasd/gate_retention_ratio_mean",
+            "tasd/token_reward_mean",
+            "response_length/mean",
+            "response_length/clip_ratio",
+            "actor/grad_norm",
+        ]
+        lines.append("  ── Final train health ──")
+        for _k in _health_keys:
+            _v = final_train_metrics.get(_k)
+            if _v is not None:
+                lines.append(f"  {_k}: {_v:.4f}" if isinstance(_v, float) else f"  {_k}: {_v}")
+
+    # Alert histogram
+    if alert_counter:
+        _sorted_alerts = sorted(alert_counter.items(), key=lambda x: -x[1])
+        total_hits = sum(alert_counter.values())
+        if total_hits > 0:
+            lines.append(f"  ── Alert histogram (total {total_hits} hits) ──")
+            for _name, _cnt in _sorted_alerts:
+                lines.append(f"  {_name}: {_cnt}")
+
+    send_dingtalk_alert("\n".join(lines))
 
 
 class Tracking:

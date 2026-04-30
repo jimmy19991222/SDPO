@@ -2333,6 +2333,8 @@ def compute_tasd_token_rewards(
     adv_entropy_weight: str = "none",
     entropy_floor: float = 0.0,              # 归一化熵下界，0.0=不启用；低于此值的 token 位置被扣分
     entropy_penalty_coeff: float = 0.0,     # 惩罚强度
+    teacher_abs_entropy_gate: float = 1.0,  # Level-1 teacher 可靠性绝对熵阈值；teacher_entropy_norm < 该值 才可靠；1.0=关闭
+    teacher_prob_floor: float = 0.0,        # Level-1 teacher 对 student 采样 y_t 的概率下界；>该值 才可靠；0.0=关闭
 ) -> tuple[torch.Tensor, Optional[torch.Tensor], Optional[torch.Tensor], Optional[torch.Tensor]]:
     """
     TASD token-level reward 计算（清爽版）.
@@ -2390,8 +2392,13 @@ def compute_tasd_token_rewards(
     teacher_entropy_norm = None  # teacher 归一化熵（adv_entropy_weight 需要）
     student_entropy_norm = None  # student 归一化熵（adv_entropy_weight 需要）
     
-    # 当有 entropy_gate、adv_entropy_weight 或 entropy_floor 时，都需要计算熵
-    need_entropy = entropy_gate != "none" or adv_entropy_weight != "none" or entropy_floor > 0.0
+    # 当有 entropy_gate、adv_entropy_weight 、entropy_floor 或 teacher_abs_entropy_gate 时，都需要计算熵
+    need_entropy = (
+        entropy_gate != "none"
+        or adv_entropy_weight != "none"
+        or entropy_floor > 0.0
+        or teacher_abs_entropy_gate < 1.0
+    )
     
     if need_entropy:
         assert student_topk_log_probs is not None and teacher_topk_log_probs is not None, \
@@ -2477,6 +2484,47 @@ def compute_tasd_token_rewards(
         entropy_penalty = -entropy_penalty_coeff * entropy_deficit
         reward = reward + entropy_penalty
     
+    # ── Level-1 teacher 可靠性绝对筛选 ───────────────────────────
+    # 与 entropy_gate（相对判据）正交的绝对判据，解决 teacher/student 同步崩塌时
+    # 相对 gate 失效的问题。两个独立判据 AND：
+    #   A. teacher_entropy_norm < teacher_abs_entropy_gate  （teacher 自身够确定）
+    #   B. p_teacher(y_t) > teacher_prob_floor              （teacher 认可 student 采样）
+    # 默认 (1.0, 0.0) = 全部关闭，行为回退到原版。
+    use_abs_ent = teacher_abs_entropy_gate < 1.0
+    use_prob_floor = teacher_prob_floor > 0.0
+    if use_abs_ent or use_prob_floor:
+        reliable_conds = []
+        if use_abs_ent:
+            assert teacher_entropy_norm is not None, \
+                "teacher_abs_entropy_gate requires topk (set distill_topk)"
+            reliable_conds.append(teacher_entropy_norm < teacher_abs_entropy_gate)
+        if use_prob_floor:
+            teacher_prob_on_y = teacher_log_probs.clamp(min=-20.0).exp()
+            reliable_conds.append(teacher_prob_on_y > teacher_prob_floor)
+        reliable_bool = reliable_conds[0]
+        for c in reliable_conds[1:]:
+            reliable_bool = reliable_bool & c
+        teacher_reliable_mask = reliable_bool.float()
+
+        # 与 entropy gate_mask 取 AND（正交叠加）
+        if gate_mask is None:
+            gate_mask = teacher_reliable_mask
+        else:
+            gate_mask = gate_mask * teacher_reliable_mask
+
+        # reward 处理：
+        #   - entropy_gate in ("none", "hard"): reward 同步置零（hard 语义，不可靠 token 视为无监督）
+        #   - entropy_gate in ("hard_keep_reward", "soft", "soft_v2"): 只影响 gate_mask，保留 reward 以维持 group_mean 无偏
+        if entropy_gate in ("none", "hard"):
+            reward = reward * teacher_reliable_mask
+
+        # Debug
+        reliable_total = teacher_reliable_mask.sum().item()
+        all_tokens = student_log_probs.shape[0] * student_log_probs.shape[1]
+        print(f"[TASD Debug] teacher_reliable: abs_ent_gate={teacher_abs_entropy_gate}, "
+              f"prob_floor={teacher_prob_floor}, "
+              f"reliable_tokens={int(reliable_total)}/{all_tokens}({reliable_total/max(all_tokens,1):.1%})")
+
     return reward, gate_mask, teacher_entropy_norm, student_entropy_norm
 
 

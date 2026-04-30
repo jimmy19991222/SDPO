@@ -2382,6 +2382,22 @@ class RayPPOTrainer:
         self._best_val_metric = None  # track best val metric for best checkpoint saving
         self._best_val_step = None     # step at which best metric was achieved
 
+        # ── Early-stop / anomaly tracking ─────────────────────────────────────────
+        self._alert_counter = defaultdict(int)  # 各类 alert 累计次数（用于最终报告）
+        self._critical_streak = 0               # 连续触发严重告警的 step 数
+        self._last_metrics_snapshot = {}        # 最后一次 step 的 train metrics（用于报告健康快照）
+        _es_cfg = self.config.trainer.get("early_stop_on_anomaly", None)
+        # 兼容 dict / OmegaConf DictConfig / None
+        def _es_get(k, default):
+            if _es_cfg is None:
+                return default
+            if hasattr(_es_cfg, "get"):
+                return _es_cfg.get(k, default)
+            return getattr(_es_cfg, k, default)
+        self._es_enabled = bool(_es_get("enable", True))
+        self._es_threshold = int(_es_get("consecutive_threshold", 3))
+        self._es_warmup = int(_es_get("warmup_steps", 10))
+
         # load checkpoint before doing anything
         self._load_checkpoint()
 
@@ -2439,10 +2455,17 @@ class RayPPOTrainer:
             tasd_adv_entropy_weight = _tasd_cfg.get("adv_entropy_weight", "none")
             tasd_entropy_floor = _tasd_cfg.get("entropy_floor", 0.0)
             tasd_entropy_penalty_coeff = _tasd_cfg.get("entropy_penalty_coeff", 0.0)
+            tasd_teacher_abs_entropy_gate = _tasd_cfg.get("teacher_abs_entropy_gate", 1.0)
+            tasd_teacher_prob_floor = _tasd_cfg.get("teacher_prob_floor", 0.0)
             tasd_temperature = _tasd_cfg.get("distill_temperature", None) or self.config.actor_rollout_ref.rollout.temperature
             tasd_micro_batch_size = self.config.actor_rollout_ref.actor.ppo_micro_batch_size_per_gpu
-            # entropy_gate / adv_entropy_weight / entropy_floor 都需要 topk 信息（计算熵）
-            tasd_need_topk = tasd_entropy_gate != "none" or tasd_adv_entropy_weight != "none" or tasd_entropy_floor > 0.0
+            # entropy_gate / adv_entropy_weight / entropy_floor / teacher_abs_entropy_gate 都需要 topk 信息（计算熵）
+            tasd_need_topk = (
+                tasd_entropy_gate != "none"
+                or tasd_adv_entropy_weight != "none"
+                or tasd_entropy_floor > 0.0
+                or tasd_teacher_abs_entropy_gate < 1.0
+            )
             tasd_distill_topk = _tasd_cfg.get("distill_topk", 100) if tasd_need_topk else None
         # ────────────────────────────────────────────────────────
 
@@ -2684,6 +2707,8 @@ class RayPPOTrainer:
                                 adv_entropy_weight=tasd_adv_entropy_weight,
                                 entropy_floor=tasd_entropy_floor,
                                 entropy_penalty_coeff=tasd_entropy_penalty_coeff,
+                                teacher_abs_entropy_gate=tasd_teacher_abs_entropy_gate,
+                                teacher_prob_floor=tasd_teacher_prob_floor,
                             )
 
                             # Mask out padding positions
@@ -2744,6 +2769,58 @@ class RayPPOTrainer:
                                 metrics["tasd/gate_retention_ratio_mean"] = 1.0
                                 metrics["tasd/gate_retention_ratio_max"] = 1.0
                                 metrics["tasd/gate_retention_ratio_min"] = 1.0
+
+                            # ── 记录 teacher/student 归一化熵分布 ─────────────────────────
+                            # 仅当 entropy_gate / adv_entropy_weight / entropy_floor 启用时
+                            # core_algos 会返回非 None 的 entropy_norm 张量
+                            # 诊断意义：
+                            #   - teacher_entropy_norm_mean 过高 → teacher 不确定 → 信号弱
+                            #   - student_entropy_norm_mean 过低 → 学生过度确信 → 熵崩塌风险
+                            #   - entropy_gap_pos_rate (student>teacher) 是 hard gate 的保留率上限
+                            if teacher_entropy_norm is not None:
+                                valid_teacher_ent = teacher_entropy_norm[response_mask_bool]
+                                if valid_teacher_ent.numel() > 0:
+                                    metrics["tasd/teacher_entropy_norm_mean"] = valid_teacher_ent.mean().item()
+                                    metrics["tasd/teacher_entropy_norm_max"] = valid_teacher_ent.max().item()
+                                    metrics["tasd/teacher_entropy_norm_min"] = valid_teacher_ent.min().item()
+                            if student_entropy_norm is not None:
+                                valid_student_ent = student_entropy_norm[response_mask_bool]
+                                if valid_student_ent.numel() > 0:
+                                    metrics["tasd/student_entropy_norm_mean"] = valid_student_ent.mean().item()
+                                    metrics["tasd/student_entropy_norm_max"] = valid_student_ent.max().item()
+                                    metrics["tasd/student_entropy_norm_min"] = valid_student_ent.min().item()
+                                # 熵差（student - teacher）：>0 表示 teacher 更确定（hard gate 保留）
+                                if teacher_entropy_norm is not None:
+                                    entropy_gap = student_entropy_norm - teacher_entropy_norm
+                                    valid_gap = entropy_gap[response_mask_bool]
+                                    if valid_gap.numel() > 0:
+                                        metrics["tasd/entropy_gap_mean"] = valid_gap.mean().item()
+                                        metrics["tasd/entropy_gap_pos_rate"] = (valid_gap > 0).float().mean().item()
+
+                            # ── Level-1 teacher 可靠性筛选观测指标 ───────────────────
+                            # 与 core_algos 里的判据完全一致，单独记录便于观察哪条 rule 贡献多少
+                            if tasd_teacher_abs_entropy_gate < 1.0 or tasd_teacher_prob_floor > 0.0:
+                                _tr_conds = []
+                                if tasd_teacher_abs_entropy_gate < 1.0 and teacher_entropy_norm is not None:
+                                    _abs_ent_hit = (teacher_entropy_norm < tasd_teacher_abs_entropy_gate)
+                                    _tr_conds.append(_abs_ent_hit)
+                                    _valid_abs = _abs_ent_hit[response_mask_bool]
+                                    if _valid_abs.numel() > 0:
+                                        metrics["tasd/teacher_abs_ent_hit_ratio"] = _valid_abs.float().mean().item()
+                                if tasd_teacher_prob_floor > 0.0:
+                                    _teacher_lp = teacher_result.batch["teacher_log_probs_on_response"]
+                                    _prob_hit = _teacher_lp.clamp(min=-20.0).exp() > tasd_teacher_prob_floor
+                                    _tr_conds.append(_prob_hit)
+                                    _valid_prob = _prob_hit[response_mask_bool]
+                                    if _valid_prob.numel() > 0:
+                                        metrics["tasd/teacher_prob_floor_hit_ratio"] = _valid_prob.float().mean().item()
+                                if _tr_conds:
+                                    _reliable = _tr_conds[0]
+                                    for _c in _tr_conds[1:]:
+                                        _reliable = _reliable & _c
+                                    _valid_reliable = _reliable[response_mask_bool]
+                                    if _valid_reliable.numel() > 0:
+                                        metrics["tasd/teacher_reliable_ratio"] = _valid_reliable.float().mean().item()
 
                             # 按 success/fail 分组统计（需要 acc 字段）
                             if "acc" in batch.batch:
@@ -2993,11 +3070,56 @@ class RayPPOTrainer:
 
                 # Check for training anomalies and send DingTalk alerts
                 from verl.utils.tracking import check_training_anomalies
-                check_training_anomalies(
+                critical_alerts, warning_alerts = check_training_anomalies(
                     metrics=metrics,
                     step=self.global_steps,
                     experiment_name=self.config.trainer.get("experiment_name", ""),
                 )
+                # 累计各类 alert 次数（供最终报告使用）
+                for _alert_name, _ in critical_alerts:
+                    self._alert_counter[_alert_name] += 1
+                for _alert_name, _ in warning_alerts:
+                    self._alert_counter[_alert_name] += 1
+                # 保存最新一次训练 metrics 快照（报告用）
+                self._last_metrics_snapshot = dict(metrics)
+
+                # 连续严重告警早停判断
+                if self._es_enabled and self.global_steps > self._es_warmup:
+                    if len(critical_alerts) > 0:
+                        self._critical_streak += 1
+                    else:
+                        self._critical_streak = 0
+
+                    if self._critical_streak >= self._es_threshold:
+                        _reason_lines = [
+                            f"critical alerts fired for {self._critical_streak} consecutive steps (threshold={self._es_threshold})",
+                        ]
+                        for _n, _m in critical_alerts:
+                            _reason_lines.append(f"- {_m}")
+                        _reason = "\n".join(_reason_lines)
+                        print(f"[EarlyStop] Triggered at step {self.global_steps}:\n{_reason}")
+
+                        from verl.utils.tracking import send_training_report
+                        _total_time_h = None
+                        _step_t = metrics.get("timing_s/step")
+                        if _step_t is not None:
+                            _total_time_h = _step_t * self.global_steps / 3600
+                        _best_metric_key = self.config.trainer.get("save_best_metric", "val-core/acc/mean@16")
+                        send_training_report(
+                            experiment_name=self.config.trainer.get("experiment_name", ""),
+                            total_steps=self.global_steps,
+                            status="early_stopped",
+                            last_val_metrics=last_val_metrics,
+                            best_val_metric=self._best_val_metric,
+                            best_val_step=self._best_val_step,
+                            best_val_metric_key=_best_metric_key,
+                            final_train_metrics=self._last_metrics_snapshot,
+                            alert_counter=dict(self._alert_counter),
+                            total_time_h=_total_time_h,
+                            early_stop_reason=_reason,
+                        )
+                        progress_bar.close()
+                        return
 
                 progress_bar.update(1)
                 self.global_steps += 1
@@ -3017,30 +3139,24 @@ class RayPPOTrainer:
                     progress_bar.close()
 
                     # Send DingTalk notification: training completed
-                    from verl.utils.tracking import send_dingtalk_alert
-                    _exp_name = self.config.trainer.get("experiment_name", "")
-                    _msg_lines = [f"✅ Training completed!", f"  experiment: {_exp_name}", f"  total_steps: {self.global_steps}"]
-                    # Add last val metrics
-                    if last_val_metrics:
-                        _msg_lines.append("  ── Last val metrics ──")
-                        for _k in sorted(last_val_metrics.keys()):
-                            if "val-core" in _k or "val-aux/sciknoweval/acc/mean" in _k:
-                                _v = last_val_metrics[_k]
-                                if isinstance(_v, float):
-                                    _msg_lines.append(f"  {_k}: {_v:.4f}")
-                                else:
-                                    _msg_lines.append(f"  {_k}: {_v}")
-                    # Add best historical metric
-                    if self._best_val_metric is not None:
-                        _best_metric_key = self.config.trainer.get("save_best_metric", "val-core/acc/mean@16")
-                        _msg_lines.append(f"  ── Best historical ──")
-                        _msg_lines.append(f"  {_best_metric_key}: {self._best_val_metric:.4f} (step {self._best_val_step})")
-                    # Add training time
-                    _timing = metrics.get("timing_s/step", None)
-                    if _timing is not None:
-                        _total_time_h = _timing * self.global_steps / 3600
-                        _msg_lines.append(f"  total_time: ~{_total_time_h:.1f}h")
-                    send_dingtalk_alert("\n".join(_msg_lines))
+                    from verl.utils.tracking import send_training_report
+                    _total_time_h = None
+                    _step_t = metrics.get("timing_s/step")
+                    if _step_t is not None:
+                        _total_time_h = _step_t * self.global_steps / 3600
+                    _best_metric_key = self.config.trainer.get("save_best_metric", "val-core/acc/mean@16")
+                    send_training_report(
+                        experiment_name=self.config.trainer.get("experiment_name", ""),
+                        total_steps=self.global_steps,
+                        status="completed",
+                        last_val_metrics=last_val_metrics,
+                        best_val_metric=self._best_val_metric,
+                        best_val_step=self._best_val_step,
+                        best_val_metric_key=_best_metric_key,
+                        final_train_metrics=self._last_metrics_snapshot,
+                        alert_counter=dict(self._alert_counter),
+                        total_time_h=_total_time_h,
+                    )
 
                     return
 
@@ -3052,21 +3168,18 @@ class RayPPOTrainer:
 
         # Fallback: training ended by epoch exhaustion (not is_last_step path)
         # Send DingTalk notification here so we never miss a completion
-        from verl.utils.tracking import send_dingtalk_alert
-        _exp_name = self.config.trainer.get("experiment_name", "")
-        _fb_msg_lines = [
-            f"✅ Training completed (epoch end)!",
-            f"  experiment: {_exp_name}",
-            f"  total_steps: {self.global_steps - 1}",
-        ]
-        if last_val_metrics:
-            _fb_msg_lines.append("  ── Last val metrics ──")
-            for _k in sorted(last_val_metrics.keys()):
-                if "val-core" in _k or "val-aux/sciknoweval/acc/mean" in _k:
-                    _v = last_val_metrics[_k]
-                    _fb_msg_lines.append(f"  {_k}: {_v:.4f}" if isinstance(_v, float) else f"  {_k}: {_v}")
-        if self._best_val_metric is not None:
-            _best_metric_key = self.config.trainer.get("save_best_metric", "val-core/acc/mean@16")
-            _fb_msg_lines.append(f"  ── Best historical ──")
-            _fb_msg_lines.append(f"  {_best_metric_key}: {self._best_val_metric:.4f} (step {self._best_val_step})")
-        send_dingtalk_alert("\n".join(_fb_msg_lines))
+        from verl.utils.tracking import send_training_report
+        _fb_best_metric_key = self.config.trainer.get("save_best_metric", "val-core/acc/mean@16")
+        # No reliable per-step timing here (outside inner loop); leave total_time_h=None.
+        send_training_report(
+            experiment_name=self.config.trainer.get("experiment_name", ""),
+            total_steps=self.global_steps - 1,
+            status="epoch_exhausted",
+            last_val_metrics=last_val_metrics,
+            best_val_metric=self._best_val_metric,
+            best_val_step=self._best_val_step,
+            best_val_metric_key=_fb_best_metric_key,
+            final_train_metrics=self._last_metrics_snapshot,
+            alert_counter=dict(self._alert_counter),
+            total_time_h=None,
+        )

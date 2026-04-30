@@ -16,11 +16,11 @@
 #   6. train_on_success 开关：False 时 success rollout mask=0（仅作 reference）
 #      → 隔离 "group shift" 与 "on-success 伪蒸馏" 两种效应
 #
-# v7 矩阵（固定其他超参在 v6 最优，仅 sweep teacher context 相关）：
-#   R1: ctx=per_rollout   fb=off  trSucc=T  → v5 对照（纯 solution-only）
+# v7 矩阵（3 run 组合，裁掉 R1）：
 #   R2: ctx=group_shared  fb=on   trSucc=T  → 主力（v7 核心）
 #   R3: ctx=group_shared  fb=on   trSucc=F  → 消融（去 on-success 伪蒸馏）
-#   R4: ctx=per_rollout   fb=on   trSucc=T  → v6 对照（含 feedback GT 泄漏修复）
+#   R4: ctx=per_rollout   fb=on   trSucc=T  → 单变量 ctx_mode（验证 prompt invariance）
+#   R1（ctx=per_rollout fb=off）裁掉：等价 v5，复用历史对照数据
 #
 # 使用方式：
 #   bash nebula_scripts/submit_tasd_v7_group_shared_sweep.sh [--dry-run]
@@ -41,8 +41,8 @@ PROJECT_NAME="TASD-v7"
 
 # ── 数据集：v7 以 tooluse 优先验证（其次可加 sciknoweval/bio）───────────
 DATASETS=(
-    "tooluse"
-    # "sciknoweval/biology"
+    # "tooluse"
+    "sciknoweval/biology"
     # "sciknoweval/material"
 )
 
@@ -54,12 +54,15 @@ if [ $# -gt 0 ] && [[ "$1" == "--dry-run" ]]; then
 fi
 
 # =============================================================================
-# v7 矩阵：4 run 组合（ctx_mode, fb_on, train_on_success, tag）
-# 用 ":" 分隔字段，避免多重笛卡尔积
+# v7 矩阵：3 run 组合（推荐方案，裁掉 R1 因它等价 v5，依赖历史对照）
 # 格式: "TEACHER_CONTEXT_MODE:INCLUDE_ENVIRONMENT_FEEDBACK:TRAIN_ON_SUCCESS:RUN_TAG"
+#
+# R2: 主力（group_shared + fbOn + train_on_success=True）
+# R3: 消融 train_on_success，隔离 on-success 伪蒸馏
+# R4: 单变量 ctx_mode（per_rollout + fbOn），与 R2 对比验证 prompt invariance 效应
+# R1 已裁：等价 v5，复用历史对照数据
 # =============================================================================
 V7_MATRIX=(
-    "per_rollout:False:True:ctxPer-fbOff-trSuccT"
     "group_shared:True:True:ctxGrp-fbOn-trSuccT"
     "group_shared:True:False:ctxGrp-fbOn-trSuccF"
     "per_rollout:True:True:ctxPer-fbOn-trSuccT"
