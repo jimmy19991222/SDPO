@@ -58,11 +58,31 @@ FILTER_GROUPS_ENABLE="${FILTER_GROUPS_ENABLE:-false}"  # 是否启用 filter_gro
 FILTER_GROUPS_METRIC="${FILTER_GROUPS_METRIC:-acc}"    # 过滤指标：acc / seq_reward / seq_final_reward
 FILTER_GROUPS_MAX_GEN="${FILTER_GROUPS_MAX_GEN:-0}"    # 最大重采样次数，0=不限制
 
+# ── Checkpoint/日志持久化（OSS）───────────────────────────────────────
+# 默认策略：不存 ckpt（节省 OSS 空间）；只存 stdout 日志 + swanlab metrics JSONL
+SAVE_FREQ="${SAVE_FREQ:--1}"           # 每多少步保存 checkpoint；-1=不存（0=只存最终）
+MAX_CKPT_KEEP="${MAX_CKPT_KEEP:-1}"    # 最多保留多少个 actor ckpt（仅 SAVE_FREQ≥0 时生效）
+TEE_STDOUT_TO_OSS="${TEE_STDOUT_TO_OSS:-true}"          # true=训练 stdout 镜像到 OSS
+DUMP_METRICS_JSONL="${DUMP_METRICS_JSONL:-true}"        # true=每步 metrics 落盘为 JSONL
+
 # ── 路径 ────────────────────────────────────────────────────────────────
 train_data_path="${OSS_ROOT}/datasets/${DATASET}/train.parquet"
 val_data_path="${OSS_ROOT}/datasets/${DATASET}/test.parquet"
 model_path="${MODEL_PATH}"
 save_path="${OSS_ROOT}/models/${JOB_NAME:-tasd_simple}"
+stdout_log_path="${OSS_ROOT}/logs/stdout/${JOB_NAME:-tasd_simple}.log"
+metrics_jsonl_path="${OSS_ROOT}/logs/metrics_jsonl/${JOB_NAME:-tasd_simple}.jsonl"
+mkdir -p "$(dirname "${stdout_log_path}")" 2>/dev/null || true
+mkdir -p "$(dirname "${metrics_jsonl_path}")" 2>/dev/null || true
+
+# 接入 verl FileLogger 持久化每步 metrics（以 JSONL 写入指定路径）
+if [ "${DUMP_METRICS_JSONL}" = "true" ]; then
+    export VERL_FILE_LOGGER_PATH="${metrics_jsonl_path}"
+    VERL_LOGGER_LIST='[console,swanlab,file]'
+else
+    unset VERL_FILE_LOGGER_PATH
+    VERL_LOGGER_LIST='[console,swanlab]'
+fi
 
 # ── 环境 ────────────────────────────────────────────────────────────────
 # 优先使用 git 仓库根目录作为 PYTHONPATH，确保加载最新代码（而非 train_package 中的旧代码）
@@ -122,6 +142,10 @@ echo "  ROLLOUT_TEMPERATURE: ${ROLLOUT_TEMPERATURE}, DISTILL_TEMPERATURE: ${DIST
 echo "  ENTROPY_FLOOR: ${ENTROPY_FLOOR}, ENTROPY_PENALTY_COEFF: ${ENTROPY_PENALTY_COEFF}"
 echo "  TEACHER_ABS_ENTROPY_GATE: ${TEACHER_ABS_ENTROPY_GATE}, TEACHER_PROB_FLOOR: ${TEACHER_PROB_FLOOR}"
 echo "  ADV_ENTROPY_WEIGHT: ${ADV_ENTROPY_WEIGHT}"
+echo "  SAVE_FREQ: ${SAVE_FREQ}, MAX_CKPT_KEEP: ${MAX_CKPT_KEEP}, TEE_STDOUT_TO_OSS: ${TEE_STDOUT_TO_OSS}"
+echo "  stdout_log_path:      ${stdout_log_path}"
+echo "  metrics_jsonl_path:   ${metrics_jsonl_path}  (enabled=${DUMP_METRICS_JSONL})"
+echo "  save_path:            ${save_path}  (save_freq=${SAVE_FREQ})"
 echo "  FILTER_GROUPS: enable=${FILTER_GROUPS_ENABLE}, metric=${FILTER_GROUPS_METRIC}, max_gen=${FILTER_GROUPS_MAX_GEN}"
 echo "  TEACHER_CONTEXT_MODE: ${TEACHER_CONTEXT_MODE}, MAX_ERRORS: ${MAX_ERRORS_IN_POOL}, ERR_CHARS: ${ERROR_ANSWER_MAX_CHARS}, TRAIN_ON_SUCCESS: ${TRAIN_ON_SUCCESS}"
 echo "  INCLUDE_ENV_FEEDBACK: ${INCLUDE_ENVIRONMENT_FEEDBACK}, FB_ONLY_WITHOUT_SOLUTION: ${ENVIRONMENT_FEEDBACK_ONLY_WITHOUT_SOLUTION}"
@@ -185,7 +209,8 @@ python -m verl.trainer.main_ppo \
     algorithm.filter_groups.max_num_gen_batches=${FILTER_GROUPS_MAX_GEN} \
     trainer.total_epochs=30 \
     trainer.total_training_steps=250 \
-    trainer.save_freq=-1 \
+    trainer.save_freq=${SAVE_FREQ} \
+    trainer.max_actor_ckpt_to_keep=${MAX_CKPT_KEEP} \
     trainer.save_best_metric="val-core/sciknoweval/acc/mean@16" \
     trainer.n_gpus_per_node=4 \
     trainer.val_before_train=False \
@@ -193,4 +218,16 @@ python -m verl.trainer.main_ppo \
     trainer.project_name="${PROJECT_NAME:-TASD_simple}" \
     trainer.experiment_name="${JOB_NAME:-tasd_simple}" \
     trainer.group_name="TASD-simple" \
-    "trainer.logger=[console,swanlab]"
+    "trainer.logger=${VERL_LOGGER_LIST}" \
+    2>&1 | { if [ "${TEE_STDOUT_TO_OSS}" = "true" ]; then tee -a "${stdout_log_path}"; else cat; fi; }
+
+# 记录训练退出码（因为 pipe 会改变 $? ）
+EXIT_CODE=${PIPESTATUS[0]}
+if [ "${TEE_STDOUT_TO_OSS}" = "true" ]; then
+    echo "[持久化] stdout 镜像至：${stdout_log_path}"
+fi
+if [ "${DUMP_METRICS_JSONL}" = "true" ] && [ -f "${metrics_jsonl_path}" ]; then
+    _lines=$(wc -l < "${metrics_jsonl_path}" 2>/dev/null || echo 0)
+    echo "[持久化] metrics JSONL 已写入：${metrics_jsonl_path}（${_lines} 步）"
+fi
+exit ${EXIT_CODE}
