@@ -2175,9 +2175,17 @@ class RayPPOTrainer:
                         if _dpo_tgs_chain_rollout:
                             from verl.trainer.ppo.dpo_tgs import dpo_tgs_adaptive_rollout
                             # adaptive_rollout needs full batch (reward_model + raw_prompt + uid for OPSD ctx + reward_fn).
-                            # _get_gen_batch had popped reward keys into `batch` away from `gen_batch`;
-                            # restore by merging here for self-contained rollout + reward scoring.
-                            full_prompt_batch = batch.union(gen_batch)
+                            # `_get_gen_batch` did `batch.pop(non_tensor_batch_keys=...)` with empty
+                            # batch_keys, so `gen_batch.batch` (tensor side) is None and
+                            # `batch.union(gen_batch)` would crash on tensor batch_size assert.
+                            # Instead, merge gen_batch's non_tensor keys back into `batch` in place.
+                            # `batch` already retains all tensors (input_ids/attention_mask/...)
+                            # plus reward_model_keys; we only need the other non_tensor (e.g.
+                            # multi_modal_inputs) re-attached so the rollout downstream is whole.
+                            full_prompt_batch = batch
+                            for _k, _v in gen_batch.non_tensor_batch.items():
+                                if _k not in full_prompt_batch.non_tensor_batch:
+                                    full_prompt_batch.non_tensor_batch[_k] = _v
                             full_prompt_batch.meta_info["global_steps"] = self.global_steps
                             gen_batch_output = dpo_tgs_adaptive_rollout(
                                 prompt_batch=full_prompt_batch,
