@@ -13,16 +13,23 @@
 #   Phase 3: failed sample 上 n_attempts 次干预 (z_T != y_S[t*] reselect_t)
 #   Phase 4: concat + lineage tag → DPO pair → linearized DPO advantage
 #
-# 4 种模式:
-#   smoke         (默认): 10 step bs=4 n_init=2 n_attempts=2 ~15 min → plumbing 验证
-#   innov         :        10 step + 全 3 innovations 开 (①+②+③) → 验证新代码 plumbing
+# 5 种模式:
+#   tiny          :        3 step bs=2 n_init=2 n_attempts=1 ~5 min → 1-GPU 极简 plumbing 验证
+#   smoke         (默认): 10 step bs=4 n_init=2 n_attempts=2 ~15 min → 4-GPU plumbing 验证
+#   innov         :        10 step + 全 3 innovations 开 (①+②+③) → 4-GPU 验证新代码 plumbing
 #   pair          :        30 step chain_consecutive vs hybrid_init_chain 串行 ~45 min
 #   full          :        100 step bs=32 n_init=2 n_attempts=2 ~4h → 与 Nebula 一致
 #
+# GPU 数量自动适配 (env 可覆盖):
+#   tiny 模式默认 N_GPUS_PER_NODE=1, gpu_memory_utilization=0.7 (留 OPSD teacher fwd 空间)
+#   其他模式默认 N_GPUS_PER_NODE=4
+#   覆盖: N_GPUS_PER_NODE=2 ./run_notebook_dpo_tgs.sh smoke
+#
 # 用法:
-#   ./run_notebook_dpo_tgs.sh                    # smoke (默认 v1 baseline)
+#   ./run_notebook_dpo_tgs.sh tiny               # 1-GPU 极简 (新增, 队列紧张时用)
+#   ./run_notebook_dpo_tgs.sh                    # smoke (默认 v1 baseline, 4-GPU)
 #   ./run_notebook_dpo_tgs.sh smoke              # 同上
-#   ./run_notebook_dpo_tgs.sh innov              # 全 3 innovations 开,验证 V2.5 plumbing
+#   ./run_notebook_dpo_tgs.sh innov              # 全 3 innovations 开
 #   ./run_notebook_dpo_tgs.sh pair               # pair_strategy 2 路 ablation
 #   ./run_notebook_dpo_tgs.sh full               # 完整 100 step
 #
@@ -48,8 +55,25 @@ cd "${PROJECT_ROOT}"
 MODE="${1:-smoke}"
 
 case "${MODE}" in
+    tiny)
+        # 1-GPU 极简 smoke: 3 step bs=2 n_init=2 n_attempts=1 ~5 min
+        # 仅验证 dispatch/rollout/reward_fn/pair_collector/dpo_loss plumbing 不崩
+        DEFAULT_TOTAL_STEPS=3
+        DEFAULT_TRAIN_BATCH_SIZE=2
+        DEFAULT_MINI_BATCH_SIZE=2
+        DEFAULT_N_INIT=2
+        DEFAULT_N_ATTEMPTS=1                 # 最少
+        DEFAULT_VAL_N=2
+        DEFAULT_VAL_BEFORE_TRAIN=False
+        DEFAULT_PAIR_STRATEGY="chain_consecutive"
+        DEFAULT_CAUSAL_LOCALIZE=False
+        DEFAULT_USE_TEACHER_ANCHORED_REF=False
+        DEFAULT_DELTA_R_WEIGHT_MODE=none
+        DEFAULT_N_GPUS_PER_NODE=1
+        DEFAULT_GPU_MEM_UTIL=0.65            # 8B model + vLLM rollout + OPSD teacher fwd 共用 1 卡
+        ;;
     smoke)
-        # Plumbing 验证: ~15 min, 只验证 plumbing + 关注 dpo/* 指标出现 (v1 baseline)
+        # Plumbing 验证: ~15 min, 只验证 plumbing + 关注 dpo/* 指标出现 (v1 baseline, 4-GPU)
         DEFAULT_TOTAL_STEPS=10
         DEFAULT_TRAIN_BATCH_SIZE=4
         DEFAULT_MINI_BATCH_SIZE=4
@@ -61,9 +85,11 @@ case "${MODE}" in
         DEFAULT_CAUSAL_LOCALIZE=False
         DEFAULT_USE_TEACHER_ANCHORED_REF=False
         DEFAULT_DELTA_R_WEIGHT_MODE=none
+        DEFAULT_N_GPUS_PER_NODE=4
+        DEFAULT_GPU_MEM_UTIL=0.85
         ;;
     innov)
-        # V2.5 plumbing 验证: ~15 min, 全 3 innovations 一起开
+        # V2.5 plumbing 验证: ~15 min, 全 3 innovations 一起开 (4-GPU)
         DEFAULT_TOTAL_STEPS=10
         DEFAULT_TRAIN_BATCH_SIZE=4
         DEFAULT_MINI_BATCH_SIZE=4
@@ -75,6 +101,8 @@ case "${MODE}" in
         DEFAULT_CAUSAL_LOCALIZE=True
         DEFAULT_USE_TEACHER_ANCHORED_REF=True
         DEFAULT_DELTA_R_WEIGHT_MODE=linear
+        DEFAULT_N_GPUS_PER_NODE=4
+        DEFAULT_GPU_MEM_UTIL=0.85
         # 推荐 default β_token = 2β, β_continuation = 0.5β (decisive token weighted higher)
         export DPO_BETA_TOKEN="${DPO_BETA_TOKEN:-0.2}"
         export DPO_BETA_CONTINUATION="${DPO_BETA_CONTINUATION:-0.05}"
@@ -92,6 +120,8 @@ case "${MODE}" in
         DEFAULT_CAUSAL_LOCALIZE=False
         DEFAULT_USE_TEACHER_ANCHORED_REF=False
         DEFAULT_DELTA_R_WEIGHT_MODE=none
+        DEFAULT_N_GPUS_PER_NODE=4
+        DEFAULT_GPU_MEM_UTIL=0.85
         ;;
     full)
         # 与 Nebula 等价配置
@@ -106,9 +136,11 @@ case "${MODE}" in
         DEFAULT_CAUSAL_LOCALIZE=False
         DEFAULT_USE_TEACHER_ANCHORED_REF=False
         DEFAULT_DELTA_R_WEIGHT_MODE=none
+        DEFAULT_N_GPUS_PER_NODE=4
+        DEFAULT_GPU_MEM_UTIL=0.85
         ;;
     *)
-        echo "ERROR: unknown mode '${MODE}'. Use: smoke | innov | pair | full"
+        echo "ERROR: unknown mode '${MODE}'. Use: tiny | smoke | innov | pair | full"
         exit 1
         ;;
 esac
@@ -128,7 +160,7 @@ export TRAIN_BATCH_SIZE="${TRAIN_BATCH_SIZE:-${DEFAULT_TRAIN_BATCH_SIZE}}"
 export MINI_BATCH_SIZE="${MINI_BATCH_SIZE:-${DEFAULT_MINI_BATCH_SIZE}}"
 export VAL_N="${VAL_N:-${DEFAULT_VAL_N}}"
 export VAL_BEFORE_TRAIN="${VAL_BEFORE_TRAIN:-${DEFAULT_VAL_BEFORE_TRAIN}}"
-export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.85}"
+export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-${DEFAULT_GPU_MEM_UTIL:-0.85}}"
 export LR="${LR:-1e-5}"
 
 # ── teacher 装配 (EMA 复用 self_distillation 基础设施) ────────────────
@@ -195,9 +227,9 @@ if [ -z "${TRAIN_DATA_PATH:-}" ]; then
     exit 1
 fi
 
-# ── 单机 4 卡 ───────────────────────────────────────────────────────
+# ── GPU 数量 (mode 默认在 case 块,env 覆盖优先) ─────────────────────
 export RAY_ADDRESS=""
-export N_GPUS_PER_NODE=4
+export N_GPUS_PER_NODE="${N_GPUS_PER_NODE:-${DEFAULT_N_GPUS_PER_NODE:-4}}"
 
 # ── Git 信息 ───────────────────────────────────────────────────────
 export GIT_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo 'unknown')"
@@ -254,7 +286,7 @@ run_single_strategy() {
 # 调度
 # ─────────────────────────────────────────────────────────────────────
 case "${MODE}" in
-    smoke|innov|full)
+    tiny|smoke|innov|full)
         run_single_strategy "${DPO_PAIR_STRATEGY}"
         ;;
     pair)
