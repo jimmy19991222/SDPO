@@ -83,6 +83,13 @@ def dpo_tgs_adaptive_rollout(
 
     # ── Phase 1: standard rollout ─────────────────────────────────────────
     y_init = _standard_rollout(prompt_batch, n=n_init, async_rollout_manager=async_rollout_manager)
+    # `generate_sequences` strips input's non_tensor — re-attach reward_model /
+    # raw_prompt / uid / data_source from prompt_batch.repeat(n_init), so the downstream
+    # _rescore_reward(reward_fn) and SDPO ctx builder have what they need.
+    _prompt_rep_for_meta = prompt_batch.repeat(repeat_times=n_init, interleave=True)
+    for _k, _v in _prompt_rep_for_meta.non_tensor_batch.items():
+        if _k not in y_init.non_tensor_batch:
+            y_init.non_tensor_batch[_k] = _v
     if "token_level_rewards" not in y_init.batch:
         y_init = _rescore_reward(y_init, reward_fn)
 
